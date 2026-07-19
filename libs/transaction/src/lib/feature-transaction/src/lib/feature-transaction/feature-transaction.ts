@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-transaction',
+  selector: 'transaction-feature-transaction',
   imports: [],
-  templateUrl: './feature-transaction.html',
+  template: `<p>FeatureTransaction works!</p>`,
   styleUrl: './feature-transaction.css',
 })
 export class FeatureTransaction {}

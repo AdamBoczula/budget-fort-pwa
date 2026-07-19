@@ -14,12 +14,14 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
-      "feature-transaction": ["./libs/feature-transaction/src/index.ts"],
       "ui-transaction": [
         "./libs/transaction/src/lib/ui-transaction/src/index.ts"
       ],
       "data-access-transaction": [
         "./libs/transaction/src/lib/data-access-transaction/src/index.ts"
+      ],
+      "feature-transaction": [
+        "./libs/transaction/src/lib/feature-transaction/src/index.ts"
       ]
     }
   },
