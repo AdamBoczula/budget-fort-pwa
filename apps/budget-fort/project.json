@@ -1,0 +1,79 @@
+{
+  "name": "budget-fort",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "root": "apps/budget-fort",
+  "sourceRoot": "apps/budget-fort/src",
+  "tags": ["type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/budget-fort",
+        "browser": "apps/budget-fort/src/main.ts",
+        "tsConfig": "apps/budget-fort/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/budget-fort/public"
+          }
+        ],
+        "styles": ["apps/budget-fort/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+        "options": {
+          "buildTarget": "budget-fort:build"
+        },
+      "configurations": {
+        "production": {
+          "buildTarget": "budget-fort:build:production"
+        },
+        "development": {
+          "buildTarget": "budget-fort:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "budget-fort:build",
+        "port": 4200,
+        "staticFilePath": "dist/budget-fort/browser",
+        "spa": true
+      }
+    }
+  }
+}
