@@ -2,6 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "rootDir": ".",
+    "baseUrl": ".",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "bundler",
@@ -14,13 +15,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
-      "ui-transaction": [
+      "@ui-transaction": [
         "./libs/transaction/src/lib/ui-transaction/src/index.ts"
       ],
-      "data-access-transaction": [
+      "@data-access-transaction": [
         "./libs/transaction/src/lib/data-access-transaction/src/index.ts"
       ],
-      "feature-transaction": [
+      "@feature-transaction": [
         "./libs/transaction/src/lib/feature-transaction/src/index.ts"
       ]
     }
