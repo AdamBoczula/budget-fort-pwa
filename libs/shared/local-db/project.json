@@ -1,0 +1,9 @@
+{
+  "name": "local-db",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/local-db/src",
+  "projectType": "library",
+  "tags": ["type:data"],
+  "// targets": "to see all targets run: nx show project local-db --web",
+  "targets": {}
+}

@@ -11,7 +11,10 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
@@ -23,8 +26,14 @@
       ],
       "@feature-transaction": [
         "./libs/transaction/src/lib/feature-transaction/src/index.ts"
+      ],
+      "local-db": [
+        "./libs/shared/local-db/src/index.ts"
       ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

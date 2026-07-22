@@ -4,7 +4,7 @@
   "sourceRoot": "libs/transaction/src/lib/data-access-transaction/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["type:data-access"],
+  "tags": ["type:data"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"
