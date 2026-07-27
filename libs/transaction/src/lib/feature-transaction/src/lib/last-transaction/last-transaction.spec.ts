@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FeatureTransaction } from './feature-transaction';
+import { LastTransactionComponent } from './last-transaction';
 
-describe('FeatureTransaction', () => {
-  let component: FeatureTransaction;
-  let fixture: ComponentFixture<FeatureTransaction>;
+describe('LastTransactionComponent', () => {
+  let component: LastTransactionComponent;
+  let fixture: ComponentFixture<LastTransactionComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FeatureTransaction],
+      imports: [LastTransactionComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FeatureTransaction);
+    fixture = TestBed.createComponent(LastTransactionComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

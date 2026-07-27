@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
-import { FeatureTransaction } from './feature-transaction/feature-transaction';
+import { HomePageScreen } from './home-screen/home-screen';
 
 export const featureTransactionRoutes: Route[] = [
-  { path: '', component: FeatureTransaction },
+  { path: '', component: HomePageScreen },
 ];
