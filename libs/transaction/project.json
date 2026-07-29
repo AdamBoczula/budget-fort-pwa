@@ -2,7 +2,7 @@
   "name": "transaction",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/transaction/src",
-  "prefix": "lib",
+  "prefix": "transaction",
   "projectType": "library",
   "tags": ["type:feature"],
   "targets": {

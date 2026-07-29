@@ -1,0 +1,18 @@
+.transaction-header-toolbar {
+	background: var(--mat-sys-primary-container);
+	color: var(--mat-sys-on-primary-container);
+}
+
+.transaction-header-toolbar__menu-icon {
+	color: inherit;
+}
+
+.transaction-header-toolbar__month,
+.transaction-header-toolbar__balance {
+	margin: 0;
+}
+
+.transaction-header-toolbar__month {
+	flex: 1;
+	padding-inline-start: 0.75rem;
+}

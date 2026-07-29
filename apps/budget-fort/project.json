@@ -21,7 +21,9 @@
             "input": "apps/budget-fort/public"
           }
         ],
-        "styles": ["apps/budget-fort/src/styles.css"]
+        "styles": [
+          "apps/budget-fort/src/styles.scss"
+        ]
       },
       "configurations": {
         "production": {

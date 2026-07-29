@@ -2,7 +2,7 @@
   "name": "data-access-transaction",
   "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/transaction/src/lib/data-access-transaction/src",
-  "prefix": "lib",
+  "prefix": "transaction",
   "projectType": "library",
   "tags": ["type:data"],
   "targets": {

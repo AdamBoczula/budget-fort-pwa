@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HeaderComponent } from './header';
+import { provideRouter } from '@angular/router';
+import { TransactionTopBarComponent } from './header';
 
-describe('HeaderComponent', () => {
-  let component: HeaderComponent;
-  let fixture: ComponentFixture<HeaderComponent>;
+describe('TransactionTopBarComponent', () => {
+  let component: TransactionTopBarComponent;
+  let fixture: ComponentFixture<TransactionTopBarComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HeaderComponent],
+      imports: [TransactionTopBarComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(HeaderComponent);
+    fixture = TestBed.createComponent(TransactionTopBarComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

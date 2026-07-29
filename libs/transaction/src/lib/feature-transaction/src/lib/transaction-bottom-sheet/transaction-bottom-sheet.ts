@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'transaction-transaction-bottom-sheet',
   imports: [],
   template: `<p>transaction-bottom-sheet works!</p>`,
-  styleUrl: './transaction-bottom-sheet.css',
+  styleUrl: './transaction-bottom-sheet.scss',
 })
 export class TransactionBottomSheetComponent {}

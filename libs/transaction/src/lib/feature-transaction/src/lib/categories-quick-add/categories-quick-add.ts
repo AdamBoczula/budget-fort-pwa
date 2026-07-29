@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'transaction-categories-quick-add',
   imports: [],
   template: `<p>categories-quick-add works!</p>`,
-  styleUrl: './categories-quick-add.css',
+  styleUrl: './categories-quick-add.scss',
 })
 export class CategoriesQuickAddComponent {}

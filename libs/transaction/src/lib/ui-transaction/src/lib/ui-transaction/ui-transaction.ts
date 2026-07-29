@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'lib-ui-transaction',
   imports: [],
   templateUrl: './ui-transaction.html',
-  styleUrl: './ui-transaction.css',
+  styleUrl: './ui-transaction.scss',
 })
 export class UiTransaction {}
