@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, LOCALE_ID, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,11 +31,12 @@ type NavigationItem = {
   ],
   template: `
     <div class="header">
-      <h2>Nawigacja</h2>
+      <h2 i18n="@@navigation.title">Nawigacja</h2>
       <button
         type="button"
         matIconButton
-        aria-label="Close navigation"
+        i18n-aria-label="@@navigation.closeAria"
+        aria-label="Zamknij nawigacje"
         (click)="requestClose()"
       >
         <mat-icon>close</mat-icon>
@@ -52,7 +53,7 @@ type NavigationItem = {
 
     <div class="theme-switcher">
       <mat-form-field appearance="outline" class="theme-field">
-        <mat-label>Motyw</mat-label>
+        <mat-label i18n="@@navigation.themeLabel">Motyw</mat-label>
         <mat-select
           [value]="activeTheme()"
           (selectionChange)="selectTheme($event.value)"
@@ -67,10 +68,10 @@ type NavigationItem = {
   styleUrl: './transaction-navigation-drawer.component.scss',
 })
 export class TransactionNavigationDrawerComponent {
-  protected readonly navigationItems: ReadonlyArray<NavigationItem> = [
-    { label: 'Dashboard', route: '/dashboard' },
-    { label: 'Transactions', route: '/feature-transaction' },
-  ];
+  private readonly localeId = inject(LOCALE_ID);
+
+  protected readonly navigationItems: ReadonlyArray<NavigationItem> =
+    this.createNavigationItems();
 
   public readonly drawerClose = output<void>();
   public readonly themeChange = output<TransactionThemeId>();
@@ -88,5 +89,19 @@ export class TransactionNavigationDrawerComponent {
     }
 
     this.themeChange.emit(themeId);
+  }
+
+  private createNavigationItems(): ReadonlyArray<NavigationItem> {
+    if (this.localeId.startsWith('en')) {
+      return [
+        { label: 'Dashboard', route: '/dashboard' },
+        { label: 'Transactions', route: '/feature-transaction' },
+      ];
+    }
+
+    return [
+      { label: 'Panel glowny', route: '/dashboard' },
+      { label: 'Transakcje', route: '/feature-transaction' },
+    ];
   }
 }

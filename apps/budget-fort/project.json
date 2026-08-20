@@ -5,6 +5,12 @@
   "prefix": "app",
   "root": "apps/budget-fort",
   "sourceRoot": "apps/budget-fort/src",
+  "i18n": {
+    "sourceLocale": "pl",
+    "locales": {
+      "en": "apps/budget-fort/src/locale/messages.en.xlf"
+    }
+  },
   "tags": ["type:app"],
   "targets": {
     "build": {
@@ -14,6 +20,7 @@
       "options": {
         "outputPath": "dist/budget-fort",
         "browser": "apps/budget-fort/src/main.ts",
+        "polyfills": ["@angular/localize/init"],
         "tsConfig": "apps/budget-fort/tsconfig.app.json",
         "assets": [
           {
@@ -23,10 +30,28 @@
         ],
         "styles": [
           "apps/budget-fort/src/styles.scss"
-        ]
+        ],
+        "localize": ["pl"]
       },
       "configurations": {
         "production": {
+          "localize": ["pl"],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "production-en": {
+          "localize": ["en"],
           "budgets": [
             {
               "type": "initial",
@@ -42,6 +67,13 @@
           "outputHashing": "all"
         },
         "development": {
+          "localize": ["pl"],
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        },
+        "development-en": {
+          "localize": ["en"],
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
@@ -59,8 +91,14 @@
         "production": {
           "buildTarget": "budget-fort:build:production"
         },
+        "production-en": {
+          "buildTarget": "budget-fort:build:production-en"
+        },
         "development": {
           "buildTarget": "budget-fort:build:development"
+        },
+        "en": {
+          "buildTarget": "budget-fort:build:development-en"
         }
       }
     },

@@ -30,7 +30,7 @@ For each task, the agent should:
 2. Restate scope and identify if task affects high-risk areas.
 3. Propose smallest safe change.
 4. Implement only after approval if code/test changes are required.
-5. Run verification command and summarize results.
+5. Run the mandatory verification command (see docs/ai/03-testing-quality-gates.md for the authoritative quality gates) and summarize results.
 6. Update docs if behavior or decisions changed.
 
 ## Architecture Guard Rules
@@ -39,6 +39,7 @@ For each task, the agent should:
 - Do not bypass module boundaries for quick fixes.
 - Prefer changes in the closest domain library instead of app-level duplication.
 - Keep transaction domain logic cohesive across data, feature, and ui libraries.
+- Do not build new features in `packages/**` — that code is legacy/demo.
 
 ## Coding Standards Baseline
 
@@ -46,7 +47,7 @@ Agents should enforce these defaults unless a task explicitly requires deviation
 - Use domain-first folder placement for business logic.
 - Keep money and date logic in pure utility functions.
 - Use explicit return types on exported functions.
-- Do not introduce any in new code.
+- Do not introduce `any` in new code.
 - Apply fail-fast input validation at domain and API boundaries.
 
 ## Review Focus For AI-Generated PRs
@@ -69,3 +70,7 @@ Use these labels in issues/PR descriptions to guide agents:
 - risk:offline
 - type:test
 - type:refactor
+
+## Quality Gates
+
+The authoritative quality gates are defined in `docs/ai/03-testing-quality-gates.md`. Before opening a PR, run the mandatory verification command and confirm the gates listed there.

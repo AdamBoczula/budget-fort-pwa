@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, LOCALE_ID, signal } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { LocalStorageService } from 'local-db';
 import { RouterModule } from '@angular/router';
@@ -65,12 +65,13 @@ const TRANSACTION_THEME_OPTIONS: ReadonlyArray<TransactionThemeOption> = [
 export class TransactionShellComponent {
   protected readonly transactionState = inject(TransactionState);
   private readonly document = inject(DOCUMENT);
+  private readonly localeId = inject(LOCALE_ID);
   private readonly localStorageService = inject(LocalStorageService);
 
   protected readonly isSidebarOpen = signal(false);
   protected readonly activeTheme = signal<TransactionThemeId>(DEFAULT_THEME_ID);
   protected readonly themeOptions = TRANSACTION_THEME_OPTIONS;
-  protected readonly monthName = new Intl.DateTimeFormat('pl-PL', {
+  protected readonly monthName = new Intl.DateTimeFormat(this.localeId, {
     month: 'long',
     year: 'numeric',
   }).format(new Date());

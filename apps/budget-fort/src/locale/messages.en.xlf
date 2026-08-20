@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="pl" target-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="toolbar.openNavigationAria" datatype="html">
+        <source>Otworz nawigacje</source>
+        <target>Open navigation</target>
+      </trans-unit>
+      <trans-unit id="navigation.title" datatype="html">
+        <source>Nawigacja</source>
+        <target>Navigation</target>
+      </trans-unit>
+      <trans-unit id="navigation.closeAria" datatype="html">
+        <source>Zamknij nawigacje</source>
+        <target>Close navigation</target>
+      </trans-unit>
+      <trans-unit id="navigation.themeLabel" datatype="html">
+        <source>Motyw</source>
+        <target>Theme</target>
+      </trans-unit>
+      <trans-unit id="home.loadingAria" datatype="html">
+        <source>Ladowanie transakcji</source>
+        <target>Loading transactions</target>
+      </trans-unit>
+      <trans-unit id="home.offlineInfo" datatype="html">
+        <source>Tryb offline. Pokazywane sa tylko dane lokalne.</source>
+        <target>Offline mode. Showing local data only.</target>
+      </trans-unit>
+      <trans-unit id="categoriesQuickAdd.placeholder" datatype="html">
+        <source>Szybkie dodawanie kategorii (w przygotowaniu).</source>
+        <target>Quick category add (coming soon).</target>
+      </trans-unit>
+      <trans-unit id="lastTransaction.placeholder" datatype="html">
+        <source>Ostatnia transakcja (w przygotowaniu).</source>
+        <target>Last transaction (coming soon).</target>
+      </trans-unit>
+      <trans-unit id="transactionBottomSheet.placeholder" datatype="html">
+        <source>Dolny panel transakcji (w przygotowaniu).</source>
+        <target>Transaction bottom sheet (coming soon).</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.placeholder" datatype="html">
+        <source>Formularz transakcji (w przygotowaniu).</source>
+        <target>Transaction form (coming soon).</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

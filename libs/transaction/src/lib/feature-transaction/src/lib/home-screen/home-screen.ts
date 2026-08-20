@@ -8,7 +8,11 @@ import { TransactionState } from '../service/transaction-state/transaction-state
   imports: [CategoriesQuickAddComponent, LastTransactionComponent],
   template: `
     @if (isInitialLoading()) {
-      <section class="home-screen-skeleton" aria-label="Loading transactions">
+      <section
+        class="home-screen-skeleton"
+        i18n-aria-label="@@home.loadingAria"
+        aria-label="Ladowanie transakcji"
+      >
         <div class="home-screen-skeleton__title shimmer"></div>
         <div class="home-screen-skeleton__cards">
           <div class="home-screen-skeleton__card shimmer"></div>
@@ -26,11 +30,10 @@ import { TransactionState } from '../service/transaction-state/transaction-state
     }
 
     @if (transactionState.error()) {
-      <p class="home-screen-info">Offline mode. Showing local data only.</p>
+      <p class="home-screen-info" i18n="@@home.offlineInfo">
+        Tryb offline. Pokazywane sa tylko dane lokalne.
+      </p>
     }
-
-    <!-- BOTTOM SHEET INITIALIZATION -->
-    <!-- INSIDE BOTTOM SHEET BODY - <transaction-transaction-form /> -->
   `,
   styleUrl: './home-screen.scss',
 })

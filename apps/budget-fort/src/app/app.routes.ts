@@ -9,11 +9,6 @@ export const appRoutes: Route[] = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'dashboard',
-  },
-  {
-    path: 'dashboard',
-    loadChildren: () =>
-      import('@feature-transaction').then((m) => m.featureTransactionRoutes),
+    redirectTo: 'feature-transaction',
   },
 ];

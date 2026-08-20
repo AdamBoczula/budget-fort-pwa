@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, LOCALE_ID, signal } from '@angular/core';
 import { Transaction, TransactionService } from '@data-access-transaction';
 import { firstValueFrom } from 'rxjs';
 
@@ -10,6 +10,7 @@ type TransactionGroup = {
 @Injectable({ providedIn: 'root' })
 export class TransactionState {
   private readonly transactionService = inject(TransactionService);
+  private readonly localeId = inject(LOCALE_ID);
 
   private readonly transactionsState = signal<Transaction[]>([]);
   private readonly loadingState = signal(false);
@@ -65,7 +66,9 @@ export class TransactionState {
       this.transactionsState.set(transactions);
       this.initializedState.set(true);
     } catch {
-      this.errorState.set('Failed to load transactions.');
+      this.errorState.set(
+        this.translate('Nie udalo sie zaladowac transakcji.'),
+      );
     } finally {
       this.loadingState.set(false);
     }
@@ -84,7 +87,7 @@ export class TransactionState {
         savedTransaction,
       ]);
     } catch {
-      this.errorState.set('Failed to save transaction.');
+      this.errorState.set(this.translate('Nie udalo sie zapisac transakcji.'));
     }
   }
 
@@ -102,7 +105,9 @@ export class TransactionState {
         ),
       );
     } catch {
-      this.errorState.set('Failed to update transaction.');
+      this.errorState.set(
+        this.translate('Nie udalo sie zaktualizowac transakcji.'),
+      );
     }
   }
 
@@ -122,17 +127,38 @@ export class TransactionState {
     const dayDiff = Math.floor(diffMs / (24 * 60 * 60 * 1000));
 
     if (dayDiff === 0) {
-      return 'Dzisiaj';
+      return this.translate('Dzisiaj');
     }
 
     if (dayDiff === 1) {
-      return 'Wczoraj';
+      return this.translate('Wczoraj');
     }
 
-    return date.toLocaleDateString('pl-PL');
+    return date.toLocaleDateString(this.localeId);
   }
 
   private startOfDay(date: Date): Date {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  private translate(polish: string): string {
+    if (!this.localeId.startsWith('en')) {
+      return polish;
+    }
+
+    switch (polish) {
+      case 'Nie udalo sie zaladowac transakcji.':
+        return 'Failed to load transactions.';
+      case 'Nie udalo sie zapisac transakcji.':
+        return 'Failed to save transaction.';
+      case 'Nie udalo sie zaktualizowac transakcji.':
+        return 'Failed to update transaction.';
+      case 'Dzisiaj':
+        return 'Today';
+      case 'Wczoraj':
+        return 'Yesterday';
+      default:
+        return polish;
+    }
   }
 }

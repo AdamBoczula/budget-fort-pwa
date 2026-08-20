@@ -1,0 +1,75 @@
+import { Category } from '../model/category.type';
+
+const INITIAL_TIMESTAMP = '2026-08-01T00:00:00.000Z';
+
+/**
+ * Temporary source for categories until category management flow is added.
+ */
+export const MOCK_PL_CATEGORIES: ReadonlyArray<Category> = [
+  {
+    id: 'food',
+    name: 'Jedzenie',
+    colorHex: '#16A34A',
+    icon: 'restaurant',
+    sortOrder: 10,
+    isHidden: false,
+    createdAt: INITIAL_TIMESTAMP,
+    updatedAt: INITIAL_TIMESTAMP,
+    translationKey: 'transaction.category.food',
+  },
+  {
+    id: 'transport',
+    name: 'Transport',
+    colorHex: '#0EA5E9',
+    icon: 'directions_car',
+    sortOrder: 20,
+    isHidden: false,
+    createdAt: INITIAL_TIMESTAMP,
+    updatedAt: INITIAL_TIMESTAMP,
+    translationKey: 'transaction.category.transport',
+  },
+  {
+    id: 'home',
+    name: 'Dom',
+    colorHex: '#F97316',
+    icon: 'home',
+    sortOrder: 30,
+    isHidden: false,
+    createdAt: INITIAL_TIMESTAMP,
+    updatedAt: INITIAL_TIMESTAMP,
+    translationKey: 'transaction.category.home',
+  },
+  {
+    id: 'health',
+    name: 'Zdrowie',
+    colorHex: '#EF4444',
+    icon: 'local_hospital',
+    sortOrder: 40,
+    isHidden: false,
+    createdAt: INITIAL_TIMESTAMP,
+    updatedAt: INITIAL_TIMESTAMP,
+    translationKey: 'transaction.category.health',
+  },
+  {
+    id: 'entertainment',
+    name: 'Rozrywka',
+    colorHex: '#8B5CF6',
+    icon: 'movie',
+    sortOrder: 50,
+    isHidden: false,
+    createdAt: INITIAL_TIMESTAMP,
+    updatedAt: INITIAL_TIMESTAMP,
+    translationKey: 'transaction.category.entertainment',
+  },
+  {
+    id: 'other',
+    name: 'Inne',
+    colorHex: '#6B7280',
+    icon: 'category',
+    sortOrder: 999,
+    isHidden: false,
+    createdAt: INITIAL_TIMESTAMP,
+    updatedAt: INITIAL_TIMESTAMP,
+    translationKey: 'transaction.category.other',
+  },
+];

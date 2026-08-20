@@ -2,216 +2,216 @@
 
 Last updated: 2026-07-23
 
-## Cel Produktowy
+## Product Goal
 
-Zbudować mobilny, szybki i prosty w obsłudze moduł domowego budżetu w PWA, gdzie użytkownik:
-- dodaje wydatek w 1-3 kliknięciach,
-- widzi ostatnie transakcje i może je edytować,
-- przechodzi do analityki wydatków (tydzień/miesiąc/rok, filtry kategorii).
+Build a mobile, fast, and easy-to-use home-budget module as a PWA, where the user:
+- adds an expense in 1-3 clicks,
+- sees recent transactions and can edit them,
+- navigates to expense analytics (week/month/year, category filters).
 
-## Zakres Aktualnej Inicjatywy
+## Scope Of The Current Initiative
 
-Aktualny fokus:
-- Ekran Home Transactions jako ekran kontenerowy.
-- Komunikacja komponentów przez facade stanu.
-- Persystencja lokalna przez IndexedDB (warstwa data-access).
-- Shell loading zamiast twardego blokowania nawigacji resolverem.
+Current focus:
+- Home Transactions screen as a container screen.
+- Component communication through a state facade.
+- Local persistence via IndexedDB (data-access layer).
+- Shell loading instead of hard navigation blocking with a resolver.
 
-Poza aktualnym fokusem (kolejny etap):
-- Dashboard analityczny z filtrami kategorii i agregacjami czasowymi.
+Out of current focus (next phase):
+- Analytics dashboard with category filters and time aggregations.
 
-## Wizja UX (Home Transactions)
+## UX Vision (Home Transactions)
 
-Układ ekranu:
-1. Czysty header
-- ikona menu,
-- aktualny miesiąc (np. LIPIEC),
-- saldo (np. +2000 zł).
-
-2. Szybkie dodawanie
-- siatka kategorii (np. 4 kolumny),
-- ikona nad podpisem kategorii,
-- osobna pozycja Inne.
-
-3. Ostatnie transakcje
-- grupowanie po dniach (Dzisiaj, Wczoraj, data),
-- pozycja transakcji: ikona kategorii, nazwa, kwota,
-- interakcje: swipe lub klik do edycji/usuwania.
-
-## Specyfikacja Funkcjonalna
-
-### Ekrany i odpowiedzialności
-
-1. Home Screen (container)
-- orkiestruje ładowanie danych,
-- pobiera stan z facade,
-- przekazuje dane i eventy do komponentów UI,
-- nie zawiera logiki persystencji.
-
-2. Komponenty UI (presentational)
-- Header: render miesiąca i salda,
-- Categories Quick Add: render siatki i emisja eventu wyboru,
-- Last Transactions: render sekcji dziennych i emisja eventów edycji/usunięcia.
-
-3. Facade stanu
-- jedno miejsce dla logiki biznesowej ekranu,
-- kontrola loading/error/initialized,
-- mapowanie danych do view modelu dla UI.
-
-4. Data access
-- jedyne miejsce kontaktu z IndexedDB,
-- operacje CRUD bez logiki prezentacji.
-
-### Przepływy użytkownika
-
-1. Wejście na ekran
-- start shell UI,
-- ładowanie transakcji z lokalnej bazy,
-- render sekcji transakcji po zakończeniu ładowania.
+Screen layout:
+1. Clean header
+   - menu icon,
+   - current month (e.g., JULY),
+   - balance (e.g., +2000 zł).
 
 2. Quick add
-- użytkownik wybiera kategorię,
-- otwarcie formularza (bottom sheet) z prewybraną kategorią,
-- zapis transakcji i odświeżenie stanu.
+   - category grid (e.g., 4 columns),
+   - icon above the category label,
+   - separate "Other" category.
 
-3. Edycja transakcji
-- wejście z listy ostatnich transakcji,
-- modyfikacja i zapis,
-- aktualizacja listy i grup dziennych.
+3. Recent transactions
+   - grouping by day (Today, Yesterday, date),
+   - transaction item: category icon, name, amount,
+   - interactions: swipe or click for edit/delete.
 
-4. Usuwanie transakcji
-- akcja dostępna z listy (swipe/menu),
-- usunięcie rekordu,
-- odświeżenie stanu i przeliczeń.
+## Functional Specification
 
-## Specyfikacja Techniczna
+### Screens and responsibilities
 
-### Architektura stanu
+1. Home Screen (container)
+   - orchestrates data loading,
+   - fetches state from the facade,
+   - passes data and events down to UI components,
+   - contains no persistence logic.
 
-Preferowany model na MVP:
-- Signals: źródło prawdy dla stanu UI (transactions, loading, error, computed).
-- async/await: dla prostych, jednorazowych akcji command (load/add/edit/delete).
-- RxJS: pozostaje w data-access, szczególnie przy rozszerzeniach strumieniowych.
+2. UI Components (presentational)
+   - Header: renders the month and balance,
+   - Categories Quick Add: renders the grid and emits a selection event,
+   - Last Transactions: renders the daily sections and emits edit/delete events.
 
-Uzasadnienie:
-- czytelność i prostota implementacji,
-- łatwe debugowanie,
-- gotowość do późniejszego rozszerzenia o bardziej reaktywne scenariusze.
+3. State facade
+   - single place for the screen's business logic,
+   - controls loading/error/initialized,
+   - maps data to a view model for the UI.
+
+4. Data access
+   - the single place that contacts IndexedDB,
+   - CRUD operations without presentation logic.
+
+### User flows
+
+1. Entering the screen
+   - start shell UI,
+   - load transactions from the local database,
+   - render the transaction section after loading completes.
+
+2. Quick add
+   - user selects a category,
+   - the form opens (bottom sheet) with the selected category pre-filled,
+   - save the transaction and refresh the state.
+
+3. Edit transaction
+   - enter from the recent transactions list,
+   - modify and save,
+   - update the list and daily groups.
+
+4. Delete transaction
+   - action available from the list (swipe/menu),
+   - delete the record,
+   - refresh the state and recalculations.
+
+## Technical Specification
+
+### State architecture
+
+Preferred model for MVP:
+- Signals: source of truth for UI state (transactions, loading, error, computed).
+- async/await: for simple, one-time command actions (load/add/edit/delete).
+- RxJS: stays in data-access, especially for stream extensions.
+
+Rationale:
+- readable and simple implementation,
+- easy debugging,
+- ready for later extension with more reactive scenarios.
 
 ### RxResource
 
-Rola edukacyjna i docelowa:
-- używać świadomie tam, gdzie naprawdę pomaga w opisie cyklu zasobu,
-- nie traktować jako jedynego mechanizmu trwałego stanu aplikacji,
-- na tym etapie można dodać pilotowo do konkretnej sekcji UI do nauki API.
+Educational and target role:
+- use it consciously where it genuinely helps describe a resource lifecycle,
+- do not treat it as the only persistent application state mechanism,
+- at this stage it can be added piloted to a specific UI section to learn the API.
 
 ### Loading strategy
 
-Decyzja na MVP:
-- shell/skeleton na ekranie zamiast globalnego resolver-blocking.
+MVP decision:
+- shell/skeleton on the screen instead of global resolver-blocking.
 
-Dlaczego:
-- lepszy perceived performance,
-- mniejsza szansa na „martwy” ekran przy wolniejszym odczycie lokalnym,
-- bardziej mobilny charakter UX.
+Why:
+- better perceived performance,
+- lower chance of a "dead" screen on a slower local read,
+- more mobile-friendly UX.
 
-### Model danych transakcji
+### Transaction data model
 
-Obowiązkowe pola:
+Required fields:
 - id,
 - amount,
 - date,
 - categoryId,
 - accountId,
-- comment opcjonalnie.
+- optional comment.
 
-Zasady prezentacji:
-- grupowanie po dniach,
-- etykiety Dzisiaj i Wczoraj,
-- fallback do pełnej daty lokalnej.
+Presentation rules:
+- grouping by day,
+- Today and Yesterday labels,
+- fall back to the full local date.
 
-## Roadmapa
+## Roadmap
 
-## Faza 1: Home MVP Foundation
+### Phase 1: Home MVP Foundation
 
-Zakres:
-- dokończenie facade stanu,
-- podpięcie Home Screen do stanu,
-- render quick add i last transactions,
-- loading shell oraz obsługa błędów.
+Scope:
+- finish the state facade,
+- connect the Home Screen to state,
+- render quick add and last transactions,
+- loading shell and error handling.
 
-Kryterium akceptacji:
-- użytkownik widzi dane po starcie,
-- może dodać i edytować transakcję,
-- UI odświeża się bez przeładowania ekranu.
+Acceptance criteria:
+- the user sees data on startup,
+- can add and edit a transaction,
+- UI refreshes without a full screen reload.
 
-## Faza 2: Transaction Interactions
+### Phase 2: Transaction Interactions
 
-Zakres:
-- usuwanie transakcji,
-- dopracowanie swipe/click actions,
-- dopięcie bottom sheet flow.
+Scope:
+- delete transactions,
+- polish swipe/click actions,
+- finish the flow.
 
-Kryterium akceptacji:
-- pełny CRUD transakcji działa lokalnie,
-- spójne zachowanie listy i grup dziennych po każdej akcji.
+Acceptance criteria:
+- full local CRUD of transactions works,
+- consistent list and daily-group behavior after every action.
 
-## Faza 3: Quality And Reliability
+### Phase 3: Quality And Reliability
 
-Zakres:
-- testy jednostkowe facade,
-- testy komponentowe przepływów,
-- scenariusze offline i regresji.
+Scope:
+- unit tests for the facade,
+- component tests for flows,
+- offline and regression scenarios.
 
-Kryterium akceptacji:
-- stabilne testy krytycznych flow,
-- brak regresji przy add/edit/delete.
+Acceptance criteria:
+- stable tests for critical flows,
+- no regressions on add/edit/delete.
 
-## Faza 4: Dashboard Analytics Screen
+### Phase 4: Dashboard Analytics Screen
 
-Zakres:
-- nowy ekran dashboard,
-- agregacje tydzień/miesiąc/rok,
-- filtry po kategoriach.
+Scope:
+- new dashboard screen,
+- weekly/monthly/yearly aggregations,
+- category filters.
 
-Kryterium akceptacji:
-- użytkownik może analizować wydatki w czasie,
-- filtrowanie i agregacje są poprawne i czytelne.
+Acceptance criteria:
+- user can analyze expenses over time,
+- filtering and aggregations are correct and readable.
 
-## Ryzyka I Słabe Punkty
+## Risks And Weak Points
 
-1. Przeciążenie facade
-- ryzyko łączenia wielu odpowiedzialności w jednej klasie.
+1. Facade overload
+   - the risk of combining many responsibilities in one class.
 
-Mitigacja:
-- trzymać strict podział: data-access IO, facade logika, UI prezentacja.
+   Mitigation:
+   - keep strict separation: data-access IO, facade logic, UI presentation.
 
-2. Zbyt szybkie wejście w złożone RxJS
-- ryzyko wzrostu złożoności bez realnej potrzeby.
+2. Premature complexity
+   - the risk of increased complexity without real need.
 
-Mitigacja:
-- zaczynać od prostych commandów async/await,
-- RxJS dokładać tam, gdzie potrzebna wieloemisyjność lub cancel/retry.
+   Mitigation:
+   - start with simple async/await carriers,
+   - add RxJS where multi-value emissions or cancel/retry are needed.
 
-3. Niejednoznaczny UX akcji listy
-- ryzyko niespójnej interakcji swipe vs click.
+3. Ambiguous list action UX
+   - the risk of inconsistent swipe vs. click interactions.
 
-Mitigacja:
-- zdefiniować jednoznaczny kontrakt interakcji na komponent listy.
+   Mitigation:
+   - define an explicit interaction contract for the list component.
 
-## Otwarte Pytania Produktowe
+## Open Product Questions
 
-1. Quick add zapisuje od razu czy zawsze otwiera formularz?
-2. Jaki limit pozycji ma sekcja ostatnich transakcji?
-3. Czy edycja/usuwanie ma być i na swipe, i na klik?
-4. Jak dokładnie liczymy saldo w headerze na MVP?
-5. Czy wymagane jest jawne potwierdzenie przy usuwaniu?
+1. Does quick add save immediately or always open a form?
+2. What is the limit of the recent transactions section?
+3. Should edit/delete be triggered both by swipe and click?
+4. How exactly do we calculate the header balance?
+5. Is explicit confirmation required when deleting?
 
-## Definition Of Done (dla Home Transactions)
+## The Home Transactions Feature Is Done
 
-Aby uznać funkcję za gotową:
-- ekran renderuje header, quick add i listę ostatnich transakcji,
-- dane ładują się z IndexedDB i odświeżają po akcji użytkownika,
-- loading i błędy są obsłużone w UI,
-- dostępne są add/edit/delete,
-- testy krytycznych scenariuszy przechodzą.
+To consider the feature complete:
+- the screen renders the header, quick add and the recent transactions list,
+- data loads from IndexedDB,
+- loading and errors are handled in the UI,
+- add/edit/delete are available,
+- critical scenario tests pass.

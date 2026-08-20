@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, LOCALE_ID, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -11,7 +11,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
       <button
         type="button"
         matIconButton
-        aria-label="Open navigation"
+        i18n-aria-label="@@toolbar.openNavigationAria"
+        aria-label="Otworz nawigacje"
         (click)="onMenuClick()"
       >
         <mat-icon class="transaction-header-toolbar__menu-icon">menu</mat-icon>
@@ -26,6 +27,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   styleUrl: './transaction-header-toolbar.component.scss',
 })
 export class TransactionHeaderToolbarComponent {
+  private readonly localeId = inject(LOCALE_ID);
+
   public readonly monthName = input('');
   public readonly balance = input(0);
   public readonly menuClick = output<void>();
@@ -35,7 +38,7 @@ export class TransactionHeaderToolbarComponent {
   }
 
   protected formatBalance(balance: number): string {
-    return new Intl.NumberFormat('pl-PL', {
+    return new Intl.NumberFormat(this.localeId, {
       style: 'currency',
       currency: 'PLN',
       minimumFractionDigits: 2,
