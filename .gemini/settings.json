@@ -4,6 +4,14 @@
       "type": "stdio",
       "command": "npx",
       "args": ["nx", "mcp"]
+    },
+    "angular-cli": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@angular/cli", "mcp"]
+    },
+    "playwright-mcp": {
+      "url": "http://localhost:9123/mcp"
     }
   },
   "contextFileName": "AGENTS.md"

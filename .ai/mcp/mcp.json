@@ -3,6 +3,9 @@
         "angular-cli": {
           "command": "npx",
           "args": ["-y", "@angular/cli", "mcp"]
+        },
+        "playwright-mcp": {
+          "url": "http://localhost:9123/mcp"
         }
       }
     }

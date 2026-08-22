@@ -5,11 +5,13 @@ import {
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app.routes';
+import { provideCategoryInitializer } from './initializers/category-initializer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideAnimationsAsync(),
     provideRouter(appRoutes),
+    provideCategoryInitializer(),
   ],
 };
