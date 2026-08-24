@@ -54,3 +54,7 @@ vitest.config.*.timestamp*
 .nx/polygraph
 .nx/self-healing
 .nx/migrate-runs
+
+# Temporary / test artifacts
+temp_ts.txt
+test-results/
