@@ -2,13 +2,15 @@ import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
 
 export const BUDGET_FORT_DB_NAME = 'budget-fort-db';
-export const BUDGET_FORT_DB_VERSION = 2;
+export const BUDGET_FORT_DB_VERSION = 3;
 export const TRANSACTION_DB_TOKEN = 'transaction';
 export const CATEGORY_DB_TOKEN = 'category';
+export const SUBCATEGORY_DB_TOKEN = 'subcategory';
 
 export const BUDGET_FORT_DB_STORES = {
-  [TRANSACTION_DB_TOKEN]: 'id,date,categoryId,accountId',
+  [TRANSACTION_DB_TOKEN]: 'id,date,categoryId,accountId,subcategory',
   [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name',
+  [SUBCATEGORY_DB_TOKEN]: 'id,categoryId,name',
 } as const;
 
 export type BudgetFortStoreName = keyof typeof BUDGET_FORT_DB_STORES;

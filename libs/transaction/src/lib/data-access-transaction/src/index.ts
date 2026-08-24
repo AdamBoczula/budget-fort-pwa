@@ -4,3 +4,7 @@ export * from './lib/data-access-transaction/category/category.service';
 export * from './lib/data-access-transaction/category/category-store';
 export * from './lib/data-access-transaction/category/category.mock';
 export * from './lib/data-access-transaction/model/category.type';
+export * from './lib/data-access-transaction/subcategory/subcategory.defaults';
+export * from './lib/data-access-transaction/subcategory/subcategory.service';
+export * from './lib/data-access-transaction/subcategory/subcategory-store';
+export * from './lib/data-access-transaction/model/subcategory.type';

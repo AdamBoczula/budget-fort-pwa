@@ -49,10 +49,11 @@ describe('CategoryService', () => {
     expect(categories.length).toBe(3);
   });
 
-  it('should filter hidden categories from visible list', async () => {
+  it('should filter hidden and income categories from visible list', async () => {
     const categories = await firstValueFrom(service.getVisibleCategories());
-    expect(categories.length).toBe(2);
-    expect(categories.every((c) => !c.isHidden)).toBe(true);
+    expect(categories.length).toBe(1);
+    expect(categories.every((c) => !c.isHidden && c.transactionType !== 'income')).toBe(true);
+    expect(categories[0].id).toBe('food');
   });
 
   it('should include income category with transactionType set', async () => {

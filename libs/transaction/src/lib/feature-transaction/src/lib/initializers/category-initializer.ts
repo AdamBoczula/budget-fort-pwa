@@ -1,19 +1,28 @@
 import { inject } from '@angular/core';
 import { ResolveFn } from '@angular/router';
-import { CategoryStore, MOCK_PL_CATEGORIES } from '@data-access-transaction';
+import {
+  CategoryStore,
+  MOCK_PL_CATEGORIES,
+  SubcategoryStore,
+} from '@data-access-transaction';
+import { DEFAULT_SUBCATEGORIES } from '@data-access-transaction';
 import { firstValueFrom } from 'rxjs';
 
 /**
- * Seeds the categories table in IndexedDB with default data if it is empty.
+ * Seeds the categories and subcategories tables in IndexedDB with default data if they are empty.
  * A persistence failure must not prevent the application from starting.
  */
 export function initializeCategoriesFactory(
   categoryStore: CategoryStore,
+  subcategoryStore: SubcategoryStore,
 ): () => Promise<void> {
   return async () => {
     try {
       await firstValueFrom(
         categoryStore.seedCategoriesIfEmpty(MOCK_PL_CATEGORIES),
+      );
+      await firstValueFrom(
+        subcategoryStore.seedSubcategoriesIfEmpty(DEFAULT_SUBCATEGORIES),
       );
     } catch (error) {
       console.warn('Failed to seed categories:', error);
@@ -22,4 +31,4 @@ export function initializeCategoriesFactory(
 }
 
 export const categoryInitializerResolver: ResolveFn<void> = () =>
-  initializeCategoriesFactory(inject(CategoryStore))();
+  initializeCategoriesFactory(inject(CategoryStore), inject(SubcategoryStore))();

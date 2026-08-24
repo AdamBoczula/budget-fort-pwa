@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { of } from 'rxjs';
 import { CategoriesQuickAddComponent } from './categories-quick-add';
-import { Category, CategoryService } from '@data-access-transaction';
+import { Category, CategoryService, SubcategoryService } from '@data-access-transaction';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 
 describe('CategoriesQuickAddComponent', () => {
@@ -22,6 +22,11 @@ describe('CategoriesQuickAddComponent', () => {
   const mockService = {
     getVisibleCategories: () => of(mockCategories),
     getVisibleCategoriesAsync: () => Promise.resolve(mockCategories),
+    getCategoriesAsync: () => Promise.resolve(mockCategories),
+  };
+  const mockSubcategoryService = {
+    getSubcategoriesAsync: () => Promise.resolve([]),
+    upsertSubcategoryAsync: () => Promise.resolve(),
   };
   const mockTxState = { addTransaction: () => Promise.resolve(), mutationError: () => null };
 
@@ -29,6 +34,7 @@ describe('CategoriesQuickAddComponent', () => {
     await render(CategoriesQuickAddComponent, {
       providers: [
         { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
       ],
     });
@@ -51,6 +57,7 @@ describe('CategoriesQuickAddComponent', () => {
     await render(CategoriesQuickAddComponent, {
       providers: [
         { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
       ],
     });
@@ -66,6 +73,7 @@ describe('CategoriesQuickAddComponent', () => {
     await render(CategoriesQuickAddComponent, {
       providers: [
         { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
       ],
     });

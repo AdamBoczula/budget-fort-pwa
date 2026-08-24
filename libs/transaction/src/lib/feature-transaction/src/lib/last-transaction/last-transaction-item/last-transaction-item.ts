@@ -21,6 +21,9 @@ import { Category, Transaction } from '@data-access-transaction';
         <div class="info">
           <span class="name" data-testid="last-transaction-item__name">
             {{ category()?.name ?? '—' }}
+            @if (transaction().subcategory) {
+              <span class="subcategory">· {{ transaction().subcategory }}</span>
+            }
           </span>
           @if (transaction().comment) {
             <span class="comment" data-testid="last-transaction-item__comment">

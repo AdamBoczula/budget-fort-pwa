@@ -1,0 +1,16 @@
+export const DEFAULT_SUBCATEGORIES: ReadonlyArray<{ categoryId: string; name: string }> = [
+  { categoryId: 'home', name: 'Mieszkanie' },
+  { categoryId: 'home', name: 'Ogród / remont' },
+  { categoryId: 'home', name: 'Meble' },
+  { categoryId: 'transport', name: 'Samochód' },
+  { categoryId: 'transport', name: 'Komunikacja miejska' },
+  { categoryId: 'transport', name: 'Parking' },
+  { categoryId: 'entertainment', name: 'Sport i fitness' },
+  { categoryId: 'entertainment', name: 'Elektronika' },
+  { categoryId: 'entertainment', name: 'Wakacje' },
+  { categoryId: 'entertainment', name: 'Kino / streaming' },
+  { categoryId: 'entertainment', name: 'Gry' },
+  { categoryId: 'health', name: 'Suplementy' },
+  { categoryId: 'health', name: 'Leki' },
+  { categoryId: 'health', name: 'Lekarz / badania' },
+] as const;

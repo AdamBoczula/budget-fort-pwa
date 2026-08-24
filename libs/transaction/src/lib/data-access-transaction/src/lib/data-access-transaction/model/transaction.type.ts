@@ -5,4 +5,5 @@ export type Transaction = {
   categoryId: string;
   accountId: string;
   comment?: string;
+  subcategory?: string;
 };

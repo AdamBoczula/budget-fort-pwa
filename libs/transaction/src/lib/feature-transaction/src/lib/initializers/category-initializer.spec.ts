@@ -1,20 +1,33 @@
 import { TestBed } from '@angular/core/testing';
-import { CategoryStore, MOCK_PL_CATEGORIES } from '@data-access-transaction';
+import {
+  CategoryStore,
+  DEFAULT_SUBCATEGORIES,
+  MOCK_PL_CATEGORIES,
+  SubcategoryStore,
+} from '@data-access-transaction';
 import { of, throwError } from 'rxjs';
 import { initializeCategoriesFactory } from './category-initializer';
 
 describe('categoryInitializer', () => {
-  let seedSpy: ReturnType<typeof vi.fn>;
+  let seedCategoriesSpy: ReturnType<typeof vi.fn>;
+  let seedSubcategoriesSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    seedSpy = vi.fn().mockReturnValue(of(void 0));
+    seedCategoriesSpy = vi.fn().mockReturnValue(of(void 0));
+    seedSubcategoriesSpy = vi.fn().mockReturnValue(of(void 0));
 
     TestBed.configureTestingModule({
       providers: [
         {
           provide: CategoryStore,
           useValue: {
-            seedCategoriesIfEmpty: seedSpy,
+            seedCategoriesIfEmpty: seedCategoriesSpy,
+          },
+        },
+        {
+          provide: SubcategoryStore,
+          useValue: {
+            seedSubcategoriesIfEmpty: seedSubcategoriesSpy,
           },
         },
       ],
@@ -23,28 +36,42 @@ describe('categoryInitializer', () => {
 
   it('should seed the default categories', async () => {
     const categoryStore = TestBed.inject(CategoryStore);
+    const subcategoryStore = TestBed.inject(SubcategoryStore);
 
-    await initializeCategoriesFactory(categoryStore)();
+    await initializeCategoriesFactory(categoryStore, subcategoryStore)();
 
-    expect(seedSpy).toHaveBeenCalledExactlyOnceWith(MOCK_PL_CATEGORIES);
+    expect(seedCategoriesSpy).toHaveBeenCalledOnce();
+    expect(seedCategoriesSpy).toHaveBeenCalledWith(MOCK_PL_CATEGORIES);
+  });
+
+  it('should seed the default subcategories', async () => {
+    const categoryStore = TestBed.inject(CategoryStore);
+    const subcategoryStore = TestBed.inject(SubcategoryStore);
+
+    await initializeCategoriesFactory(categoryStore, subcategoryStore)();
+
+    expect(seedSubcategoriesSpy).toHaveBeenCalledOnce();
+    expect(seedSubcategoriesSpy).toHaveBeenCalledWith(DEFAULT_SUBCATEGORIES);
   });
 
   it('should return a promise that resolves after seeding', async () => {
     const categoryStore = TestBed.inject(CategoryStore);
+    const subcategoryStore = TestBed.inject(SubcategoryStore);
 
     await expect(
-      initializeCategoriesFactory(categoryStore)(),
+      initializeCategoriesFactory(categoryStore, subcategoryStore)(),
     ).resolves.toBeUndefined();
   });
 
   it('should log a warning without rejecting when seeding fails', async () => {
     const error = new Error('Seeding failed');
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    seedSpy.mockReturnValue(throwError(() => error));
+    seedCategoriesSpy.mockReturnValue(throwError(() => error));
     const categoryStore = TestBed.inject(CategoryStore);
+    const subcategoryStore = TestBed.inject(SubcategoryStore);
 
     await expect(
-      initializeCategoriesFactory(categoryStore)(),
+      initializeCategoriesFactory(categoryStore, subcategoryStore)(),
     ).resolves.toBeUndefined();
     expect(warnSpy).toHaveBeenCalledExactlyOnceWith(
       'Failed to seed categories:',

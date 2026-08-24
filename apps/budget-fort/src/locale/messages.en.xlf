@@ -58,6 +58,14 @@
         <source>0.00</source>
         <target>0.00</target>
       </trans-unit>
+      <trans-unit id="transactionForm.subcategoryLabel" datatype="html">
+        <source>Podkategoria (opcjonalna)</source>
+        <target>Subcategory (optional)</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.subcategoryPlaceholder" datatype="html">
+        <source>Np. Naprawa</source>
+        <target>E.g. Repair</target>
+      </trans-unit>
       <trans-unit id="transactionForm.dateLabel" datatype="html">
         <source>Data</source>
         <target>Date</target>
@@ -85,6 +93,59 @@
       <trans-unit id="fabIncome.ariaLabel" datatype="html">
         <source>Dodaj przychód</source>
         <target>Add income</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.income" datatype="html">
+        <source>Zarobek</source>
+        <target>Income</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.extra_income" datatype="html">
+        <source>Dodatkowy dochód</source>
+        <target>Extra income</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.food" datatype="html">
+        <source>Jedzenie</source>
+        <target>Food</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.eating_out" datatype="html">
+        <source>Jedzenie na mieście</source>
+        <target>Eating out</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.transport" datatype="html">
+        <source>Transport</source>
+        <target>Transport</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.home" datatype="html">
+        <source>Dom</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.health" datatype="html">
+        <source>Zdrowie</source>
+        <target>Health</target>
+      </trans-unit>
+
+      <trans-unit id="transaction.category.cosmetics" datatype="html">
+        <source>Kosmetyki i chemia</source>
+        <target>Cosmetics and cleaning</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.clothes" datatype="html">
+        <source>Ubrania</source>
+        <target>Clothes</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.entertainment" datatype="html">
+        <source>Rozrywka i hobby</source>
+        <target>Entertainment and hobbies</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.gifts" datatype="html">
+        <source>Prezenty i darowizny</source>
+        <target>Gifts and donations</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.education" datatype="html">
+        <source>Edukacja</source>
+        <target>Education</target>
+      </trans-unit>
+      <trans-unit id="transaction.category.other" datatype="html">
+        <source>Inne</source>
+        <target>Other</target>
       </trans-unit>
       <trans-unit id="lastTransaction.placeholder" datatype="html">
         <source>Ostatnia transakcja (w przygotowaniu).</source>

@@ -19,7 +19,7 @@
     <mat-icon>swap_horiz</mat-icon>
   </button>
   <mat-menu #categoryMenu="matMenu">
-    @if (categories.value(); as cats) {
+    @if (changeableCategories(); as cats) {
       @for (cat of cats; track cat.id) {
         <button mat-menu-item (click)="selectCategory(cat)">
           <span class="category-menu-item">
@@ -47,6 +47,20 @@
       <input matInput [matDatepicker]="datePicker" [(ngModel)]="selectedDate" required />
       <mat-datepicker-toggle matIconSuffix [for]="datePicker" />
       <mat-datepicker #datePicker />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label i18n="@@transactionForm.subcategoryLabel">Podkategoria (opcjonalna)</mat-label>
+      <input matInput type="text" [(ngModel)]="subcategory"
+        [matAutocomplete]="auto"
+        i18n-placeholder="@@transactionForm.subcategoryPlaceholder"
+        placeholder="Np. Naprawa" />
+      <mat-autocomplete #auto="matAutocomplete">
+        @if (filteredSubcategories(); as subs) {
+          @for (sub of subs; track sub.id) {
+            <mat-option [value]="sub.name">{{ sub.name }}</mat-option>
+          }
+        }
+      </mat-autocomplete>
     </mat-form-field>
     <mat-form-field appearance="outline" class="full-width">
       <mat-label i18n="@@transactionForm.commentLabel">Komentarz (opcjonalny)</mat-label>

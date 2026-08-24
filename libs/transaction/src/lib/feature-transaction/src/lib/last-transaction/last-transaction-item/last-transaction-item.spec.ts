@@ -62,6 +62,15 @@ describe('LastTransactionItemComponent', () => {
     expect(screen.getByTestId('last-transaction-item__comment')).toHaveTextContent('Lunch');
   });
 
+  it('should display subcategory when present', async () => {
+    const txWithSubcategory = { ...expenseTransaction, subcategory: 'Biedronka' };
+    await render(LastTransactionItemComponent, {
+      componentInputs: { transaction: txWithSubcategory, category: expenseCategory },
+    });
+    const nameEl = screen.getByTestId('last-transaction-item__name');
+    expect(nameEl.textContent).toContain('Biedronka');
+  });
+
   it('should not display comment when absent', async () => {
     await render(LastTransactionItemComponent, {
       componentInputs: { transaction: incomeTransaction, category: incomeCategory },

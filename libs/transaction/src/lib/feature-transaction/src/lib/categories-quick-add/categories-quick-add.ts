@@ -43,6 +43,7 @@ export class CategoriesQuickAddComponent {
           categoryId: result.categoryId,
           accountId: result.accountId,
           comment: result.comment,
+          subcategory: result.subcategory,
         });
       }
     });
