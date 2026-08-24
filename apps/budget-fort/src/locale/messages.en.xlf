@@ -25,7 +25,8 @@
       <trans-unit id="home.offlineInfo" datatype="html">
         <source>Tryb offline. Pokazywane sa tylko dane lokalne.</source>
         <target>Offline mode. Showing local data only.</target>
-<trans-unit id="categoriesQuickAdd.placeholder" datatype="html">
+      </trans-unit>
+      <trans-unit id="categoriesQuickAdd.placeholder" datatype="html">
         <source>Szybkie dodawanie kategorii (w przygotowaniu).</source>
         <target>Quick category add (coming soon).</target>
       </trans-unit>
@@ -33,11 +34,7 @@
         <source>Wybierz kategorię</source>
         <target>Choose category</target>
       </trans-unit>
-      </trans-unit>
-      <trans-unit id="categoriesQuickAdd.placeholder" datatype="html">
-        <source>Szybkie dodawanie kategorii (w przygotowaniu).</source>
-        <target>Quick category add (coming soon).</target>
-<trans-unit id="transactionForm.placeholder" datatype="html">
+      <trans-unit id="transactionForm.placeholder" datatype="html">
         <source>Formularz transakcji (w przygotowaniu).</source>
         <target>Transaction form (coming soon).</target>
       </trans-unit>
@@ -79,12 +76,15 @@
       </trans-unit>
       <trans-unit id="transactionForm.save" datatype="html">
         <source>Zapisz</source>
-<trans-unit id="fabIncome.ariaLabel" datatype="html">
-        <source>Dodaj przychód</source>
-        <target>Add income</target>
-      </trans-unit>
         <target>Save</target>
       </trans-unit>
+      <trans-unit id="transactionForm.saveDisabledTooltip" datatype="html">
+        <source>Dokonaj zmian, aby móc zapisać transakcję.</source>
+        <target>Make changes to save the transaction.</target>
+      </trans-unit>
+      <trans-unit id="fabIncome.ariaLabel" datatype="html">
+        <source>Dodaj przychód</source>
+        <target>Add income</target>
       </trans-unit>
       <trans-unit id="lastTransaction.placeholder" datatype="html">
         <source>Ostatnia transakcja (w przygotowaniu).</source>
@@ -93,10 +93,6 @@
       <trans-unit id="transactionBottomSheet.placeholder" datatype="html">
         <source>Dolny panel transakcji (w przygotowaniu).</source>
         <target>Transaction bottom sheet (coming soon).</target>
-      </trans-unit>
-      <trans-unit id="transactionForm.placeholder" datatype="html">
-        <source>Formularz transakcji (w przygotowaniu).</source>
-        <target>Transaction form (coming soon).</target>
       </trans-unit>
     </body>
   </file>

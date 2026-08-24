@@ -60,6 +60,9 @@
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()" i18n="@@transactionForm.cancel">Anuluj</button>
   <button mat-flat-button (click)="save()"
-    [disabled]="!amount || amount <= 0 || !selectedDate"
+    [disabled]="!amount || amount <= 0 || !selectedDate || (isEditMode && !isDirty)"
+    [matTooltip]="isEditMode && !isDirty ? ('Dokonaj zmian, aby móc zapisać transakcję.') : ''"
+    i18n-matTooltip="@@transactionForm.saveDisabledTooltip"
+    matTooltipPosition="above"
     i18n="@@transactionForm.save">Zapisz</button>
 </mat-dialog-actions>

@@ -105,7 +105,7 @@ describe('LastTransactionComponent', () => {
   });
 
   it('should render transaction items in date-descending order', () => {
-    const items = fixture.debugElement.queryAll(By.css('.last-transactions__item'));
+    const items = fixture.debugElement.queryAll(By.css('transaction-last-transaction-item'));
     // tx-other-month is from a different month and should be filtered out
     expect(items.length).toBe(2);
   });
@@ -118,7 +118,7 @@ describe('LastTransactionComponent', () => {
 
   it('should display category name for each transaction', () => {
     const nameEls = fixture.debugElement.queryAll(
-      By.css('.last-transactions__item-name'),
+      By.css('.name'),
     );
     expect(nameEls.length).toBe(2);
     // First transaction in sorted order is tx-2 (income, later date)
@@ -128,7 +128,7 @@ describe('LastTransactionComponent', () => {
 
   it('should render category names without fallback dash on initial load', () => {
     const nameEls = fixture.debugElement.queryAll(
-      By.css('.last-transactions__item-name'),
+      By.css('.name'),
     );
     nameEls.forEach((el) => {
       expect(el.nativeElement.textContent).not.toContain('—');
@@ -137,7 +137,7 @@ describe('LastTransactionComponent', () => {
 
   it('should render category icons on initial load (no race condition)', () => {
     const icons = fixture.debugElement.queryAll(
-      By.css('.last-transactions__item-icon mat-icon'),
+      By.css('.icon mat-icon'),
     );
     expect(icons.length).toBe(2);
     // First transaction in sorted order = income (savings), second = food (restaurant)
@@ -147,7 +147,7 @@ describe('LastTransactionComponent', () => {
 
   it('should render icon background colors based on category color', () => {
     const iconEls = fixture.debugElement.queryAll(
-      By.css('.last-transactions__item-icon'),
+      By.css('.icon'),
     );
     // Income → #10B981, Food → #16A34A
     expect(iconEls[0].nativeElement.style.backgroundColor).toBe('rgb(16, 185, 129)');
@@ -156,7 +156,7 @@ describe('LastTransactionComponent', () => {
 
   it('should display comment when present', () => {
     const comments = fixture.debugElement.queryAll(
-      By.css('.last-transactions__item-comment'),
+      By.css('.comment'),
     );
     expect(comments.length).toBe(1);
     expect(comments[0].nativeElement.textContent).toContain('Test transaction');
@@ -164,7 +164,7 @@ describe('LastTransactionComponent', () => {
 
   it('should format amounts correctly (income positive, expense negative)', () => {
     const amountEls = fixture.debugElement.queryAll(
-      By.css('.last-transactions__item-amount'),
+      By.css('.amount'),
     );
     expect(amountEls.length).toBe(2);
     // First (income, 100) should not have minus
@@ -175,13 +175,13 @@ describe('LastTransactionComponent', () => {
 
   it('should show income style for positive amounts', () => {
     const incomeAmount = fixture.debugElement.query(
-      By.css('.last-transactions__item-amount--income'),
+      By.css('.amount.income'),
     );
     expect(incomeAmount).toBeTruthy();
   });
 
   it('should have edit and delete buttons on each item', () => {
-    const items = fixture.debugElement.queryAll(By.css('.last-transactions__item'));
+    const items = fixture.debugElement.queryAll(By.css('transaction-last-transaction-item'));
     items.forEach((item) => {
       const editBtn = item.query(By.css('button[aria-label="Edytuj transakcję"]'));
       const deleteBtn = item.query(By.css('button[aria-label="Usuń transakcję"]'));
@@ -221,7 +221,7 @@ describe('LastTransactionComponent', () => {
     expect(emptyMsg).toBeTruthy();
     expect(emptyMsg.nativeElement.textContent).toContain('Brak transakcji');
 
-    const items = emptyFixture.debugElement.queryAll(By.css('.last-transactions__item'));
+    const items = emptyFixture.debugElement.queryAll(By.css('transaction-last-transaction-item'));
     expect(items.length).toBe(0);
   });
 });

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { TransactionFormComponent } from './transaction-form';
-import { Category, CategoryService } from '@data-access-transaction';
+import { Category, CategoryService, Transaction } from '@data-access-transaction';
 
 describe('TransactionFormComponent', () => {
   const expenseCategory: Category = {
@@ -100,5 +100,76 @@ describe('TransactionFormComponent', () => {
     });
     await user.click(screen.getByRole('button', { name: /Anuluj/i }));
     expect(closeSpy).toHaveBeenCalledWith();
+  });
+
+  describe('edit mode dirty check', () => {
+    const existingTransaction: Transaction = {
+      id: 'tx-1',
+      amount: -42.5,
+      date: new Date(2026, 7, 15, 12, 0, 0).toISOString(),
+      categoryId: 'food',
+      accountId: 'default',
+      comment: 'Lunch',
+    };
+
+    const renderEditForm = () =>
+      render(TransactionFormComponent, {
+        providers: [
+          { provide: MatDialogRef, useValue: mockDialogRef },
+          {
+            provide: MAT_DIALOG_DATA,
+            useValue: { category: expenseCategory, transaction: existingTransaction },
+          },
+          { provide: CategoryService, useValue: mockService },
+        ],
+      });
+
+    it('should disable save button when no changes are made in edit mode', async () => {
+      await renderEditForm();
+      expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+    });
+
+    it('should enable save button when amount is changed', async () => {
+      const user = userEvent.setup();
+      await renderEditForm();
+      await user.clear(screen.getByLabelText('Kwota'));
+      await user.type(screen.getByLabelText('Kwota'), '99.99');
+      expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
+    });
+
+    it('should enable save button when comment is changed', async () => {
+      const user = userEvent.setup();
+      await renderEditForm();
+      await user.type(screen.getByLabelText('Komentarz (opcjonalny)'), ' changed');
+      expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
+    });
+
+    it('should enable save button when category is changed', async () => {
+      const user = userEvent.setup();
+      await renderEditForm();
+      await user.click(screen.getByLabelText('Zmień kategorię'));
+      await user.click(screen.getByRole('menuitem', { name: /Zarobek/i }));
+      expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
+    });
+
+    it('should enable save button when date is changed', async () => {
+      const { fixture } = await renderEditForm();
+      const component = fixture.componentInstance;
+      component.selectedDate = new Date(2026, 7, 14); // different day
+      fixture.detectChanges();
+      expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
+    });
+
+    it('should disable save again when changes are reverted', async () => {
+      const user = userEvent.setup();
+      await renderEditForm();
+      await user.clear(screen.getByLabelText('Kwota'));
+      await user.type(screen.getByLabelText('Kwota'), '99.99');
+      expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
+
+      await user.clear(screen.getByLabelText('Kwota'));
+      await user.type(screen.getByLabelText('Kwota'), '42.50');
+      expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+    });
   });
 });

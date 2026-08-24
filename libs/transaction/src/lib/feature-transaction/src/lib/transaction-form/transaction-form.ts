@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Category, CategoryService, Transaction, TransactionType } from '@data-access-transaction';
 
 export type TransactionFormData = {
@@ -26,7 +27,7 @@ export type TransactionFormResult = {
   selector: 'transaction-form-dialog',
   imports: [
     FormsModule, MatButtonModule, MatDatepickerModule,
-    MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+    MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatTooltipModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './transaction-form.html',
@@ -49,8 +50,25 @@ export class TransactionFormComponent {
   /** Whether the form is in edit mode. */
   protected isEditMode = false;
 
+  private readonly originalCategoryId: string;
+  private readonly originalAmount: number | null;
+  private readonly originalDate: Date;
+  private readonly originalComment: string;
+
+  protected get isDirty(): boolean {
+    if (!this.isEditMode) return true;
+
+    const amountChanged = this.amount !== this.originalAmount;
+    const commentChanged = this.comment.trim() !== this.originalComment;
+    const categoryChanged = this.selectedCategory.id !== this.originalCategoryId;
+    const dateChanged = !this.sameDay(this.selectedDate, this.originalDate);
+
+    return amountChanged || commentChanged || categoryChanged || dateChanged;
+  }
+
   constructor() {
     this.selectedCategory = this.dialogData.category;
+    this.originalCategoryId = this.dialogData.category.id;
     const existingTx = this.dialogData.transaction;
     if (existingTx) {
       this.isEditMode = true;
@@ -58,6 +76,15 @@ export class TransactionFormComponent {
       this.selectedDate = new Date(existingTx.date);
       this.comment = existingTx.comment ?? '';
     }
+    this.originalAmount = this.amount;
+    this.originalDate = new Date(this.selectedDate);
+    this.originalComment = this.comment;
+  }
+
+  private sameDay(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear()
+      && a.getMonth() === b.getMonth()
+      && a.getDate() === b.getDate();
   }
 
   protected get transactionType(): TransactionType {

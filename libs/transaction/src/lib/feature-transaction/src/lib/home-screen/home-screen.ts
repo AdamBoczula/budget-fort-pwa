@@ -47,6 +47,7 @@ export class HomePageScreen {
       minWidth: '320px',
       maxWidth: '480px',
       width: '100%',
+      position: { top: '20%' },
     });
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {

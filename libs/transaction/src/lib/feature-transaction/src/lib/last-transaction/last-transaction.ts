@@ -1,9 +1,7 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { DatePipe, CurrencyPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   Category,
   CategoryService,
@@ -14,18 +12,38 @@ import {
   TransactionFormComponent,
   TransactionFormResult,
 } from '../transaction-form/transaction-form';
+import { LastTransactionItemComponent } from './last-transaction-item/last-transaction-item';
 
 @Component({
   selector: 'transaction-last-transaction',
   imports: [
-    CurrencyPipe,
-    DatePipe,
     MatButtonModule,
     MatDialogModule,
     MatIconModule,
-    MatTooltipModule,
+    LastTransactionItemComponent,
   ],
-  templateUrl: './last-transaction.html',
+  template: `
+    <section class="last-transactions">
+      <h2 class="last-transactions__title" i18n="@@lastTransactions.title">
+        Ostatnie transakcje
+      </h2>
+
+      @if (lastTransactions().length === 0) {
+        <p class="last-transactions__empty" i18n="@@lastTransactions.empty">
+          Brak transakcji. Dodaj pierwszą za pomocą przycisków powyżej.
+        </p>
+      }
+
+      @for (tx of lastTransactions(); track tx.id) {
+        <transaction-last-transaction-item
+          [transaction]="tx"
+          [category]="categoryMap()[tx.categoryId]"
+          (edit)="openEditDialog(tx)"
+          (deleteItem)="openDeleteDialog(tx)"
+        />
+      }
+    </section>
+  `,
   styleUrl: './last-transaction.scss',
 })
 export class LastTransactionComponent {
@@ -77,12 +95,8 @@ export class LastTransactionComponent {
     return sorted;
   });
 
-  protected getCategory(id: string): Category | undefined {
-    return this.categoryMap()[id];
-  }
-
   protected openEditDialog(transaction: Transaction): void {
-    const category = this.getCategory(transaction.categoryId);
+    const category = this.categoryMap()[transaction.categoryId];
     if (!category) return;
 
     const dialogRef = this.dialog.open(TransactionFormComponent, {
@@ -90,6 +104,7 @@ export class LastTransactionComponent {
       minWidth: '320px',
       maxWidth: '480px',
       width: '100%',
+      position: { top: '20%' },
     });
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
