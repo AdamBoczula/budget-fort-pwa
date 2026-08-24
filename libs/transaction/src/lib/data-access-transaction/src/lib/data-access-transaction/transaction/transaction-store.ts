@@ -21,6 +21,10 @@ export class TransactionStore {
     return defer(() => this.transactionsTable.toArray());
   }
 
+  public async getTransactionsAsync(): Promise<Transaction[]> {
+    return this.transactionsTable.toArray();
+  }
+
   public setTransactions(
     transactions: Transaction[],
   ): Observable<Transaction[]> {
@@ -39,11 +43,26 @@ export class TransactionStore {
     });
   }
 
+  public deleteTransaction(id: string): Observable<void> {
+    return defer(async () => {
+      await this.transactionsTable.delete(id);
+    });
+  }
+
+  public async deleteTransactionAsync(id: string): Promise<void> {
+    await this.transactionsTable.delete(id);
+  }
+
   public addTransaction(transactionData: Transaction): Observable<Transaction> {
     return defer(async () => {
       await this.transactionsTable.add(transactionData);
       return transactionData;
     });
+  }
+
+  public async addTransactionAsync(transactionData: Transaction): Promise<Transaction> {
+    await this.transactionsTable.add(transactionData);
+    return transactionData;
   }
 
   public updateTransaction(
@@ -53,5 +72,10 @@ export class TransactionStore {
       await this.transactionsTable.put(transactionData);
       return transactionData;
     });
+  }
+
+  public async updateTransactionAsync(transactionData: Transaction): Promise<Transaction> {
+    await this.transactionsTable.put(transactionData);
+    return transactionData;
   }
 }

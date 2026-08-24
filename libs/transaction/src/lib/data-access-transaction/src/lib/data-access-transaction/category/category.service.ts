@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, switchMap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Category } from '../model/category.type';
-import { MOCK_PL_CATEGORIES } from './category.mock';
 import { CategoryStore } from './category-store';
 
 @Injectable({ providedIn: 'root' })
@@ -9,14 +8,21 @@ export class CategoryService {
   private readonly categoryStore = inject(CategoryStore);
 
   public getCategories(): Observable<Category[]> {
-    return this.categoryStore
-      .seedCategoriesIfEmpty(MOCK_PL_CATEGORIES)
-      .pipe(switchMap(() => this.categoryStore.getCategories()));
+    return this.categoryStore.getCategories();
+  }
+
+  public async getCategoriesAsync(): Promise<Category[]> {
+    return this.categoryStore.getCategoriesAsync();
   }
 
   public getVisibleCategories(): Observable<Category[]> {
-    return this.getCategories().pipe(
+    return this.categoryStore.getCategories().pipe(
       map((categories) => categories.filter((category) => !category.isHidden)),
     );
+  }
+
+  public async getVisibleCategoriesAsync(): Promise<Category[]> {
+    const categories = await this.categoryStore.getCategoriesAsync();
+    return categories.filter((category) => !category.isHidden);
   }
 }

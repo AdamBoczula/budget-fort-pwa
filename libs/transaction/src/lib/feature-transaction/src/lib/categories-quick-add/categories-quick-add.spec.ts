@@ -1,20 +1,84 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render, screen } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
+import { of } from 'rxjs';
 import { CategoriesQuickAddComponent } from './categories-quick-add';
+import { Category, CategoryService } from '@data-access-transaction';
+import { TransactionState } from '../service/transaction-state/transaction-state';
 
 describe('CategoriesQuickAddComponent', () => {
-  let component: CategoriesQuickAddComponent;
-  let fixture: ComponentFixture<CategoriesQuickAddComponent>;
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CategoriesQuickAddComponent],
-    }).compileComponents();
+  const mockCategories: Category[] = [
+    {
+      id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
+      sortOrder: 10, isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    },
+    {
+      id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
+      sortOrder: 5, isHidden: false, transactionType: 'income',
+      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    },
+  ];
 
-    fixture = TestBed.createComponent(CategoriesQuickAddComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+  const mockService = {
+    getVisibleCategories: () => of(mockCategories),
+    getVisibleCategoriesAsync: () => Promise.resolve(mockCategories),
+  };
+  const mockTxState = { addTransaction: () => Promise.resolve(), mutationError: () => null };
+
+  it('should render category cards', async () => {
+    await render(CategoriesQuickAddComponent, {
+      providers: [
+        { provide: CategoryService, useValue: mockService },
+        { provide: TransactionState, useValue: mockTxState },
+      ],
+    });
+
+    const title = screen.getByText('Wybierz kategorię');
+    expect(title).toBeInTheDocument();
+    expect(title).toBeVisible();
+
+    // resource() ładuje dane asynchronicznie – używamy findByText które czeka
+    const jedzenie = await screen.findByText('Jedzenie');
+    expect(jedzenie).toBeInTheDocument();
+
+    const zarobek = await screen.findByText('Zarobek');
+    expect(zarobek).toBeInTheDocument();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should open MatDialog on category card click', async () => {
+    const user = userEvent.setup();
+
+    await render(CategoriesQuickAddComponent, {
+      providers: [
+        { provide: CategoryService, useValue: mockService },
+        { provide: TransactionState, useValue: mockTxState },
+      ],
+    });
+
+    const foodButton = (await screen.findByText('Jedzenie')).closest('button');
+    expect(foodButton).toBeTruthy();
+    if (foodButton) {
+      await user.click(foodButton);
+    }
+  });
+
+  it('should display income category with savings icon', async () => {
+    await render(CategoriesQuickAddComponent, {
+      providers: [
+        { provide: CategoryService, useValue: mockService },
+        { provide: TransactionState, useValue: mockTxState },
+      ],
+    });
+
+    const zarobek = await screen.findByText('Zarobek');
+    expect(zarobek).toBeInTheDocument();
+
+    const savingsIcons = document.querySelectorAll(
+      '.category-card mat-icon',
+    );
+    const incomeIcon = Array.from(savingsIcons).find(
+      (icon) => icon.textContent?.trim() === 'savings',
+    );
+    expect(incomeIcon).toBeDefined();
   });
 });

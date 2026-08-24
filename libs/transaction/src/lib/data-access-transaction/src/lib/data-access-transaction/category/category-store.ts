@@ -15,6 +15,10 @@ export class CategoryStore {
     return defer(() => this.categoriesTable.orderBy('sortOrder').toArray());
   }
 
+  public async getCategoriesAsync(): Promise<Category[]> {
+    return this.categoriesTable.orderBy('sortOrder').toArray();
+  }
+
   public seedCategoriesIfEmpty(
     categories: ReadonlyArray<Category>,
   ): Observable<void> {

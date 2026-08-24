@@ -69,6 +69,68 @@ npm exec nx affected -t lint test build e2e
 
 - Agents may update documentation without approval.
 - Agents must request approval before changing code or tests (unit/component/e2e).
+## Mandatory Testing Workflow
+
+For **any** code change (new feature, refactor, bug fix), the agent MUST create or update tests **at the same time as the code change**, without waiting for user reminders. This applies to:
+
+1. **Unit tests** (Vitest) – services, utilities, pure functions, dumb components
+   - Framework: Vitest + `TestBed` or direct function testing
+   - Location: `*.spec.ts` next to the source file
+
+2. **Component/Integration tests** (`@testing-library/angular`) – user-facing component behavior
+   - Use `render()`, `screen` queries, `userEvent` for interactions
+   - Test: rendering states, form submissions, dialog open/close, computed outputs
+   - Location: `*.spec.ts` next to the component file
+
+3. **E2E tests** (Playwright) – critical user flows across the full stack
+   - Use `page.goto()`, `page.locator()`, `expect().toBeVisible()`
+   - Location: `apps/budget-fort-e2e/src/*.spec.ts`
+   - Base URL is set via `test.use({ baseURL: 'http://localhost:4200' })`
+
+### When to write each layer
+
+| Change type | Unit tests | Component tests | E2E tests |
+|-------------|-----------|-----------------|-----------|
+| New service / utility | ✅ Required | — | — |
+| New component | ✅ (class logic) | ✅ Required | — |
+| New feature / screen | ✅ | ✅ Required | ✅ (critical path) |
+| Bug fix | ✅ (regression) | ✅ (if component) | ✅ (if critical path) |
+| Refactor (no behavior change) | ✅ (existing must pass) | ✅ (existing must pass) | — |
+| Refactor (behavior changes) | ✅ Updated | ✅ Updated | ✅ Updated |
+
+### Testing patterns used in this project
+
+- **Services**: `TestBed.configureTestingModule` with mock providers, `firstValueFrom` for observables
+- **Component (testing-library)**: `await render(Component, { providers: [...] })` + `screen.getByText/Role/LabelText`
+- **Component (TestBed)**: `TestBed.createComponent(Component)` + `fixture.debugElement.query(By.css(...))`
+- **Dialog/overlay components**: mock `MatDialogRef` and `MAT_DIALOG_DATA`
+- **IndexedDB-dependent components**: mock the data-access service (e.g. `CategoryService`, `TransactionState`)
+- **E2E**: `page.goto('/feature-transaction')`, wait for grid/dialog, use `[i18n="@@key"]` or `getByPlaceholder` for i18n elements
+
+### Verification after every change
+
+After implementing code + tests, run:
+
+```bash
+npm exec nx affected -t lint test build e2e
+```
+
+If the full suite is too slow for iteration, run project-specific tests first:
+```bash
+npm exec nx test <project-name> --skip-nx-cache
+npm exec nx build <project-name> --skip-nx-cache
+```
+
+And run the full `nx affected` command before marking the task complete.
+
+### Existing test commands
+
+```bash
+npm exec nx test data-access-transaction --skip-nx-cache    # 7 tests
+npm exec nx test feature-transaction --skip-nx-cache        # 16 tests
+npm exec nx test budget-fort --skip-nx-cache                # 4 tests (1 pre-existing fail)
+npm exec nx e2e budget-fort-e2e --skip-nx-cache             # 5 e2e tests
+```
 
 ## Critical Guardrails
 

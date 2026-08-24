@@ -1,6 +1,15 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
 .transaction-header-toolbar {
-	background: var(--mat-sys-primary-container);
-	color: var(--mat-sys-on-primary-container);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
 }
 
 .transaction-header-toolbar__menu-icon {
@@ -15,4 +24,15 @@
 .transaction-header-toolbar__month {
 	flex: 1;
 	padding-inline-start: 0.75rem;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.transaction-header-toolbar__balance {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

@@ -25,10 +25,66 @@
       <trans-unit id="home.offlineInfo" datatype="html">
         <source>Tryb offline. Pokazywane sa tylko dane lokalne.</source>
         <target>Offline mode. Showing local data only.</target>
+<trans-unit id="categoriesQuickAdd.placeholder" datatype="html">
+        <source>Szybkie dodawanie kategorii (w przygotowaniu).</source>
+        <target>Quick category add (coming soon).</target>
+      </trans-unit>
+      <trans-unit id="categoriesQuickAdd.title" datatype="html">
+        <source>Wybierz kategorię</source>
+        <target>Choose category</target>
+      </trans-unit>
       </trans-unit>
       <trans-unit id="categoriesQuickAdd.placeholder" datatype="html">
         <source>Szybkie dodawanie kategorii (w przygotowaniu).</source>
         <target>Quick category add (coming soon).</target>
+<trans-unit id="transactionForm.placeholder" datatype="html">
+        <source>Formularz transakcji (w przygotowaniu).</source>
+        <target>Transaction form (coming soon).</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.changeCategoryAria" datatype="html">
+        <source>Zmień kategorię</source>
+        <target>Change category</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.expense" datatype="html">
+        <source>Wydatek</source>
+        <target>Expense</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.income" datatype="html">
+        <source>Przychód</source>
+        <target>Income</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.amountLabel" datatype="html">
+        <source>Kwota</source>
+        <target>Amount</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.amountPlaceholder" datatype="html">
+        <source>0.00</source>
+        <target>0.00</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.dateLabel" datatype="html">
+        <source>Data</source>
+        <target>Date</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.commentLabel" datatype="html">
+        <source>Komentarz (opcjonalny)</source>
+        <target>Comment (optional)</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.commentPlaceholder" datatype="html">
+        <source>Np. Obiad w pracy</source>
+        <target>E.g. Lunch at work</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.cancel" datatype="html">
+        <source>Anuluj</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.save" datatype="html">
+        <source>Zapisz</source>
+<trans-unit id="fabIncome.ariaLabel" datatype="html">
+        <source>Dodaj przychód</source>
+        <target>Add income</target>
+      </trans-unit>
+        <target>Save</target>
+      </trans-unit>
       </trans-unit>
       <trans-unit id="lastTransaction.placeholder" datatype="html">
         <source>Ostatnia transakcja (w przygotowaniu).</source>

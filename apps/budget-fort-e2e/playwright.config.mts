@@ -36,6 +36,9 @@ export default defineConfig({
     reuseExistingServer: true,
     cwd: workspaceRoot,
   },
+  // Note: Only Chromium is installed locally. Firefox and WebKit require
+  // `npx playwright install firefox webkit` to be run first.
+  // On CI, the workflow already runs `npx playwright install --with-deps`.
   projects: [
     {
       name: 'chromium',

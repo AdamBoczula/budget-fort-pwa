@@ -72,4 +72,16 @@ export const MOCK_PL_CATEGORIES: ReadonlyArray<Category> = [
     updatedAt: INITIAL_TIMESTAMP,
     translationKey: 'transaction.category.other',
   },
+  {
+    id: 'income',
+    name: 'Zarobek',
+    colorHex: '#10B981',
+    icon: 'savings',
+    sortOrder: 5,
+    isHidden: false,
+    createdAt: INITIAL_TIMESTAMP,
+    updatedAt: INITIAL_TIMESTAMP,
+    translationKey: 'transaction.category.income',
+    transactionType: 'income',
+  },
 ];

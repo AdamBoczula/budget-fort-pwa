@@ -1,3 +1,5 @@
+export type TransactionType = 'expense' | 'income';
+
 export type Category = {
   id: string;
   name: string;
@@ -8,4 +10,5 @@ export type Category = {
   createdAt: string;
   updatedAt: string;
   translationKey?: string;
+  transactionType?: TransactionType;
 };

@@ -25,6 +25,12 @@ export class TransactionService {
       .pipe(tap((transactions) => this.transactionsState.set(transactions)));
   }
 
+  public async getTransactionsAsync(): Promise<Transaction[]> {
+    const transactions = await this.transactionStore.getTransactionsAsync();
+    this.transactionsState.set(transactions);
+    return transactions;
+  }
+
   public setTransactions(
     transactions: Transaction[],
   ): Observable<Transaction[]> {
@@ -37,6 +43,23 @@ export class TransactionService {
       );
   }
 
+  public deleteTransaction(id: string): Observable<void> {
+    return this.transactionStore.deleteTransaction(id).pipe(
+      tap(() => {
+        this.transactionsState.update((transactions) =>
+          transactions.filter((t) => t.id !== id),
+        );
+      }),
+    );
+  }
+
+  public async deleteTransactionAsync(id: string): Promise<void> {
+    await this.transactionStore.deleteTransactionAsync(id);
+    this.transactionsState.update((transactions) =>
+      transactions.filter((t) => t.id !== id),
+    );
+  }
+
   public addTransaction(transaction: Transaction): Observable<Transaction> {
     return this.transactionStore.addTransaction(transaction).pipe(
       tap((savedTransaction) => {
@@ -46,6 +69,15 @@ export class TransactionService {
         ]);
       }),
     );
+  }
+
+  public async addTransactionAsync(transaction: Transaction): Promise<Transaction> {
+    const saved = await this.transactionStore.addTransactionAsync(transaction);
+    this.transactionsState.update((transactions) => [
+      ...transactions,
+      saved,
+    ]);
+    return saved;
   }
 
   public editTransaction(transaction: Transaction): Observable<Transaction> {
@@ -60,5 +92,17 @@ export class TransactionService {
         );
       }),
     );
+  }
+
+  public async editTransactionAsync(transaction: Transaction): Promise<Transaction> {
+    const updated = await this.transactionStore.updateTransactionAsync(transaction);
+    this.transactionsState.update((transactions) =>
+      transactions.map((currentTransaction) =>
+        currentTransaction.id === updated.id
+          ? updated
+          : currentTransaction,
+      ),
+    );
+    return updated;
   }
 }

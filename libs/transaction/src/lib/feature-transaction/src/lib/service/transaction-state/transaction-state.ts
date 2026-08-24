@@ -1,6 +1,12 @@
-import { computed, inject, Injectable, LOCALE_ID, signal } from '@angular/core';
+import {
+  computed,
+  inject,
+  Injectable,
+  LOCALE_ID,
+  resource,
+  signal,
+} from '@angular/core';
 import { Transaction, TransactionService } from '@data-access-transaction';
-import { firstValueFrom } from 'rxjs';
 
 type TransactionGroup = {
   label: string;
@@ -12,29 +18,64 @@ export class TransactionState {
   private readonly transactionService = inject(TransactionService);
   private readonly localeId = inject(LOCALE_ID);
 
-  private readonly transactionsState = signal<Transaction[]>([]);
-  private readonly loadingState = signal(false);
-  private readonly initializedState = signal(false);
-  private readonly errorState = signal<string | null>(null);
+  /**
+   * Sygnał-wersja: każda mutacja (add/delete/edit) inkrementuje tę wartość,
+   * co powoduje automatyczne przeładowanie `transactionsResource`.
+   */
+  private readonly dataVersion = signal(0);
 
-  public readonly transactions = this.transactionsState.asReadonly();
-  public readonly loading = this.loadingState.asReadonly();
-  public readonly initialized = this.initializedState.asReadonly();
-  public readonly error = this.errorState.asReadonly();
+  /** Komunikat błędu ostatniej operacji mutacji (add/delete/edit). */
+  public readonly mutationError = signal<string | null>(null);
+
+  /**
+   * Główne źródło danych – `resource()` ładuje transakcje przy starcie
+   * i automatycznie przeładowuje gdy zmieni się `dataVersion`.
+   */
+  readonly transactionsResource = resource({
+    params: () => this.dataVersion(),
+    loader: async () => {
+      return this.transactionService.getTransactionsAsync();
+    },
+  });
+
+  /** Backward-compat computed: lista transakcji (pusta przed załadowaniem). */
+  public readonly transactions = computed(
+    () => this.transactionsResource.value() ?? [],
+  );
+
+  /** Backward-compat computed: stan ładowania. */
+  public readonly loading = computed(() =>
+    ['loading', 'reloading'].includes(this.transactionsResource.status()),
+  );
+
+  /** Backward-compat computed: czy dane zostały kiedykolwiek załadowane. */
+  public readonly initialized = computed(
+    () =>
+      this.transactionsResource.status() === 'resolved' ||
+      this.transactionsResource.status() === 'error' ||
+      this.transactionsResource.status() === 'reloading',
+  );
+
+  /** Backward-compat computed: komunikat błędu. */
+  public readonly error = computed<string | null>(() => {
+    const err = this.transactionsResource.error();
+    if (!err) return null;
+    return this.translate('Nie udalo sie zaladowac transakcji.');
+  });
 
   public readonly transactionsCount = computed(
-    () => this.transactionsState().length,
+    () => (this.transactionsResource.value() ?? []).length,
   );
 
   public readonly balance = computed(() =>
-    this.transactionsState().reduce(
+    (this.transactionsResource.value() ?? []).reduce(
       (sum, transaction) => sum + transaction.amount,
       0,
     ),
   );
 
   public readonly groupedTransactions = computed<TransactionGroup[]>(() => {
-    const sorted = [...this.transactionsState()].sort(
+    const sorted = [...this.transactions()].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
 
@@ -54,60 +95,33 @@ export class TransactionState {
     }));
   });
 
-  public async loadTransactions(): Promise<void> {
-    this.loadingState.set(true);
-    this.errorState.set(null);
-
+  public async deleteTransaction(id: string): Promise<void> {
     try {
-      const transactions = await firstValueFrom(
-        this.transactionService.getTransactions(),
-      );
-
-      this.transactionsState.set(transactions);
-      this.initializedState.set(true);
+      this.mutationError.set(null);
+      await this.transactionService.deleteTransactionAsync(id);
+      this.dataVersion.update((v) => v + 1);
     } catch {
-      this.errorState.set(
-        this.translate('Nie udalo sie zaladowac transakcji.'),
-      );
-    } finally {
-      this.loadingState.set(false);
+      this.mutationError.set(this.translate('Nie udalo sie usunac transakcji.'));
     }
   }
 
   public async addTransaction(transaction: Transaction): Promise<void> {
-    this.errorState.set(null);
-
     try {
-      const savedTransaction = await firstValueFrom(
-        this.transactionService.addTransaction(transaction),
-      );
-
-      this.transactionsState.update((transactions) => [
-        ...transactions,
-        savedTransaction,
-      ]);
+      this.mutationError.set(null);
+      await this.transactionService.addTransactionAsync(transaction);
+      this.dataVersion.update((v) => v + 1);
     } catch {
-      this.errorState.set(this.translate('Nie udalo sie zapisac transakcji.'));
+      this.mutationError.set(this.translate('Nie udalo sie zapisac transakcji.'));
     }
   }
 
   public async editTransaction(transaction: Transaction): Promise<void> {
-    this.errorState.set(null);
-
     try {
-      const updatedTransaction = await firstValueFrom(
-        this.transactionService.editTransaction(transaction),
-      );
-
-      this.transactionsState.update((transactions) =>
-        transactions.map((current) =>
-          current.id === updatedTransaction.id ? updatedTransaction : current,
-        ),
-      );
+      this.mutationError.set(null);
+      await this.transactionService.editTransactionAsync(transaction);
+      this.dataVersion.update((v) => v + 1);
     } catch {
-      this.errorState.set(
-        this.translate('Nie udalo sie zaktualizowac transakcji.'),
-      );
+      this.mutationError.set(this.translate('Nie udalo sie zaktualizowac transakcji.'));
     }
   }
 
@@ -147,6 +161,8 @@ export class TransactionState {
     }
 
     switch (polish) {
+      case 'Nie udalo sie usunac transakcji.':
+        return 'Failed to delete transaction.';
       case 'Nie udalo sie zaladowac transakcji.':
         return 'Failed to load transactions.';
       case 'Nie udalo sie zapisac transakcji.':

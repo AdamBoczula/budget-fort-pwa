@@ -1,0 +1,71 @@
+<section class="last-transactions">
+  <h2 class="last-transactions__title" i18n="@@lastTransactions.title">
+    Ostatnie transakcje
+  </h2>
+
+  @if (lastTransactions().length === 0) {
+    <p class="last-transactions__empty" i18n="@@lastTransactions.empty">
+      Brak transakcji. Dodaj pierwszą za pomocą przycisków powyżej.
+    </p>
+  }
+
+  @for (tx of lastTransactions(); track tx.id) {
+    @let category = getCategory(tx.categoryId);
+    <div class="last-transactions__item">
+      <!-- Left: category icon + label -->
+      <div class="last-transactions__item-left">
+        <div
+          class="last-transactions__item-icon"
+          [style.background-color]="category?.colorHex ?? '#6B7280'"
+        >
+          <mat-icon>{{ category?.icon ?? 'category' }}</mat-icon>
+        </div>
+        <div class="last-transactions__item-info">
+          <span class="last-transactions__item-name">
+            {{ category?.name ?? '—' }}
+          </span>
+          @if (tx.comment) {
+            <span class="last-transactions__item-comment">{{ tx.comment }}</span>
+          }
+          <span
+            class="last-transactions__item-amount"
+            [class.last-transactions__item-amount--income]="tx.amount > 0"
+          >
+            {{ tx.amount | currency : 'PLN' : 'symbol' : '1.2-2' : 'pl' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: date + action buttons -->
+      <div class="last-transactions__item-right">
+        <span class="last-transactions__item-date">
+          {{ tx.date | date : 'dd.MM.yyyy' }}
+        </span>
+        <div class="last-transactions__item-actions">
+          <button
+            mat-icon-button
+            type="button"
+            i18n-aria-label="@@lastTransactions.editAria"
+            aria-label="Edytuj transakcję"
+            (click)="openEditDialog(tx)"
+            matTooltip="Edytuj"
+            i18n-matTooltip="@@lastTransactions.editTooltip"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            type="button"
+            i18n-aria-label="@@lastTransactions.deleteAria"
+            aria-label="Usuń transakcję"
+            (click)="openDeleteDialog(tx)"
+            matTooltip="Usuń"
+            i18n-matTooltip="@@lastTransactions.deleteTooltip"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

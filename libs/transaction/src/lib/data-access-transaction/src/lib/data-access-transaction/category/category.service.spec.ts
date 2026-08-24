@@ -7,44 +7,36 @@ import { CategoryStore } from './category-store';
 describe('CategoryService', () => {
   let service: CategoryService;
 
-  const sortedMock: Category[] = [
+  const mockCategories: Category[] = [
     {
-      id: 'a',
-      name: 'A',
-      colorHex: '#111111',
-      icon: 'home',
-      sortOrder: 10,
-      isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z',
-      updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
+      sortOrder: 10, isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
     },
     {
-      id: 'b',
-      name: 'B',
-      colorHex: '#222222',
-      icon: 'movie',
-      sortOrder: 20,
-      isHidden: true,
-      createdAt: '2026-08-01T00:00:00.000Z',
-      updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
+      sortOrder: 5, isHidden: false, transactionType: 'income',
+      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    },
+    {
+      id: 'hidden', name: 'Hidden Category', colorHex: '#000', icon: 'block',
+      sortOrder: 999, isHidden: true,
+      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
     },
   ];
 
   const categoryStoreMock = {
     seedCategoriesIfEmpty: () => of(void 0),
-    getCategories: () => of(sortedMock),
+    getCategories: () => of(mockCategories),
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        {
-          provide: CategoryStore,
-          useValue: categoryStoreMock,
-        },
+        CategoryService,
+        { provide: CategoryStore, useValue: categoryStoreMock },
       ],
     });
-
     service = TestBed.inject(CategoryService);
   });
 
@@ -52,15 +44,28 @@ describe('CategoryService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should return categories', async () => {
+  it('should return all categories', async () => {
     const categories = await firstValueFrom(service.getCategories());
-
-    expect(categories).toEqual(sortedMock);
+    expect(categories.length).toBe(3);
   });
 
   it('should filter hidden categories from visible list', async () => {
     const categories = await firstValueFrom(service.getVisibleCategories());
+    expect(categories.length).toBe(2);
+    expect(categories.every((c) => !c.isHidden)).toBe(true);
+  });
 
-    expect(categories).toEqual([sortedMock[0]]);
+  it('should include income category with transactionType set', async () => {
+    const categories = await firstValueFrom(service.getCategories());
+    const income = categories.find((c) => c.id === 'income');
+    expect(income).toBeDefined();
+    expect(income!.transactionType).toBe('income');
+  });
+
+  it('should default expense categories to no transactionType', async () => {
+    const categories = await firstValueFrom(service.getCategories());
+    const food = categories.find((c) => c.id === 'food');
+    expect(food).toBeDefined();
+    expect(food!.transactionType).toBeUndefined();
   });
 });

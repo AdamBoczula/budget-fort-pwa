@@ -2,8 +2,33 @@
 
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
+:root {
+  --app-space-2: 0.25rem;
+  --app-space-4: 0.5rem;
+  --app-space-6: 1rem;
+
+  --app-color-outline: #e2e8f0;
+  --app-color-surface-muted: #f8fafc;
+  --app-color-primary: #3b82f6;
+  --app-color-primary-contrast: #ffffff;
+
+  --app-radius-md: 0.5rem;
+
+  --app-transition-base: 0.2s ease;
+
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --app-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 html {
   color-scheme: light dark;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -14,6 +39,13 @@ body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+app-root {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 html,
@@ -46,6 +78,9 @@ html.theme-rose-red {
 html.theme-magenta-violet {
   color-scheme: dark;
 
+  --app-color-outline: #334155;
+  --app-color-surface-muted: #1e293b;
+
   @include mat.theme((
     color: (
       theme-type: dark,
@@ -58,6 +93,9 @@ html.theme-magenta-violet {
 
 html.theme-cyan-orange {
   color-scheme: dark;
+
+  --app-color-outline: #334155;
+  --app-color-surface-muted: #1e293b;
 
   @include mat.theme((
     color: (

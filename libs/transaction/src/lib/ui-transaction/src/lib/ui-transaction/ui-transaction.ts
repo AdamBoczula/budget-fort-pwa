@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-ui-transaction',
+  selector: 'transaction-ui',
   imports: [],
   templateUrl: './ui-transaction.html',
   styleUrl: './ui-transaction.scss',
