@@ -1,0 +1,68 @@
+.settings-section {
+  padding: 1rem 0;
+
+  h2 {
+    margin: 0 0 0.75rem 0;
+    font: var(--mat-sys-title-medium-font);
+    font-size: var(--mat-sys-title-medium-size);
+    font-weight: var(--mat-sys-title-medium-weight);
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.settings-loading {
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
+  padding: 1rem 0;
+  margin: 0;
+}
+
+.settings-empty {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
+}
+
+/* ---- section header with action ---- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+/* ---- panel actions (edit / delete buttons) ---- */
+.panel-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ---- subcategory header ---- */
+.subcategory-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+  margin-bottom: 0.5rem;
+}
+
+/* ---- category icon ---- */
+.category-icon {
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.income-badge {
+  margin-left: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--mat-sys-primary);
+  vertical-align: middle;
+}

@@ -81,4 +81,16 @@ export class SubcategoryStore {
       await this.subcategoriesTable.bulkPut(records);
     });
   }
+
+  /* ---- CRUD ---- */
+
+  /** Update a subcategory (e.g. rename). Uses put() for full replacement. */
+  public async updateSubcategoryAsync(subcategory: Subcategory): Promise<void> {
+    await this.subcategoriesTable.put(subcategory);
+  }
+
+  /** Delete a subcategory by its primary key. */
+  public async deleteSubcategoryAsync(id: string): Promise<void> {
+    await this.subcategoriesTable.delete(id);
+  }
 }

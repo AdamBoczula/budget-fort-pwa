@@ -7,6 +7,8 @@ const mockStore = {
   getSubcategories: vi.fn().mockReturnValue(of([])),
   getSubcategoriesAsync: vi.fn().mockResolvedValue([]),
   upsertSubcategoryAsync: vi.fn().mockResolvedValue(undefined),
+  updateSubcategoryAsync: vi.fn().mockResolvedValue(undefined),
+  deleteSubcategoryAsync: vi.fn().mockResolvedValue(undefined),
 };
 
 describe('SubcategoryService', () => {
@@ -50,5 +52,16 @@ describe('SubcategoryService', () => {
   it('should not upsert empty subcategory', async () => {
     await service.upsertSubcategoryAsync('transport', '   ');
     expect(mockStore.upsertSubcategoryAsync).not.toHaveBeenCalled();
+  });
+
+  it('should update a subcategory via store', async () => {
+    const sub = { id: 'sub-1', categoryId: 'transport', name: 'Samochód osobowy' };
+    await service.updateSubcategoryAsync(sub);
+    expect(mockStore.updateSubcategoryAsync).toHaveBeenCalledWith(sub);
+  });
+
+  it('should delete a subcategory via store', async () => {
+    await service.deleteSubcategoryAsync('sub-1');
+    expect(mockStore.deleteSubcategoryAsync).toHaveBeenCalledWith('sub-1');
   });
 });

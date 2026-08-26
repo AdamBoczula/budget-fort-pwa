@@ -144,6 +144,7 @@ describe('TransactionFormComponent', () => {
 
     // Czekamy aż resource załaduje podkategorie
     await vi.waitFor(() => {
+      // @ts-expect-error — test accesses protected resource to verify loading status
       expect(component.subcategories.status()).toBe('resolved');
     }, { timeout: 3000 });
 
@@ -153,6 +154,7 @@ describe('TransactionFormComponent', () => {
       if (query) {
         await user.type(subcategoryInput, query);
       }
+      // @ts-expect-error — test accesses protected computed for filtering logic
       return component.filteredSubcategories().map((s) => s.name);
     };
 
@@ -285,6 +287,7 @@ describe('TransactionFormComponent', () => {
     it('should enable save button when date is changed', async () => {
       const { fixture } = await renderEditForm();
       const component = fixture.componentInstance;
+      // @ts-expect-error — test accesses protected selectedDate to simulate change for isDirty check
       component.selectedDate = new Date(2026, 7, 14); // different day
       fixture.detectChanges();
       expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();

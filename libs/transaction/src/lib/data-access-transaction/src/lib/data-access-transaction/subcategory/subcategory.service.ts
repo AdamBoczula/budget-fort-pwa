@@ -28,6 +28,18 @@ export class SubcategoryService {
     });
   }
 
+  /* ---- CRUD ---- */
+
+  /** Update a subcategory (e.g. rename). */
+  public async updateSubcategoryAsync(subcategory: Subcategory): Promise<void> {
+    await this.subcategoryStore.updateSubcategoryAsync(subcategory);
+  }
+
+  /** Delete a subcategory by its primary key. */
+  public async deleteSubcategoryAsync(id: string): Promise<void> {
+    await this.subcategoryStore.deleteSubcategoryAsync(id);
+  }
+
   private normalize(subcategories: Subcategory[]): Subcategory[] {
     const seen = new Set<string>();
     return subcategories.filter((sub) => {

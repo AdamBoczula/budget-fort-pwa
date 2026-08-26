@@ -11,7 +11,7 @@ const mockSubcategories = [
 
 describe('SubcategoryStore', () => {
   let store: SubcategoryStore;
-  let tableMock: { add: ReturnType<typeof vi.fn>; bulkPut: ReturnType<typeof vi.fn>; where: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn>; toArray: ReturnType<typeof vi.fn> };
+  let tableMock: { add: ReturnType<typeof vi.fn>; bulkPut: ReturnType<typeof vi.fn>; where: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn>; toArray: ReturnType<typeof vi.fn>; put: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     tableMock = {
@@ -19,6 +19,8 @@ describe('SubcategoryStore', () => {
       bulkPut: vi.fn(),
       count: vi.fn().mockResolvedValue(0),
       toArray: vi.fn().mockResolvedValue(mockSubcategories),
+      put: vi.fn().mockResolvedValue(undefined),
+      delete: vi.fn().mockResolvedValue(undefined),
       where: vi.fn().mockReturnValue({
         equals: vi.fn().mockReturnValue({
           sortBy: vi.fn().mockResolvedValue(mockSubcategories.filter((s) => s.categoryId === 'transport')),
@@ -74,5 +76,16 @@ describe('SubcategoryStore', () => {
     const subcategory = { id: 'sub-new', categoryId: 'car', name: 'Paliwo' };
     await store.upsertSubcategoryAsync(subcategory);
     expect(tableMock.add).not.toHaveBeenCalled();
+  });
+
+  it('should update a subcategory via put', async () => {
+    const updated = { id: 'sub-1', categoryId: 'transport', name: 'Samochód osobowy' };
+    await store.updateSubcategoryAsync(updated);
+    expect(tableMock.put).toHaveBeenCalledWith(updated);
+  });
+
+  it('should delete a subcategory by id', async () => {
+    await store.deleteSubcategoryAsync('sub-1');
+    expect(tableMock.delete).toHaveBeenCalledWith('sub-1');
   });
 });

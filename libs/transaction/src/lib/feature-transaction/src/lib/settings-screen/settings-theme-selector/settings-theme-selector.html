@@ -1,0 +1,17 @@
+<section class="settings-section">
+  <h2 i18n="@@settings.themeTitle">Motyw kolorystyczny</h2>
+
+  <mat-form-field appearance="outline" class="settings-select">
+    <mat-label i18n="@@settings.themeLabel">Wybierz motyw</mat-label>
+    <mat-select [value]="activeTheme()" (selectionChange)="onThemeChange($event.value)">
+      @for (theme of themeOptions; track theme.id) {
+        <mat-option [value]="theme.id">
+          <div class="theme-option">
+            <span class="theme-swatch" [attr.data-theme]="theme.id"></span>
+            <span>{{ theme.label }}</span>
+          </div>
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</section>

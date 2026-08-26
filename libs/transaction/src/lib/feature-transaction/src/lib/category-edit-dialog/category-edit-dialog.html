@@ -1,0 +1,75 @@
+<h2 mat-dialog-title i18n="@@categoryEditDialog.title">
+  {{ isEditMode ? 'Edytuj kategorię' : 'Dodaj kategorię' }}
+</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label i18n="@@categoryEditDialog.name">Nazwa kategorii</mat-label>
+    <input matInput [(ngModel)]="name" />
+  </mat-form-field>
+
+  <!-- Color picker -->
+  <span class="picker-label" i18n="@@categoryEditDialog.color">Kolor</span>
+  <div class="color-grid">
+    @for (c of colors; track c) {
+      <div
+        class="color-swatch"
+        [class.selected]="c === colorHex"
+        [style.background]="c"
+        (click)="selectColor(c)"
+        (keydown.enter)="selectColor(c)"
+        tabindex="0"
+        role="radio"
+        [attr.aria-checked]="c === colorHex"
+        [attr.aria-label]="c"
+      ></div>
+    }
+  </div>
+
+  <!-- Icon picker -->
+  <span class="picker-label" i18n="@@categoryEditDialog.icon">Ikona</span>
+  <div class="icon-grid">
+    @for (icn of icons; track icn) {
+      <div
+        class="icon-item"
+        [class.selected]="icn === icon"
+        (click)="selectIcon(icn)"
+        (keydown.enter)="selectIcon(icn)"
+        tabindex="0"
+        role="radio"
+        [attr.aria-checked]="icn === icon"
+        [attr.aria-label]="icn"
+      >
+        <mat-icon>{{ icn }}</mat-icon>
+      </div>
+    }
+  </div>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label i18n="@@categoryEditDialog.sortOrder">Kolejność sortowania</mat-label>
+    <input matInput type="number" [(ngModel)]="sortOrder" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label i18n="@@categoryEditDialog.transactionType">Typ transakcji</mat-label>
+    <mat-select [(ngModel)]="transactionType">
+      <mat-option [value]="''" i18n="@@categoryEditDialog.typeExpense">Wydatek</mat-option>
+      <mat-option value="income" i18n="@@categoryEditDialog.typeIncome">Przychód</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-slide-toggle [(ngModel)]="isHidden" i18n="@@categoryEditDialog.hidden">
+    Ukryta kategoria
+  </mat-slide-toggle>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" i18n="@@categoryEditDialog.cancel">Anuluj</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!canSave"
+    (click)="save()"
+    i18n="@@categoryEditDialog.save"
+  >{{ isEditMode ? 'Zapisz' : 'Dodaj' }}</button>
+</mat-dialog-actions>

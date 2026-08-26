@@ -1,0 +1,92 @@
+<section class="settings-section">
+  <div class="section-header">
+    <h2 i18n="@@settings.categoriesTitle">Kategorie i podkategorie</h2>
+    <button mat-stroked-button (click)="addCategory()" i18n="@@settings.addCategoryBtn">
+      <mat-icon>add</mat-icon> Dodaj kategorię
+    </button>
+  </div>
+
+  @if (categoriesData.isLoading()) {
+    <p class="settings-loading" i18n="@@settings.loading">Ładowanie...</p>
+  } @else {
+    <mat-accordion>
+      @for (category of visibleCategories(); track category.id) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon
+                class="category-icon"
+                [style.color]="category.colorHex"
+              >{{ category.icon }}</mat-icon>
+              <span>{{ category.name }}</span>
+              @if (category.transactionType === 'income') {
+                <mat-icon
+                  class="income-badge"
+                  i18n-matTooltip="@@settings.incomeBadge"
+                  matTooltip="Kategoria przychodowa"
+                >trending_up</mat-icon>
+              }
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <!-- category action buttons -->
+          <div class="panel-actions">
+            <button
+              mat-icon-button
+              (click)="$event.stopPropagation(); editCategory(category)"
+              i18n-matTooltip="@@settings.editCategoryTooltip"
+              matTooltip="Edytuj kategorię"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="$event.stopPropagation(); deleteCategory(category)"
+              i18n-matTooltip="@@settings.deleteCategoryTooltip"
+              matTooltip="Usuń kategorię"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          @let subs = getSubcategories(category.id);
+
+          <div class="subcategory-header">
+            <span i18n="@@settings.subcategoriesLabel">Podkategorie</span>
+            <button
+              mat-icon-button
+              (click)="$event.stopPropagation(); addSubcategory(category.id)"
+              i18n-matTooltip="@@settings.addSubcategoryTooltip"
+              matTooltip="Dodaj podkategorię"
+            >
+              <mat-icon>add_circle</mat-icon>
+            </button>
+          </div>
+
+          @if (subs.length > 0) {
+            <mat-chip-listbox>
+              @for (sub of subs; track sub.id) {
+                <mat-chip-row [removable]="true" (removed)="deleteSubcategory(sub)">
+                  {{ sub.name }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="$event.stopPropagation(); editSubcategory(category.id, sub)"
+                    i18n-matTooltip="@@settings.editSubcategoryTooltip"
+                    matTooltip="Edytuj"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
+            </mat-chip-listbox>
+          } @else {
+            <p class="settings-empty" i18n="@@settings.noSubcategories">Brak podkategorii</p>
+          }
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</section>

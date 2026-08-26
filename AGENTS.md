@@ -140,3 +140,4 @@ npm exec nx e2e budget-fort-e2e --skip-nx-cache             # 5 e2e tests
 - **Architecture:** keep transaction domain logic cohesive across `libs/transaction/**`. Respect Nx module boundaries and tags. Do not bypass boundaries for quick fixes.
 - **State:** use Angular Signals + lightweight services + resources APIs. Avoid heavy global state frameworks for MVP.
 - **i18n:** user-facing strings must be added to the xliff files in `apps/budget-fort/src/locale/` (e.g., `messages.en.xlf`).
+- **Component design:** follow the decomposition rules in `docs/ai/02-agent-operating-model.md#component-design-standards`. One concern per component, extract constants and utilities, avoid mega-components.

@@ -31,4 +31,22 @@ export class CategoryService {
       (category) => !category.isHidden && category.transactionType !== 'income',
     );
   }
+
+  /* ---- CRUD ---- */
+
+  public async createCategoryAsync(category: Category): Promise<void> {
+    await this.categoryStore.createCategoryAsync(category);
+  }
+
+  public async updateCategoryAsync(category: Category): Promise<void> {
+    await this.categoryStore.updateCategoryAsync(category);
+  }
+
+  public async deleteCategoryAsync(id: string): Promise<void> {
+    await this.categoryStore.deleteCategoryAsync(id);
+  }
+
+  public async reorderCategoriesAsync(categories: Category[]): Promise<void> {
+    await this.categoryStore.reorderCategoriesAsync(categories);
+  }
 }

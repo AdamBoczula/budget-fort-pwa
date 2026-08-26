@@ -1,0 +1,21 @@
+<h2 mat-dialog-title i18n="@@subcategoryEditDialog.title">
+  {{ isEditMode ? 'Edytuj podkategorię' : 'Dodaj podkategorię' }}
+</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label i18n="@@subcategoryEditDialog.name">Nazwa podkategorii</mat-label>
+    <input matInput [(ngModel)]="name" />
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" i18n="@@subcategoryEditDialog.cancel">Anuluj</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!canSave"
+    (click)="save()"
+    i18n="@@subcategoryEditDialog.save"
+  >{{ isEditMode ? 'Zapisz' : 'Dodaj' }}</button>
+</mat-dialog-actions>

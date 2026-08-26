@@ -96,12 +96,14 @@ export class TransactionNavigationDrawerComponent {
       return [
         { label: 'Dashboard', route: '/dashboard' },
         { label: 'Transactions', route: '/feature-transaction' },
+        { label: 'Settings', route: '/feature-transaction/settings' },
       ];
     }
 
     return [
       { label: 'Panel glowny', route: '/dashboard' },
       { label: 'Transakcje', route: '/feature-transaction' },
+      { label: 'Ustawienia', route: '/feature-transaction/settings' },
     ];
   }
 }

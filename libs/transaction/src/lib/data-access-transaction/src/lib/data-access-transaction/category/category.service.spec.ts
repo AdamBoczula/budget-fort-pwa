@@ -28,6 +28,10 @@ describe('CategoryService', () => {
   const categoryStoreMock = {
     seedCategoriesIfEmpty: () => of(void 0),
     getCategories: () => of(mockCategories),
+    createCategoryAsync: vi.fn().mockResolvedValue(undefined),
+    updateCategoryAsync: vi.fn().mockResolvedValue(undefined),
+    deleteCategoryAsync: vi.fn().mockResolvedValue(undefined),
+    reorderCategoriesAsync: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(() => {
@@ -68,5 +72,32 @@ describe('CategoryService', () => {
     const food = categories.find((c) => c.id === 'food');
     expect(food).toBeDefined();
     expect(food!.transactionType).toBeUndefined();
+  });
+
+  it('should create a category via store', async () => {
+    const newCat: Category = {
+      id: 'new-cat', name: 'Nowa', colorHex: '#000', icon: 'star',
+      sortOrder: 99, isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    };
+    await service.createCategoryAsync(newCat);
+    expect(categoryStoreMock.createCategoryAsync).toHaveBeenCalledWith(newCat);
+  });
+
+  it('should update a category via store', async () => {
+    const updated: Category = { ...mockCategories[0], name: 'Zmieniona' };
+    await service.updateCategoryAsync(updated);
+    expect(categoryStoreMock.updateCategoryAsync).toHaveBeenCalledWith(updated);
+  });
+
+  it('should delete a category via store', async () => {
+    await service.deleteCategoryAsync('food');
+    expect(categoryStoreMock.deleteCategoryAsync).toHaveBeenCalledWith('food');
+  });
+
+  it('should reorder categories via store', async () => {
+    const reordered = [...mockCategories].reverse();
+    await service.reorderCategoriesAsync(reordered);
+    expect(categoryStoreMock.reorderCategoriesAsync).toHaveBeenCalledWith(reordered);
   });
 });

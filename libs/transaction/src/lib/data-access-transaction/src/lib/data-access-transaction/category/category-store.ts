@@ -32,4 +32,31 @@ export class CategoryStore {
       await this.categoriesTable.bulkPut([...categories]);
     });
   }
+
+  /* ---- CRUD ---- */
+
+  /** Upsert a single category (create or full update). */
+  public async updateCategoryAsync(category: Category): Promise<void> {
+    await this.categoriesTable.put(category);
+  }
+
+  /** Delete a category by its primary key. */
+  public async deleteCategoryAsync(id: string): Promise<void> {
+    await this.categoriesTable.delete(id);
+  }
+
+  /** Add a new category. */
+  public async createCategoryAsync(category: Category): Promise<void> {
+    await this.categoriesTable.put(category);
+  }
+
+  /**
+   * Reorder categories by bulk-updating their sortOrder values.
+   * Expects the full array of categories (all visible + hidden) in the new order.
+   */
+  public async reorderCategoriesAsync(
+    categories: Category[],
+  ): Promise<void> {
+    await this.categoriesTable.bulkPut(categories);
+  }
 }

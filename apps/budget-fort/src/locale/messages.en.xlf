@@ -147,6 +147,38 @@
         <source>Inne</source>
         <target>Other</target>
       </trans-unit>
+      <trans-unit id="settings.categoriesTitle" datatype="html">
+        <source>Kategorie i podkategorie</source>
+        <target>Categories and subcategories</target>
+      </trans-unit>
+      <trans-unit id="settings.loading" datatype="html">
+        <source>Ładowanie...</source>
+        <target>Loading...</target>
+      </trans-unit>
+      <trans-unit id="settings.incomeBadge" datatype="html">
+        <source>Kategoria przychodowa</source>
+        <target>Income category</target>
+      </trans-unit>
+      <trans-unit id="settings.noSubcategories" datatype="html">
+        <source>Brak podkategorii</source>
+        <target>No subcategories</target>
+      </trans-unit>
+      <trans-unit id="settings.themeTitle" datatype="html">
+        <source>Motyw kolorystyczny</source>
+        <target>Color theme</target>
+      </trans-unit>
+      <trans-unit id="settings.themeLabel" datatype="html">
+        <source>Wybierz motyw</source>
+        <target>Select theme</target>
+      </trans-unit>
+      <trans-unit id="settings.currencyTitle" datatype="html">
+        <source>Waluta</source>
+        <target>Currency</target>
+      </trans-unit>
+      <trans-unit id="settings.currencyLabel" datatype="html">
+        <source>Wybierz walutę</source>
+        <target>Select currency</target>
+      </trans-unit>
       <trans-unit id="lastTransaction.placeholder" datatype="html">
         <source>Ostatnia transakcja (w przygotowaniu).</source>
         <target>Last transaction (coming soon).</target>
