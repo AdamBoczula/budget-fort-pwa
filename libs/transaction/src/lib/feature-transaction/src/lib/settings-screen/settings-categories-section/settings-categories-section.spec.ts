@@ -153,4 +153,23 @@ describe('SettingsCategoriesSectionComponent', () => {
       expect(subcategoryLabels.length).toBeGreaterThanOrEqual(1);
     });
   });
+it('should open add category dialog when clicking Dodaj kategorię button', async () => {
+    const user = userEvent.setup();
+    await render(SettingsCategoriesSectionComponent);
+
+    const addBtn = await screen.findByRole('button', { name: /dodaj kategorię/i });
+    await user.click(addBtn);
+
+    await waitFor(() => {
+      // Dialog title should show "Dodaj kategorię" (add mode, not edit mode)
+      const dialogTitle = screen.getByRole('heading', { name: /^dodaj kategorię$/i });
+      expect(dialogTitle).toBeDefined();
+    });
+
+    // The form field for category name should be visible in the dialog
+    await waitFor(() => {
+      const nameInput = screen.getByLabelText('Nazwa kategorii');
+      expect(nameInput).toBeDefined();
+    });
+  });
 });

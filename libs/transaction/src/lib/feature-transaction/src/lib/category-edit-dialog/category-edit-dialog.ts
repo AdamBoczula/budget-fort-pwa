@@ -45,14 +45,14 @@ export class CategoryEditDialogComponent {
   private readonly dialogData = inject<CategoryEditDialogData>(MAT_DIALOG_DATA);
   private readonly categoryService = inject(CategoryService);
 
-  protected readonly isEditMode = !!this.dialogData.category;
+  protected readonly isEditMode = !!this.dialogData?.category;
 
-  protected name = this.dialogData.category?.name ?? '';
-  protected colorHex = this.dialogData.category?.colorHex ?? '#16A34A';
-  protected icon = this.dialogData.category?.icon ?? 'restaurant';
-  protected sortOrder = this.dialogData.category?.sortOrder ?? 99;
-  protected isHidden = this.dialogData.category?.isHidden ?? false;
-  protected transactionType: TransactionType | '' = this.dialogData.category?.transactionType ?? '';
+  protected name = this.dialogData?.category?.name ?? '';
+  protected colorHex = this.dialogData?.category?.colorHex ?? '#16A34A';
+  protected icon = this.dialogData?.category?.icon ?? 'restaurant';
+  protected sortOrder = this.dialogData?.category?.sortOrder ?? 99;
+  protected isHidden = this.dialogData?.category?.isHidden ?? false;
+  protected transactionType: TransactionType | '' = this.dialogData?.category?.transactionType ?? '';
 
   protected readonly colors = DEFAULT_COLORS;
   protected readonly icons = DEFAULT_ICONS;
@@ -73,9 +73,10 @@ export class CategoryEditDialogComponent {
     if (!this.canSave) return;
 
     const now = new Date().toISOString();
-    const category: Category = this.dialogData.category
+    const dialogData = this.dialogData;
+    const category: Category = dialogData?.category
       ? {
-          ...this.dialogData.category,
+          ...dialogData.category,
           name: this.name.trim(),
           colorHex: this.colorHex,
           icon: this.icon,

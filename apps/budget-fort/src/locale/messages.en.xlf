@@ -187,6 +187,58 @@
         <source>Dolny panel transakcji (w przygotowaniu).</source>
         <target>Transaction bottom sheet (coming soon).</target>
       </trans-unit>
+      <trans-unit id="dashboard.pickPeriodAria" datatype="html">
+        <source>Wybierz okres</source>
+        <target>Pick period</target>
+      </trans-unit>
+      <trans-unit id="dashboard.prevPeriodAria" datatype="html">
+        <source>Poprzedni okres</source>
+        <target>Previous period</target>
+      </trans-unit>
+      <trans-unit id="dashboard.nextPeriodAria" datatype="html">
+        <source>Następny okres</source>
+        <target>Next period</target>
+      </trans-unit>
+      <trans-unit id="dashboard.periodModeAria" datatype="html">
+        <source>Tryb okresu</source>
+        <target>Period mode</target>
+      </trans-unit>
+      <trans-unit id="dashboard.monthMode" datatype="html">
+        <source>Miesiąc</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="dashboard.yearMode" datatype="html">
+        <source>Rok</source>
+        <target>Year</target>
+      </trans-unit>
+      <trans-unit id="dashboard.pieChartEmpty" datatype="html">
+        <source>Brak wydatków w tym okresie</source>
+        <target>No expenses in this period</target>
+      </trans-unit>
+      <trans-unit id="dashboard.categoryListEmpty" datatype="html">
+        <source>Brak wydatków w tym okresie.</source>
+        <target>No expenses in this period.</target>
+      </trans-unit>
+      <trans-unit id="dashboard.detailDate" datatype="html">
+        <source>Data</source>
+        <target>Date</target>
+      </trans-unit>
+      <trans-unit id="dashboard.detailSubcategory" datatype="html">
+        <source>Podkategoria</source>
+        <target>Subcategory</target>
+      </trans-unit>
+      <trans-unit id="dashboard.detailAmount" datatype="html">
+        <source>Kwota</source>
+        <target>Amount</target>
+      </trans-unit>
+      <trans-unit id="dashboard.detailEditTooltip" datatype="html">
+        <source>Edytuj</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="dashboard.detailEditAria" datatype="html">
+        <source>Edytuj transakcję</source>
+        <target>Edit transaction</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

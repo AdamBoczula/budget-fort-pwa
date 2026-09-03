@@ -1,9 +1,8 @@
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, ElementRef, inject, resource, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,15 +30,16 @@ export type TransactionFormResult = {
     FormsModule, MatAutocompleteModule, MatButtonModule, MatDatepickerModule,
     MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatTooltipModule,
   ],
-  providers: [provideNativeDateAdapter()],
   templateUrl: './transaction-form.html',
   styleUrl: './transaction-form.scss',
 })
-export class TransactionFormComponent {
+export class TransactionFormComponent implements AfterViewInit {
   private readonly categoryService = inject(CategoryService);
   private readonly subcategoryService = inject(SubcategoryService);
   private readonly dialogRef = inject(MatDialogRef<TransactionFormComponent>);
   private readonly dialogData = inject<TransactionFormData>(MAT_DIALOG_DATA);
+
+  @ViewChild('amountInput') amountInput!: ElementRef<HTMLInputElement>;
 
   /** Kategorie załadowane przez resource(). */
   protected readonly categories = resource({
@@ -125,6 +125,11 @@ export class TransactionFormComponent {
 
   protected get transactionType(): TransactionType {
     return this.selectedCategory.transactionType ?? 'expense';
+  }
+
+  ngAfterViewInit(): void {
+    if (this.isEditMode) return;
+    this.amountInput.nativeElement.focus();
   }
 
   protected selectCategory(category: Category): void {

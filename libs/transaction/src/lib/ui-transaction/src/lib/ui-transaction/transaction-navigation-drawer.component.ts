@@ -94,14 +94,14 @@ export class TransactionNavigationDrawerComponent {
   private createNavigationItems(): ReadonlyArray<NavigationItem> {
     if (this.localeId.startsWith('en')) {
       return [
-        { label: 'Dashboard', route: '/dashboard' },
+        { label: 'Dashboard', route: '/feature-transaction/dashboard' },
         { label: 'Transactions', route: '/feature-transaction' },
         { label: 'Settings', route: '/feature-transaction/settings' },
       ];
     }
 
     return [
-      { label: 'Panel glowny', route: '/dashboard' },
+      { label: 'Panel główny', route: '/feature-transaction/dashboard' },
       { label: 'Transakcje', route: '/feature-transaction' },
       { label: 'Ustawienia', route: '/feature-transaction/settings' },
     ];

@@ -124,6 +124,31 @@ describe('LastTransactionItemComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
+  it('should emit edit on item click', async () => {
+    const user = userEvent.setup();
+    const { fixture } = await render(LastTransactionItemComponent, {
+      componentInputs: { transaction: expenseTransaction, category: expenseCategory },
+    });
+    const spy = vi.fn();
+    fixture.componentInstance.edit.subscribe(spy);
+    await user.click(screen.getByTestId('last-transaction-item'));
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should not emit edit when clicking delete button', async () => {
+    const user = userEvent.setup();
+    const { fixture } = await render(LastTransactionItemComponent, {
+      componentInputs: { transaction: expenseTransaction, category: expenseCategory },
+    });
+    const editSpy = vi.fn();
+    const deleteSpy = vi.fn();
+    fixture.componentInstance.edit.subscribe(editSpy);
+    fixture.componentInstance.deleteItem.subscribe(deleteSpy);
+    await user.click(screen.getByTestId('last-transaction-item__delete-btn'));
+    expect(deleteSpy).toHaveBeenCalledOnce();
+    expect(editSpy).not.toHaveBeenCalled();
+  });
+
   it('should render fallback when category is missing', async () => {
     await render(LastTransactionItemComponent, {
       componentInputs: { transaction: expenseTransaction },

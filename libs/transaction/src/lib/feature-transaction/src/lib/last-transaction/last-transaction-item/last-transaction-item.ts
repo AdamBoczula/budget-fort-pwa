@@ -9,7 +9,15 @@ import { Category, Transaction } from '@data-access-transaction';
   selector: 'transaction-last-transaction-item',
   imports: [CurrencyPipe, DatePipe, MatButtonModule, MatIconModule, MatTooltipModule],
   template: `
-    <div class="item" data-testid="last-transaction-item">
+    <div
+      class="item"
+      data-testid="last-transaction-item"
+      tabindex="0"
+      role="button"
+      (click)="edit.emit()"
+      (keydown.enter)="edit.emit()"
+      (keydown.space)="edit.emit(); $event.preventDefault()"
+    >
       <div class="left">
         <div
           class="icon"
@@ -51,7 +59,7 @@ import { Category, Transaction } from '@data-access-transaction';
             type="button"
             i18n-aria-label="@@lastTransactions.editAria"
             aria-label="Edytuj transakcję"
-            (click)="edit.emit()"
+            (click)="$event.stopPropagation(); edit.emit()"
             matTooltip="Edytuj"
             i18n-matTooltip="@@lastTransactions.editTooltip"
             data-testid="last-transaction-item__edit-btn"
@@ -64,7 +72,7 @@ import { Category, Transaction } from '@data-access-transaction';
             type="button"
             i18n-aria-label="@@lastTransactions.deleteAria"
             aria-label="Usuń transakcję"
-            (click)="deleteItem.emit()"
+            (click)="$event.stopPropagation(); deleteItem.emit()"
             matTooltip="Usuń"
             i18n-matTooltip="@@lastTransactions.deleteTooltip"
             data-testid="last-transaction-item__delete-btn"

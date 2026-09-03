@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { TransactionFormComponent } from './transaction-form';
@@ -39,6 +40,7 @@ describe('TransactionFormComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: { category } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
       ],
     });
 
@@ -57,6 +59,35 @@ describe('TransactionFormComponent', () => {
     expect(found).toBeDefined();
   });
 
+  it('should auto-focus amount field in create mode', async () => {
+    await renderForm(expenseCategory);
+    expect(screen.getByLabelText('Kwota')).toHaveFocus();
+  });
+
+  it('should not auto-focus amount field in edit mode', async () => {
+    const existingTransaction: Transaction = {
+      id: 'tx-1',
+      amount: -42.5,
+      date: new Date(2026, 7, 15, 12, 0, 0).toISOString(),
+      categoryId: 'food',
+      accountId: 'default',
+      comment: 'Lunch',
+    };
+    await render(TransactionFormComponent, {
+      providers: [
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { category: expenseCategory, transaction: existingTransaction },
+        },
+        { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
+      ],
+    });
+    expect(screen.getByLabelText('Kwota')).not.toHaveFocus();
+  });
+
   it('should save expense with negative amount', async () => {
     const closeSpy = vi.fn();
     const user = userEvent.setup();
@@ -66,6 +97,7 @@ describe('TransactionFormComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: { category: expenseCategory } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
       ],
     });
     await user.clear(screen.getByLabelText('Kwota'));
@@ -85,6 +117,7 @@ describe('TransactionFormComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: { category: incomeCategory } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
       ],
     });
     await user.clear(screen.getByLabelText('Kwota'));
@@ -109,6 +142,7 @@ describe('TransactionFormComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: { category: expenseCategory } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
       ],
     });
     await user.clear(screen.getByLabelText('Kwota'));
@@ -137,6 +171,7 @@ describe('TransactionFormComponent', () => {
             upsertSubcategoryAsync: () => Promise.resolve(),
           },
         },
+        provideNativeDateAdapter(),
       ],
     });
     const component = fixture.componentInstance;
@@ -181,6 +216,7 @@ describe('TransactionFormComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: { category: expenseCategory } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
       ],
     });
     await screen.findByText('Jedzenie');
@@ -200,6 +236,7 @@ describe('TransactionFormComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: { category: incomeCategory } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
       ],
     });
     await screen.findByText('Zarobek');
@@ -220,6 +257,7 @@ describe('TransactionFormComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: { category: expenseCategory } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
       ],
     });
     await user.click(screen.getByRole('button', { name: /Anuluj/i }));
@@ -246,6 +284,7 @@ describe('TransactionFormComponent', () => {
           },
           { provide: CategoryService, useValue: mockService },
           { provide: SubcategoryService, useValue: mockSubcategoryService },
+          provideNativeDateAdapter(),
         ],
       });
 

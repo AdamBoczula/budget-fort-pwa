@@ -182,4 +182,21 @@ describe('SettingsPageScreen (integration)', () => {
       expect(subcategoryLabels.length).toBeGreaterThanOrEqual(1);
     });
   });
+it('should open add category dialog when clicking Dodaj kategorię button (integration)', async () => {
+    const user = userEvent.setup();
+    await render(SettingsPageScreen);
+
+    const addBtn = await screen.findByRole('button', { name: /dodaj kategorię/i });
+    await user.click(addBtn);
+
+    await waitFor(() => {
+      const dialogTitle = screen.getByRole('heading', { name: /^dodaj kategorię$/i });
+      expect(dialogTitle).toBeDefined();
+    });
+
+    await waitFor(() => {
+      const nameInput = screen.getByLabelText('Nazwa kategorii');
+      expect(nameInput).toBeDefined();
+    });
+  });
 });

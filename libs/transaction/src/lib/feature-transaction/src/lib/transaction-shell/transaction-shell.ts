@@ -10,6 +10,7 @@ import {
 } from '@ui-transaction';
 import { TransactionTopBarComponent } from '../header/header';
 import { TransactionState } from '../service/transaction-state/transaction-state';
+import { DashboardState } from '../service/dashboard-state/dashboard-state';
 
 const THEME_STORAGE_KEY = 'budget-fort.theme';
 const DEFAULT_THEME_ID: TransactionThemeId = 'azure-blue';
@@ -48,8 +49,8 @@ const TRANSACTION_THEME_OPTIONS: ReadonlyArray<TransactionThemeOption> = [
       <mat-sidenav-content>
         <header>
           <transaction-header
-            [monthName]="monthName"
-            [balance]="transactionState.balance()"
+            [monthName]="dashboardState.periodLabel()"
+            [balance]="dashboardState.totalSpending()"
             (menuClick)="toggleSidebar()"
           />
         </header>
@@ -64,6 +65,7 @@ const TRANSACTION_THEME_OPTIONS: ReadonlyArray<TransactionThemeOption> = [
 })
 export class TransactionShellComponent {
   protected readonly transactionState = inject(TransactionState);
+  protected readonly dashboardState = inject(DashboardState);
   private readonly document = inject(DOCUMENT);
   private readonly localeId = inject(LOCALE_ID);
   private readonly localStorageService = inject(LocalStorageService);
@@ -71,10 +73,6 @@ export class TransactionShellComponent {
   protected readonly isSidebarOpen = signal(false);
   protected readonly activeTheme = signal<TransactionThemeId>(DEFAULT_THEME_ID);
   protected readonly themeOptions = TRANSACTION_THEME_OPTIONS;
-  protected readonly monthName = new Intl.DateTimeFormat(this.localeId, {
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date());
 
   public constructor() {
     const savedTheme = this.localStorageService.getItem(THEME_STORAGE_KEY);
