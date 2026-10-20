@@ -1,0 +1,61 @@
+// spec: docs/specs/budget/planowanie-budzetu.md
+
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.settings-budget {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px 16px 24px;
+
+  &__title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  &__card {
+    margin-bottom: 16px;
+  }
+
+  &__categories-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__section-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 24px 0 12px;
+  }
+
+  &__actions {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      min-width: 120px;
+    }
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 48px 0;
+    color: var(--mat-sys-on-surface-variant, #666666);
+  }
+
+  &__empty {
+    color: var(--mat-sys-on-surface-variant, #666666);
+    font-style: italic;
+  }
+}

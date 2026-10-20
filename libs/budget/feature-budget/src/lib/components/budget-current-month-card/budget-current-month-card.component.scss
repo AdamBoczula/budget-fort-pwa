@@ -1,0 +1,72 @@
+// spec: docs/specs/budget/planowanie-budzetu.md
+
+.current-month-card {
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    &-icon {
+      color: var(--mat-sys-primary, #1976d2);
+      flex-shrink: 0;
+    }
+
+    &-text {
+      font-size: 15px;
+      font-weight: 500;
+    }
+  }
+
+  &__progress {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  &__totals {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 8px;
+  }
+
+  &__label {
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant, #757575);
+  }
+
+  &__value {
+    font-size: 22px;
+    font-weight: 700;
+
+    &--under {
+      color: var(--mat-sys-tertiary, #2e7d32);
+    }
+
+    &--warn {
+      color: #ff9800;
+    }
+
+    &--over {
+      color: var(--mat-sys-error, #d32f2f);
+    }
+  }
+
+  &__separator {
+    color: var(--mat-sys-on-surface-variant, #bdbdbd);
+    font-size: 22px;
+    margin: 0 4px;
+  }
+
+  &__limit {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--mat-sys-on-surface-variant, #757575);
+  }
+
+  &__summary {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant, #757575);
+  }
+}

@@ -1,16 +1,21 @@
+// spec: docs/specs/budget/planowanie-budzetu.md
 import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
 
 export const BUDGET_FORT_DB_NAME = 'budget-fort-db';
-export const BUDGET_FORT_DB_VERSION = 3;
+export const BUDGET_FORT_DB_VERSION = 4;
 export const TRANSACTION_DB_TOKEN = 'transaction';
 export const CATEGORY_DB_TOKEN = 'category';
 export const SUBCATEGORY_DB_TOKEN = 'subcategory';
+export const BUDGET_DB_TOKEN = 'budget';
+export const CATEGORY_BUDGET_DB_TOKEN = 'categoryBudget';
 
 export const BUDGET_FORT_DB_STORES = {
   [TRANSACTION_DB_TOKEN]: 'id,date,categoryId,accountId,subcategory',
   [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name',
   [SUBCATEGORY_DB_TOKEN]: 'id,categoryId,name',
+  [BUDGET_DB_TOKEN]: 'id',
+  [CATEGORY_BUDGET_DB_TOKEN]: 'id,categoryId',
 } as const;
 
 export type BudgetFortStoreName = keyof typeof BUDGET_FORT_DB_STORES;
@@ -24,9 +29,7 @@ export class LocalDbService {
     return this.database;
   }
 
-  public getTable<RecordType, KeyType = string>(
-    tableName: BudgetFortStoreName,
-  ) {
+  public getTable<RecordType, KeyType = string>(tableName: BudgetFortStoreName) {
     this.assertIndexedDbAvailable();
     return this.database.table<RecordType, KeyType>(tableName);
   }

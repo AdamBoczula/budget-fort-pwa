@@ -1,0 +1,24 @@
+<!-- spec: docs/specs/budget/planowanie-budzetu.md -->
+<div
+  class="budget-progress"
+  role="progressbar"
+  [attr.aria-valuenow]="percentage()"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-label]="label() ? label() + ': ' + percentage() + '%' : percentage() + '%'"
+>
+  @if (label()) {
+    <div class="budget-progress__label">{{ label() }}</div>
+  }
+  <div class="budget-progress__bar-bg">
+    <div
+      class="budget-progress__bar-fill"
+      [style.width.%]="percentage()"
+      [style.background-color]="color()"
+    ></div>
+  </div>
+  <div class="budget-progress__text">
+    {{ formattedSpent() }} / {{ formattedLimit() }} zł
+    <span class="budget-progress__percentage">({{ percentage() }}%)</span>
+  </div>
+</div>

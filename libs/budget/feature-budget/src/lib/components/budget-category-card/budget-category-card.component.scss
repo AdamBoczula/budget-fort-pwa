@@ -1,0 +1,66 @@
+// spec: docs/specs/budget/planowanie-budzetu.md
+
+.category-card {
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 12px;
+  }
+
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__icon {
+    color: var(--mat-sys-primary, #1976d2);
+    flex-shrink: 0;
+  }
+
+  &__label {
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__history {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  &__history-label {
+    font-size: 11px;
+    color: var(--mat-sys-on-surface-variant, #666666);
+  }
+
+  &__history-values {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__history-spent {
+    &--under {
+      color: var(--mat-sys-tertiary, #2e7d32);
+    }
+
+    &--over {
+      color: var(--mat-sys-error, #d32f2f);
+    }
+  }
+
+  &__history-limit {
+    color: var(--mat-sys-on-surface-variant, #757575);
+  }
+
+  &__field {
+    width: 100%;
+  }
+}
