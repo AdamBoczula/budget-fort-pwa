@@ -4,7 +4,12 @@
   "license": "MIT",
   "scripts": {
     "start": "nx serve budget-fort",
-    "start:en": "nx serve budget-fort --configuration=en"
+    "start:en": "nx serve budget-fort --configuration=en",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:css": "stylelint \"**/*.{css,scss}\"",
+    "lint:all": "npm exec nx run-many -t lint && stylelint \"**/*.{css,scss}\"",
+    "prepare": "husky"
   },
   "private": true,
   "dependencies": {
@@ -71,11 +76,15 @@
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-playwright": "^1.6.2",
+    "husky": "^9.1.7",
     "jiti": "2.4.2",
     "jsdom": "~22.1.0",
     "jsonc-eslint-parser": "^2.1.0",
+    "lint-staged": "^17.6.0",
     "nx": "23.1.0",
     "prettier": "^3.8.1",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard-scss": "^17.0.0",
     "supertest": "^7.1.4",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
@@ -85,5 +94,10 @@
     "vite-plugin-pwa": "^1.3.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "~4.1.0"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs}": ["prettier --write", "eslint --fix"],
+    "*.{html,css,scss}": ["prettier --write"],
+    "*.{css,scss}": ["stylelint --fix"]
   }
 }
