@@ -1,6 +1,6 @@
 # AI Readiness Overview
 
-Last updated: 2026-07-22
+Last updated: 2026-10-20
 
 ## Purpose
 
@@ -23,6 +23,8 @@ Before making changes, read in this order:
 6. docs/ai/02-agent-operating-model.md
 7. docs/ai/03-testing-quality-gates.md
 8. docs/ai/05-technology-stack-decisions.md
+9. docs/ai/06-repository-architecture.md
+10. docs/specs/01-spec-workflow.md (SDD process for new features)
 
 ## Workspace Facts
 
@@ -44,15 +46,12 @@ A change is not done until all are true:
 - Unit tests pass
 - Component/integration tests for business flow pass
 - E2E critical path passes
-- Nx affected tasks pass
+- Nx affected tasks pass (`nx affected -t lint test build e2e`)
 - No architecture boundary violations
-- Performance budget is not degraded
-- Security checklist items are addressed
-- Manual QA sign-off is prepared
+- Traceability annotations in place (`// spec:`, `// covers:`, "Implemented in" updated)
+- User has reviewed the changes locally
 
 ## Preferred Validation Command
-
-Use this command before opening a PR:
 
 ```bash
 npm exec nx affected -t lint test build e2e

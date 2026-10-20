@@ -1,6 +1,6 @@
 # Repository Architecture
 
-Last updated: 2026-08-18
+Last updated: 2026-10-20
 
 ## Overview
 
@@ -16,9 +16,12 @@ This document is the authoritative map of the repository. Use it to understand w
 | ------- | ---- | ------- | ---- |
 | `budget-fort` | `apps/budget-fort` | Angular home-budget PWA (main application, shell, routing, i18n) | `type:app` |
 | `budget-fort-e2e` | `apps/budget-fort-e2e` | Playwright e2e tests for the application | — |
-| `feature-transaction` | `libs/transaction/src/lib/feature-transaction` | Transaction feature (Home screen, quick add, last transactions, state facade) | `type:feature` |
-| `data-access-transaction` | `libs/transaction/src/lib/data-access-transaction` | Transaction data access (IndexedDB CRUD via Dexie) | `type:data` |
-| `ui-transaction` | `libs/transaction/src/lib/ui-transaction` | Reusable transaction UI components (header, navigation drawer) | `type:ui` |
+| `feature-transaction` | `libs/transaction/feature-transaction` | Transaction feature (Home screen, quick add, last transactions, state facade) | `type:feature` |
+| `data-access-transaction` | `libs/transaction/data-access-transaction` | Transaction data access (IndexedDB CRUD via Dexie) | `type:data` |
+| `ui-transaction` | `libs/transaction/ui-transaction` | Reusable transaction UI components (header, navigation drawer) | `type:ui` |
+| `feature-budget` | `libs/budget/feature-budget` | Budget feature (settings screen, budget state, aggregation service) | `type:feature` |
+| `data-access-budget` | `libs/budget/data-access-budget` | Budget data access (budget CRUD, category budget CRUD) | `type:data` |
+| `ui-budget` | `libs/budget/ui-budget` | Reusable budget UI components (progress bar, period utils) | `type:ui` |
 | `local-db` | `libs/shared/local-db` | Shared local persistence (Dexie/IndexedDB database instance) | `type:data` |
 
 > **Legacy (do not build here):** `packages/**` (shop, api, models) are Nx template/demo code. They are **not** part of the active application and are not mapped in `tsconfig.base.json`. Do not add new features there.
@@ -27,9 +30,12 @@ This document is the authoritative map of the repository. Use it to understand w
 
 | Alias | Target |
 | ----- | ------ |
-| `@feature-transaction` | `libs/transaction/src/lib/feature-transaction/src/index.ts` |
-| `@data-access-transaction` | `libs/transaction/src/lib/data-access-transaction/src/index.ts` |
-| `@ui-transaction` | `libs/transaction/src/lib/ui-transaction/src/index.ts` |
+| `@feature-transaction` | `libs/transaction/feature-transaction/src/index.ts` |
+| `@data-access-transaction` | `libs/transaction/data-access-transaction/src/index.ts` |
+| `@ui-transaction` | `libs/transaction/ui-transaction/src/index.ts` |
+| `@feature-budget` | `libs/budget/feature-budget/src/index.ts` |
+| `@data-access-budget` | `libs/budget/data-access-budget/src/index.ts` |
+| `@ui-budget` | `libs/budget/ui-budget/src/index.ts` |
 | `local-db` | `libs/shared/local-db/src/index.ts` |
 
 ## Module Boundaries (ESLint `enforce-module-boundaries`)
@@ -104,10 +110,13 @@ Defined in `data-access-transaction` (`model/category.type.ts`).
 
 | Concern | Location |
 | ------- | -------- |
-| New screen/page inside the transaction feature | `libs/transaction/src/lib/feature-transaction/src/lib/` |
-| New state facade / feature business logic | `libs/transaction/src/lib/feature-transaction/src/lib/service/` |
-| New reusable transaction UI component | `libs/transaction/src/lib/ui-transaction/src/lib/` |
-| New CRUD/store logic for entities | `libs/transaction/src/lib/data-access-transaction/src/lib/data-access-transaction/` |
+| New screen/page inside the transaction feature | `libs/transaction/feature-transaction/src/lib/` |
+| New state facade / feature business logic | `libs/transaction/feature-transaction/src/lib/service/` |
+| New reusable transaction UI component | `libs/transaction/ui-transaction/src/lib/` |
+| New CRUD/store logic for entities | `libs/transaction/data-access-transaction/src/lib/` |
+| Budget feature (screens, state, aggregation) | `libs/budget/feature-budget/src/lib/` |
+| Budget data access (CRUD) | `libs/budget/data-access-budget/src/lib/` |
+| Reusable budget UI (progress bars, utils) | `libs/budget/ui-budget/src/lib/` |
 | Shared IndexedDB/Dexie concerns | `libs/shared/local-db/src/lib/` |
 | App-shell concerns (routing shell, theme, i18n) | `apps/budget-fort/src/app/` |
 

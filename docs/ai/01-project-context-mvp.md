@@ -1,6 +1,6 @@
 # Project Context (MVP)
 
-Last updated: 2026-07-22
+Last updated: 2026-10-20
 
 ## Product Intent
 
@@ -13,6 +13,7 @@ In scope:
 - Edit existing transactions
 - Show monthly category spend summaries
 - Show yearly category spend summaries
+- Budget planning — set monthly category limits, track progress, compare month-over-month
 - Currency change support
 - Theme switch support (2-3 themes)
 

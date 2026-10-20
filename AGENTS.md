@@ -38,9 +38,33 @@ This is monorepo of PWA application - for home budget app.
 | `libs/transaction/feature-transaction` (`@feature-transaction`) | Transaction feature (Home screen, quick add, last transactions) |
 | `libs/transaction/data-access-transaction` (`@data-access-transaction`) | Transaction data access (IndexedDB CRUD) |
 | `libs/transaction/ui-transaction` (`@ui-transaction`) | Transaction UI components |
+| `libs/budget/feature-budget` (`@feature-budget`) | Budget feature (settings, planning, aggregation) |
+| `libs/budget/data-access-budget` (`@data-access-budget`) | Budget data access (CRUD) |
+| `libs/budget/ui-budget` (`@ui-budget`) | Budget UI components (progress bar, period utils) |
 | `libs/shared/local-db` (`local-db`) | Shared local persistence (Dexie/IndexedDB) |
 
 > **Legacy:** `packages/**` (shop, api, models) is demo/template code and is **not** part of the active application. Do not build new features there.
+
+## Spec-Driven Development (SDD)
+
+This project uses **Spec-Driven Development** for new features and significant changes.
+The full workflow is defined in `docs/specs/01-spec-workflow.md`.
+
+### Quick SDD overview
+
+1. **Analysis** — invoke the Business Analyst skill (`.opencode/skills/business-analyst.md`) to gather requirements
+2. **Architecture** — design module structure and ADRs (if needed), update the spec
+3. **Implementation (parallel)** — Dev (TDD + code + "Implemented in" updates) || Tester (E2E tests)
+4. **Quality Gate** — `npm exec nx affected -t lint test build e2e`
+5. **Done** — code ready, reviewed locally by user
+
+For bug fixes and small refactors, skip to the regular workflow below.
+
+### SDD traceability
+
+- Every new source file must start with: `// spec: docs/specs/<domain>/<name>.md`
+- Every test must annotate which AC it covers: `// covers: docs/specs/<domain>/<name>.md#AC-N`
+- During implementation, update the spec file's "Implemented in" table continuously
 
 ## AI Agent Read-Order
 
@@ -56,10 +80,11 @@ Before making changes, read these files in order:
 8. `docs/ai/03-testing-quality-gates.md`
 9. `docs/ai/05-technology-stack-decisions.md`
 10. `docs/ai/06-repository-architecture.md`
+11. `docs/specs/01-spec-workflow.md` (if working on a new feature)
 
 ## Mandatory Verification Command
 
-Before opening a PR, run:
+Before marking a task as complete, run:
 
 ```bash
 npm exec nx affected -t lint test build e2e
@@ -126,8 +151,9 @@ And run the full `nx affected` command before marking the task complete.
 ### Existing test commands
 
 ```bash
-npm exec nx test data-access-transaction --skip-nx-cache    # 7 tests
-npm exec nx test feature-transaction --skip-nx-cache        # 16 tests
+npm exec nx test data-access-transaction --skip-nx-cache    # 12 tests
+npm exec nx test feature-transaction --skip-nx-cache        # 187 tests
+npm exec nx test feature-budget --skip-nx-cache             # 18 tests (budget-state + settings-budget-screen)
 npm exec nx test budget-fort --skip-nx-cache                # 4 tests (1 pre-existing fail)
 npm exec nx e2e budget-fort-e2e --skip-nx-cache             # 5 e2e tests
 ```
@@ -140,4 +166,6 @@ npm exec nx e2e budget-fort-e2e --skip-nx-cache             # 5 e2e tests
 - **Architecture:** keep transaction domain logic cohesive across `libs/transaction/**`. Respect Nx module boundaries and tags. Do not bypass boundaries for quick fixes.
 - **State:** use Angular Signals + lightweight services + resources APIs. Avoid heavy global state frameworks for MVP.
 - **i18n:** user-facing strings must be added to the xliff files in `apps/budget-fort/src/locale/` (e.g., `messages.en.xlf`).
-- **Component design:** follow the decomposition rules in `docs/ai/02-agent-operating-model.md#component-design-standards`. One concern per component, extract constants and utilities, avoid mega-components.
+- **Component design:** follow the decomposition rules in `docs/ai/02-agent-operating-model.md#component-design-standards`. Use Container/Presenter pattern for data-heavy screens. One concern per component. Container components MUST use inline templates. Extracted aggregation logic goes into dedicated `@Service()` classes. Avoid mega-components.
+- **Angular 22 specifics:** omit `standalone: true` (now default). Use `@Service()` instead of `@Injectable({ providedIn: 'root' })`. Prefer Reactive Forms over template-driven. Template MUST be inline (`template: \`...\``). Styles MUST be in a separate `.scss` file (`styleUrl: './*.component.scss'`) — never `styles: \`...\`` inline.
+- **CSS:** BEM nesting (`&__element`, `&--modifier`) is standard in SCSS files. Use `styleUrl` to a `.scss` file for all components.
