@@ -2,11 +2,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  Category,
-  CategoryService,
-  Transaction,
-} from '@data-access-transaction';
+import { Category, CategoryService, Transaction } from '@data-access-transaction';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 import {
   TransactionFormComponent,
@@ -16,17 +12,10 @@ import { LastTransactionItemComponent } from './last-transaction-item/last-trans
 
 @Component({
   selector: 'transaction-last-transaction',
-  imports: [
-    MatButtonModule,
-    MatDialogModule,
-    MatIconModule,
-    LastTransactionItemComponent,
-  ],
+  imports: [MatButtonModule, MatDialogModule, MatIconModule, LastTransactionItemComponent],
   template: `
     <section class="last-transactions">
-      <h2 class="last-transactions__title" i18n="@@lastTransactions.title">
-        Ostatnie transakcje
-      </h2>
+      <h2 class="last-transactions__title" i18n="@@lastTransactions.title">Ostatnie transakcje</h2>
 
       @if (lastTransactions().length === 0) {
         <p class="last-transactions__empty" i18n="@@lastTransactions.empty">
@@ -62,9 +51,7 @@ export class LastTransactionComponent {
   });
 
   /** Categories as a flat list (backward compat). */
-  private readonly categories = computed(
-    () => this.categoriesResource.value() ?? [],
-  );
+  private readonly categories = computed(() => this.categoriesResource.value() ?? []);
 
   protected readonly categoryMap = computed(() => {
     const map: Record<string, Category> = {};
@@ -88,16 +75,16 @@ export class LastTransactionComponent {
         const d = new Date(tx.date);
         return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
       })
-      .sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-      );
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return sorted;
   });
 
   protected openEditDialog(transaction: Transaction): void {
     const category = this.categoryMap()[transaction.categoryId];
-    if (!category) return;
+    if (!category) {
+      return;
+    }
 
     const dialogRef = this.dialog.open(TransactionFormComponent, {
       data: { category, transaction },
@@ -108,7 +95,7 @@ export class LastTransactionComponent {
     });
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
-      if (result && result.transaction) {
+      if (result?.transaction) {
         void this.transactionState.editTransaction({
           id: result.transaction.id,
           categoryId: result.categoryId,
@@ -125,7 +112,9 @@ export class LastTransactionComponent {
     const dialogRef = this.dialog.open(DeleteConfirmDialog);
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
+      if (!confirmed) {
+        return;
+      }
       void this.transactionState.deleteTransaction(transaction.id);
     });
   }
@@ -138,14 +127,10 @@ export class LastTransactionComponent {
   template: `
     <h2 mat-dialog-title i18n="@@deleteConfirm.title">Usuń transakcję</h2>
     <mat-dialog-content>
-      <p i18n="@@deleteConfirm.message">
-        Czy na pewno chcesz usunąć tę transakcję?
-      </p>
+      <p i18n="@@deleteConfirm.message">Czy na pewno chcesz usunąć tę transakcję?</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="false" i18n="@@deleteConfirm.cancel">
-        Anuluj
-      </button>
+      <button mat-button [mat-dialog-close]="false" i18n="@@deleteConfirm.cancel">Anuluj</button>
       <button mat-flat-button color="warn" [mat-dialog-close]="true" i18n="@@deleteConfirm.confirm">
         Usuń
       </button>

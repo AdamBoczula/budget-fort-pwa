@@ -24,13 +24,7 @@ import {
 
 @Component({
   selector: 'transaction-settings-categories-section',
-  imports: [
-    MatButtonModule,
-    MatChipsModule,
-    MatExpansionModule,
-    MatIconModule,
-    MatTooltipModule,
-  ],
+  imports: [MatButtonModule, MatChipsModule, MatExpansionModule, MatIconModule, MatTooltipModule],
   templateUrl: './settings-categories-section.html',
   styleUrl: './settings-categories-section.scss',
 })
@@ -43,13 +37,11 @@ export class SettingsCategoriesSectionComponent {
 
   protected readonly categoriesData = resource({
     loader: async () => {
-      const allCategories =
-        await this.categoryService.getCategoriesAsync();
+      const allCategories = await this.categoryService.getCategoriesAsync();
 
       const map = new Map<string, Subcategory[]>();
       for (const category of allCategories) {
-        const subs =
-          await this.subcategoryService.getSubcategoriesAsync(category.id);
+        const subs = await this.subcategoryService.getSubcategoriesAsync(category.id);
         map.set(category.id, subs);
       }
 
@@ -57,9 +49,7 @@ export class SettingsCategoriesSectionComponent {
     },
   });
 
-  protected readonly categories = computed(
-    () => this.categoriesData.value()?.categories ?? [],
-  );
+  protected readonly categories = computed(() => this.categoriesData.value()?.categories ?? []);
 
   protected readonly subcategoriesByCategory = computed(
     () => this.categoriesData.value()?.subcategoriesByCategory ?? new Map(),
@@ -105,7 +95,9 @@ export class SettingsCategoriesSectionComponent {
   }
 
   protected async deleteCategory(category: Category): Promise<void> {
-    if (!confirm(`Usunąć kategorię „${category.name}”?`)) return;
+    if (!confirm(`Usunąć kategorię „${category.name}”?`)) {
+      return;
+    }
     await this.categoryService.deleteCategoryAsync(category.id);
     this.categoriesData.reload();
   }
@@ -127,10 +119,7 @@ export class SettingsCategoriesSectionComponent {
     }
   }
 
-  protected async editSubcategory(
-    categoryId: string,
-    subcategory: Subcategory,
-  ): Promise<void> {
+  protected async editSubcategory(categoryId: string, subcategory: Subcategory): Promise<void> {
     const ref = this.dialog.open<
       SubcategoryEditDialogComponent,
       SubcategoryEditDialogData,
@@ -146,7 +135,9 @@ export class SettingsCategoriesSectionComponent {
   }
 
   protected async deleteSubcategory(subcategory: Subcategory): Promise<void> {
-    if (!confirm(`Usunąć podkategorię „${subcategory.name}”?`)) return;
+    if (!confirm(`Usunąć podkategorię „${subcategory.name}”?`)) {
+      return;
+    }
     await this.subcategoryService.deleteSubcategoryAsync(subcategory.id);
     this.categoriesData.reload();
   }

@@ -18,24 +18,62 @@ export type CategoryEditDialogResult = {
 };
 
 const DEFAULT_COLORS: ReadonlyArray<string> = [
-  '#16A34A', '#2563EB', '#DC2626', '#F59E0B', '#8B5CF6',
-  '#EC4899', '#06B6D4', '#F97316', '#84CC16', '#14B8A6',
-  '#6366F1', '#D946EF', '#0EA5E9', '#E11D48', '#65A30D',
+  '#16A34A',
+  '#2563EB',
+  '#DC2626',
+  '#F59E0B',
+  '#8B5CF6',
+  '#EC4899',
+  '#06B6D4',
+  '#F97316',
+  '#84CC16',
+  '#14B8A6',
+  '#6366F1',
+  '#D946EF',
+  '#0EA5E9',
+  '#E11D48',
+  '#65A30D',
 ];
 
 const DEFAULT_ICONS: ReadonlyArray<string> = [
-  'restaurant', 'shopping_cart', 'directions_car', 'home', 'health_and_safety',
-  'school', 'flight', 'fitness_center', 'pets', 'checkroom',
-  'phone_android', 'water_drop', 'bolt', 'local_gas_station', 'credit_card',
-  'savings', 'payments', 'money_off', 'account_balance', 'trending_up',
-  'receipt_long', 'celebration', 'child_care', 'coffee', 'train',
+  'restaurant',
+  'shopping_cart',
+  'directions_car',
+  'home',
+  'health_and_safety',
+  'school',
+  'flight',
+  'fitness_center',
+  'pets',
+  'checkroom',
+  'phone_android',
+  'water_drop',
+  'bolt',
+  'local_gas_station',
+  'credit_card',
+  'savings',
+  'payments',
+  'money_off',
+  'account_balance',
+  'trending_up',
+  'receipt_long',
+  'celebration',
+  'child_care',
+  'coffee',
+  'train',
 ];
 
 @Component({
   selector: 'transaction-category-edit-dialog',
   imports: [
-    FormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule,
-    MatIconModule, MatInputModule, MatSelectModule, MatSlideToggleModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './category-edit-dialog.html',
   styleUrl: './category-edit-dialog.scss',
@@ -52,7 +90,8 @@ export class CategoryEditDialogComponent {
   protected icon = this.dialogData?.category?.icon ?? 'restaurant';
   protected sortOrder = this.dialogData?.category?.sortOrder ?? 99;
   protected isHidden = this.dialogData?.category?.isHidden ?? false;
-  protected transactionType: TransactionType | '' = this.dialogData?.category?.transactionType ?? '';
+  protected transactionType: TransactionType | '' =
+    this.dialogData?.category?.transactionType ?? '';
 
   protected readonly colors = DEFAULT_COLORS;
   protected readonly icons = DEFAULT_ICONS;
@@ -69,8 +108,14 @@ export class CategoryEditDialogComponent {
     this.icon = icn;
   }
 
+  /**
+   *
+   * moim zdaniem ta logika powinna iść do serwisu.
+   */
   protected async save(): Promise<void> {
-    if (!this.canSave) return;
+    if (!this.canSave) {
+      return;
+    }
 
     const now = new Date().toISOString();
     const dialogData = this.dialogData;

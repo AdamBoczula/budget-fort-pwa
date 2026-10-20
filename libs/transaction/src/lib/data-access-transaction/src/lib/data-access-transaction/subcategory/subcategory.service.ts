@@ -16,11 +16,10 @@ export class SubcategoryService {
     return this.normalize(subcategories);
   }
 
-  public async upsertSubcategoryAsync(
-    categoryId: string,
-    name: string,
-  ): Promise<void> {
-    if (!name.trim()) return;
+  public async upsertSubcategoryAsync(categoryId: string, name: string): Promise<void> {
+    if (!name.trim()) {
+      return;
+    }
     await this.subcategoryStore.upsertSubcategoryAsync({
       id: crypto.randomUUID(),
       categoryId,
@@ -44,7 +43,9 @@ export class SubcategoryService {
     const seen = new Set<string>();
     return subcategories.filter((sub) => {
       const key = `${sub.categoryId}|${sub.name.toLowerCase()}`;
-      if (seen.has(key)) return false;
+      if (seen.has(key)) {
+        return false;
+      }
       seen.add(key);
       return true;
     });

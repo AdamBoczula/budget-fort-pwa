@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { of } from 'rxjs';
 import { CategoriesQuickAddComponent } from './categories-quick-add';
 import { Category, CategoryService, SubcategoryService } from '@data-access-transaction';
@@ -8,14 +9,25 @@ import { TransactionState } from '../service/transaction-state/transaction-state
 describe('CategoriesQuickAddComponent', () => {
   const mockCategories: Category[] = [
     {
-      id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-      sortOrder: 10, isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'food',
+      name: 'Jedzenie',
+      colorHex: '#16A34A',
+      icon: 'restaurant',
+      sortOrder: 10,
+      isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
     {
-      id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
-      sortOrder: 5, isHidden: false, transactionType: 'income',
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'income',
+      name: 'Zarobek',
+      colorHex: '#10B981',
+      icon: 'savings',
+      sortOrder: 5,
+      isHidden: false,
+      transactionType: 'income',
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
   ];
 
@@ -33,6 +45,7 @@ describe('CategoriesQuickAddComponent', () => {
   it('should render category cards', async () => {
     await render(CategoriesQuickAddComponent, {
       providers: [
+        provideNativeDateAdapter(),
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
@@ -56,6 +69,7 @@ describe('CategoriesQuickAddComponent', () => {
 
     await render(CategoriesQuickAddComponent, {
       providers: [
+        provideNativeDateAdapter(),
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
@@ -72,6 +86,7 @@ describe('CategoriesQuickAddComponent', () => {
   it('should display income category with savings icon', async () => {
     await render(CategoriesQuickAddComponent, {
       providers: [
+        provideNativeDateAdapter(),
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
@@ -81,9 +96,7 @@ describe('CategoriesQuickAddComponent', () => {
     const zarobek = await screen.findByText('Zarobek');
     expect(zarobek).toBeInTheDocument();
 
-    const savingsIcons = document.querySelectorAll(
-      '.category-card mat-icon',
-    );
+    const savingsIcons = document.querySelectorAll('.category-card mat-icon');
     const incomeIcon = Array.from(savingsIcons).find(
       (icon) => icon.textContent?.trim() === 'savings',
     );

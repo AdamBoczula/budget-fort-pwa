@@ -1,7 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { TestBed } from '@angular/core/testing';
-import { CategoryService, SubcategoryService, Category, Subcategory } from '@data-access-transaction';
+import {
+  CategoryService,
+  SubcategoryService,
+  Category,
+  Subcategory,
+} from '@data-access-transaction';
 import { LocalStorageService } from 'local-db';
 import { SettingsPageScreen } from './settings-screen';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -48,7 +53,9 @@ const MOCK_SUBCATEGORIES: Subcategory[] = [
 describe('SettingsPageScreen (integration)', () => {
   const categoryServiceMock = {
     getCategoriesAsync: vi.fn().mockResolvedValue(MOCK_CATEGORIES),
-    getVisibleCategoriesAsync: vi.fn().mockResolvedValue(MOCK_CATEGORIES.filter((c) => !c.isHidden)),
+    getVisibleCategoriesAsync: vi
+      .fn()
+      .mockResolvedValue(MOCK_CATEGORIES.filter((c) => !c.isHidden)),
     createCategoryAsync: vi.fn().mockResolvedValue(undefined),
     updateCategoryAsync: vi.fn().mockResolvedValue(undefined),
     deleteCategoryAsync: vi.fn().mockResolvedValue(undefined),
@@ -57,7 +64,9 @@ describe('SettingsPageScreen (integration)', () => {
 
   const subcategoryServiceMock = {
     getSubcategoriesAsync: vi.fn().mockImplementation((categoryId: string) => {
-      if (categoryId === 'food') return Promise.resolve(MOCK_SUBCATEGORIES);
+      if (categoryId === 'food') {
+        return Promise.resolve(MOCK_SUBCATEGORIES);
+      }
       return Promise.resolve([]);
     }),
     upsertSubcategoryAsync: vi.fn().mockResolvedValue(undefined),
@@ -95,7 +104,9 @@ describe('SettingsPageScreen (integration)', () => {
 
   it('should display visible categories (excluding hidden)', async () => {
     await render(SettingsPageScreen);
-    await waitFor(() => { expect(screen.getByText('Jedzenie')).toBeDefined(); });
+    await waitFor(() => {
+      expect(screen.getByText('Jedzenie')).toBeDefined();
+    });
     expect(screen.getByText('Zarobek')).toBeDefined();
     expect(screen.queryByText('Ukryta')).toBeNull();
   });
@@ -104,7 +115,9 @@ describe('SettingsPageScreen (integration)', () => {
     await render(SettingsPageScreen);
     const foodPanel = await screen.findByText('Jedzenie');
     await userEvent.click(foodPanel);
-    await waitFor(() => { expect(screen.getByText('Obiad')).toBeDefined(); });
+    await waitFor(() => {
+      expect(screen.getByText('Obiad')).toBeDefined();
+    });
     expect(screen.getByText('Zakupy')).toBeDefined();
   });
 
@@ -112,7 +125,9 @@ describe('SettingsPageScreen (integration)', () => {
     await render(SettingsPageScreen);
     const incomePanel = await screen.findByText('Zarobek');
     await userEvent.click(incomePanel);
-    await waitFor(() => { expect(screen.getByText('Brak podkategorii')).toBeDefined(); });
+    await waitFor(() => {
+      expect(screen.getByText('Brak podkategorii')).toBeDefined();
+    });
   });
 
   it('should render theme select', async () => {
@@ -147,7 +162,9 @@ describe('SettingsPageScreen (integration)', () => {
 
   it('should restore saved currency from localStorage', async () => {
     localStorageMock.getItem.mockImplementation((key: string) => {
-      if (key === 'budget-fort.currency') return 'GBP';
+      if (key === 'budget-fort.currency') {
+        return 'GBP';
+      }
       return null;
     });
     await render(SettingsPageScreen);
@@ -156,7 +173,9 @@ describe('SettingsPageScreen (integration)', () => {
 
   it('should render add category button', async () => {
     await render(SettingsPageScreen);
-    await waitFor(() => { expect(screen.getByText('Dodaj kategorię')).toBeDefined(); });
+    await waitFor(() => {
+      expect(screen.getByText('Dodaj kategorię')).toBeDefined();
+    });
   });
 
   it('should render edit and delete buttons for each category', async () => {
@@ -182,7 +201,7 @@ describe('SettingsPageScreen (integration)', () => {
       expect(subcategoryLabels.length).toBeGreaterThanOrEqual(1);
     });
   });
-it('should open add category dialog when clicking Dodaj kategorię button (integration)', async () => {
+  it('should open add category dialog when clicking Dodaj kategorię button (integration)', async () => {
     const user = userEvent.setup();
     await render(SettingsPageScreen);
 

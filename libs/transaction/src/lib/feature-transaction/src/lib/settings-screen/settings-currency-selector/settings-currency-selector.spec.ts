@@ -44,15 +44,14 @@ describe('SettingsCurrencySelectorComponent', () => {
     const eurOption = await screen.findByText('Euro (EUR)');
     await user.click(eurOption);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
-      'budget-fort.currency',
-      'EUR',
-    );
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('budget-fort.currency', 'EUR');
   });
 
   it('should restore saved currency from localStorage', async () => {
     localStorageMock.getItem.mockImplementation((key: string) => {
-      if (key === 'budget-fort.currency') return 'GBP';
+      if (key === 'budget-fort.currency') {
+        return 'GBP';
+      }
       return null;
     });
 

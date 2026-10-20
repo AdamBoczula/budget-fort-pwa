@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, computed, ElementRef, inject, resource, signal, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  resource,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +18,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Category, CategoryService, SubcategoryService, Transaction, TransactionType } from '@data-access-transaction';
+import {
+  Category,
+  CategoryService,
+  SubcategoryService,
+  Transaction,
+  TransactionType,
+} from '@data-access-transaction';
 
 export type TransactionFormData = {
   category: Category;
@@ -17,9 +32,12 @@ export type TransactionFormData = {
   transaction?: Transaction;
 };
 export type TransactionFormResult = {
-  categoryId: string; amount: number;
-  type: TransactionType; date: string;
-  comment: string; accountId: string;
+  categoryId: string;
+  amount: number;
+  type: TransactionType;
+  date: string;
+  comment: string;
+  accountId: string;
   subcategory?: string;
   transaction?: Transaction;
 };
@@ -27,8 +45,16 @@ export type TransactionFormResult = {
 @Component({
   selector: 'transaction-form-dialog',
   imports: [
-    FormsModule, MatAutocompleteModule, MatButtonModule, MatDatepickerModule,
-    MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatTooltipModule,
+    FormsModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatMenuModule,
+    MatTooltipModule,
   ],
   templateUrl: './transaction-form.html',
   styleUrl: './transaction-form.scss',
@@ -58,10 +84,10 @@ export class TransactionFormComponent implements AfterViewInit {
   protected readonly filteredSubcategories = computed(() => {
     const all = this.subcategories.value() ?? [];
     const query = this.subcategorySignal().replace(/\s/g, '').toLowerCase();
-    if (!query) return all;
-    return all.filter((sub) =>
-      sub.name.replace(/\s/g, '').toLowerCase().includes(query),
-    );
+    if (!query) {
+      return all;
+    }
+    return all.filter((sub) => sub.name.replace(/\s/g, '').toLowerCase().includes(query));
   });
 
   /** Kategorie tego samego typu co wybrana (expense/income) do menu zmiany. */
@@ -77,8 +103,12 @@ export class TransactionFormComponent implements AfterViewInit {
   protected comment = '';
   protected subcategorySignal = signal('');
   /** Sync from ngModel — we read signal for computed reactivity, but field is bound for ngModel. */
-  protected get subcategory(): string { return this.subcategorySignal(); }
-  protected set subcategory(value: string) { this.subcategorySignal.set(value); }
+  protected get subcategory(): string {
+    return this.subcategorySignal();
+  }
+  protected set subcategory(value: string) {
+    this.subcategorySignal.set(value);
+  }
   /** Whether the form is in edit mode. */
   protected isEditMode = false;
 
@@ -89,7 +119,9 @@ export class TransactionFormComponent implements AfterViewInit {
   private readonly originalSubcategory: string;
 
   protected get isDirty(): boolean {
-    if (!this.isEditMode) return true;
+    if (!this.isEditMode) {
+      return true;
+    }
 
     const amountChanged = this.amount !== this.originalAmount;
     const commentChanged = this.comment.trim() !== this.originalComment;
@@ -118,9 +150,11 @@ export class TransactionFormComponent implements AfterViewInit {
   }
 
   private sameDay(a: Date, b: Date): boolean {
-    return a.getFullYear() === b.getFullYear()
-      && a.getMonth() === b.getMonth()
-      && a.getDate() === b.getDate();
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
   }
 
   protected get transactionType(): TransactionType {
@@ -128,7 +162,9 @@ export class TransactionFormComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.isEditMode) return;
+    if (this.isEditMode) {
+      return;
+    }
     this.amountInput.nativeElement.focus();
   }
 
@@ -138,7 +174,9 @@ export class TransactionFormComponent implements AfterViewInit {
   }
 
   protected async save(): Promise<void> {
-    if (!this.amount || this.amount <= 0 || !this.selectedDate) return;
+    if (!this.amount || this.amount <= 0 || !this.selectedDate) {
+      return;
+    }
     const trimmedSubcategory = this.subcategory.trim();
     if (trimmedSubcategory) {
       await this.subcategoryService.upsertSubcategoryAsync(
@@ -146,8 +184,8 @@ export class TransactionFormComponent implements AfterViewInit {
         trimmedSubcategory,
       );
     }
-    const signedAmount = this.transactionType === 'expense'
-      ? -Math.abs(this.amount) : Math.abs(this.amount);
+    const signedAmount =
+      this.transactionType === 'expense' ? -Math.abs(this.amount) : Math.abs(this.amount);
     this.dialogRef.close({
       categoryId: this.selectedCategory.id,
       amount: signedAmount,

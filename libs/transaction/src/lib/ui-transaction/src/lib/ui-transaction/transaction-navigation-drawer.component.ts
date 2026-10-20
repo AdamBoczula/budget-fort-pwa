@@ -6,8 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 
-export type TransactionThemeId =
-  'azure-blue' | 'rose-red' | 'magenta-violet' | 'cyan-orange';
+export type TransactionThemeId = 'azure-blue' | 'rose-red' | 'magenta-violet' | 'cyan-orange';
 
 export type TransactionThemeOption = {
   id: TransactionThemeId;
@@ -54,10 +53,7 @@ type NavigationItem = {
     <div class="theme-switcher">
       <mat-form-field appearance="outline" class="theme-field">
         <mat-label i18n="@@navigation.themeLabel">Motyw</mat-label>
-        <mat-select
-          [value]="activeTheme()"
-          (selectionChange)="selectTheme($event.value)"
-        >
+        <mat-select [value]="activeTheme()" (selectionChange)="selectTheme($event.value)">
           @for (theme of themeOptions(); track theme.id) {
             <mat-option [value]="theme.id">{{ theme.label }}</mat-option>
           }
@@ -70,14 +66,12 @@ type NavigationItem = {
 export class TransactionNavigationDrawerComponent {
   private readonly localeId = inject(LOCALE_ID);
 
-  protected readonly navigationItems: ReadonlyArray<NavigationItem> =
-    this.createNavigationItems();
+  protected readonly navigationItems: ReadonlyArray<NavigationItem> = this.createNavigationItems();
 
   public readonly drawerClose = output<void>();
   public readonly themeChange = output<TransactionThemeId>();
   public readonly activeTheme = input.required<TransactionThemeId>();
-  public readonly themeOptions =
-    input.required<ReadonlyArray<TransactionThemeOption>>();
+  public readonly themeOptions = input.required<ReadonlyArray<TransactionThemeOption>>();
 
   protected requestClose(): void {
     this.drawerClose.emit();
@@ -96,6 +90,7 @@ export class TransactionNavigationDrawerComponent {
       return [
         { label: 'Dashboard', route: '/feature-transaction/dashboard' },
         { label: 'Transactions', route: '/feature-transaction' },
+        { label: 'Budget', route: '/feature-transaction/settings/budget' },
         { label: 'Settings', route: '/feature-transaction/settings' },
       ];
     }
@@ -103,6 +98,7 @@ export class TransactionNavigationDrawerComponent {
     return [
       { label: 'Panel główny', route: '/feature-transaction/dashboard' },
       { label: 'Transakcje', route: '/feature-transaction' },
+      { label: 'Budżet', route: '/feature-transaction/settings/budget' },
       { label: 'Ustawienia', route: '/feature-transaction/settings' },
     ];
   }

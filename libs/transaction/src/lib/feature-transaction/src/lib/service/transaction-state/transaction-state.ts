@@ -1,11 +1,4 @@
-import {
-  computed,
-  inject,
-  Injectable,
-  LOCALE_ID,
-  resource,
-  signal,
-} from '@angular/core';
+import { computed, inject, Injectable, LOCALE_ID, resource, signal } from '@angular/core';
 import { Transaction, TransactionService } from '@data-access-transaction';
 
 type TransactionGroup = {
@@ -39,9 +32,7 @@ export class TransactionState {
   });
 
   /** Backward-compat computed: lista transakcji (pusta przed załadowaniem). */
-  public readonly transactions = computed(
-    () => this.transactionsResource.value() ?? [],
-  );
+  public readonly transactions = computed(() => this.transactionsResource.value() ?? []);
 
   /** Backward-compat computed: stan ładowania. */
   public readonly loading = computed(() =>
@@ -59,7 +50,9 @@ export class TransactionState {
   /** Backward-compat computed: komunikat błędu. */
   public readonly error = computed<string | null>(() => {
     const err = this.transactionsResource.error();
-    if (!err) return null;
+    if (!err) {
+      return null;
+    }
     return this.translate('Nie udalo sie zaladowac transakcji.');
   });
 
@@ -126,11 +119,7 @@ export class TransactionState {
   }
 
   private dayKey(date: Date): string {
-    return new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-    ).toISOString();
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
   }
 
   private dayLabelFromKey(key: string): string {

@@ -17,10 +17,7 @@ export type SubcategoryEditDialogResult = {
 
 @Component({
   selector: 'transaction-subcategory-edit-dialog',
-  imports: [
-    FormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule,
-    MatInputModule,
-  ],
+  imports: [FormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
   templateUrl: './subcategory-edit-dialog.html',
   styleUrl: './subcategory-edit-dialog.scss',
 })
@@ -39,7 +36,9 @@ export class SubcategoryEditDialogComponent {
   }
 
   protected async save(): Promise<void> {
-    if (!this.canSave) return;
+    if (!this.canSave) {
+      return;
+    }
 
     if (this.isEditMode && this.dialogData.subcategory) {
       const updated: Subcategory = {
@@ -49,11 +48,10 @@ export class SubcategoryEditDialogComponent {
       await this.subcategoryService.updateSubcategoryAsync(updated);
       this.dialogRef.close({ subcategory: updated });
     } else {
-      await this.subcategoryService.upsertSubcategoryAsync(
-        this.categoryId,
-        this.name.trim(),
-      );
-      this.dialogRef.close({ subcategory: { id: '', categoryId: this.categoryId, name: this.name.trim() } });
+      await this.subcategoryService.upsertSubcategoryAsync(this.categoryId, this.name.trim());
+      this.dialogRef.close({
+        subcategory: { id: '', categoryId: this.categoryId, name: this.name.trim() },
+      });
     }
   }
 

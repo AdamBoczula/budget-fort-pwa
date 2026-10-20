@@ -1,7 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { TestBed } from '@angular/core/testing';
-import { CategoryService, SubcategoryService, Category, Subcategory } from '@data-access-transaction';
+import {
+  CategoryService,
+  SubcategoryService,
+  Category,
+  Subcategory,
+} from '@data-access-transaction';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { SettingsCategoriesSectionComponent } from './settings-categories-section';
 
@@ -58,7 +63,9 @@ describe('SettingsCategoriesSectionComponent', () => {
 
   const subcategoryServiceMock = {
     getSubcategoriesAsync: vi.fn().mockImplementation((categoryId: string) => {
-      if (categoryId === 'food') return Promise.resolve(MOCK_SUBCATEGORIES);
+      if (categoryId === 'food') {
+        return Promise.resolve(MOCK_SUBCATEGORIES);
+      }
       return Promise.resolve([]);
     }),
     upsertSubcategoryAsync: vi.fn().mockResolvedValue(undefined),
@@ -153,7 +160,7 @@ describe('SettingsCategoriesSectionComponent', () => {
       expect(subcategoryLabels.length).toBeGreaterThanOrEqual(1);
     });
   });
-it('should open add category dialog when clicking Dodaj kategorię button', async () => {
+  it('should open add category dialog when clicking Dodaj kategorię button', async () => {
     const user = userEvent.setup();
     await render(SettingsCategoriesSectionComponent);
 
