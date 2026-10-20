@@ -20,9 +20,7 @@ test.describe('Settings – category CRUD', () => {
     });
 
     // Verify dialog title indicates add mode (not edit mode)
-    await expect(
-      page.getByRole('heading', { name: /^dodaj kategorię$/i }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^dodaj kategorię$/i })).toBeVisible();
 
     // Verify the category name input field is visible in the dialog
     await expect(page.getByLabel('Nazwa kategorii')).toBeVisible();
@@ -33,6 +31,6 @@ test.describe('Settings – category CRUD', () => {
 
     // Close the dialog
     await page.getByRole('button', { name: /anuluj/i }).click();
-    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+    await expect(page.locator('mat-dialog-container')).toBeHidden();
   });
 });

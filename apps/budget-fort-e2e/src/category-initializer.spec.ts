@@ -10,17 +10,14 @@ type StoredCategory = {
 async function getStoredCategories(page: Page): Promise<StoredCategory[]> {
   return page.evaluate(async () => {
     const databases = await indexedDB.databases();
-    const targetDatabase = databases.find(
-      (database) => database.name === 'budget-fort-db',
-    );
+    const targetDatabase = databases.find((database) => database.name === 'budget-fort-db');
 
-    if (!targetDatabase) return [];
+    if (!targetDatabase) {
+      return [];
+    }
 
     return new Promise<StoredCategory[]>((resolve, reject) => {
-      const request = indexedDB.open(
-        'budget-fort-db',
-        targetDatabase.version,
-      );
+      const request = indexedDB.open('budget-fort-db', targetDatabase.version);
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const database = request.result;
@@ -51,9 +48,7 @@ test.describe('Categories initialization', () => {
   test('should seed categories into IndexedDB on app startup', async ({ page }) => {
     await page.goto('/feature-transaction');
 
-    await expect
-      .poll(async () => (await getStoredCategories(page)).length)
-      .toBeGreaterThan(0);
+    await expect.poll(async () => (await getStoredCategories(page)).length).toBeGreaterThan(0);
 
     const categories = await getStoredCategories(page);
     const names = categories.map((category) => category.name);
@@ -68,7 +63,9 @@ test.describe('Categories initialization', () => {
     expect(await page.locator('.category-card').count()).toBeGreaterThan(0);
   });
 
-  test('should keep the mobile shell inside the viewport and scroll only transactions', async ({ page }) => {
+  test('should keep the mobile shell inside the viewport and scroll only transactions', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 5000 });
@@ -124,19 +121,15 @@ test.describe('Categories initialization', () => {
     expect(layout.headerRight).toBe(layout.documentClientWidth);
     expect(layout.transactionsOverflowX).toBe('hidden');
     expect(layout.transactionsOverflowY).toBe('auto');
-    expect(layout.transactionsScrollHeight).toBeGreaterThan(
-      layout.transactionsClientHeight,
-    );
+    expect(layout.transactionsScrollHeight).toBeGreaterThan(layout.transactionsClientHeight);
 
     await page.locator('transaction-last-transaction').evaluate((element) => {
       element.scrollTop = 160;
     });
     const scrollPositions = await page.evaluate(() => ({
       page: window.scrollY,
-      sidenav:
-        document.querySelector('mat-sidenav-content')?.scrollTop ?? -1,
-      transactions:
-        document.querySelector('transaction-last-transaction')?.scrollTop ?? 0,
+      sidenav: document.querySelector('mat-sidenav-content')?.scrollTop ?? -1,
+      transactions: document.querySelector('transaction-last-transaction')?.scrollTop ?? 0,
     }));
 
     expect(scrollPositions.transactions).toBeGreaterThan(0);
@@ -170,7 +163,9 @@ test.describe('Categories initialization', () => {
     await expect(page.getByRole('button', { name: /Anuluj/i })).toBeVisible();
   });
 
-  test('should display transaction list with correct category names and icons on first load', async ({ page }) => {
+  test('should display transaction list with correct category names and icons on first load', async ({
+    page,
+  }) => {
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 5000 });
     await seedCurrentMonthTransactions(page, 1);

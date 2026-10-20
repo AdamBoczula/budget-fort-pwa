@@ -16,9 +16,9 @@ test.describe('Transaction edit dirty check', () => {
     await expect(saveBtn).toBeDisabled();
 
     await page.getByPlaceholder('0.00').fill('99.99');
-    await expect(saveBtn).not.toBeDisabled();
+    await expect(saveBtn).toBeEnabled();
 
     await page.getByRole('button', { name: /Anuluj/i }).click();
-    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+    await expect(page.locator('mat-dialog-container')).toBeHidden();
   });
 });
