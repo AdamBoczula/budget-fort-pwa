@@ -23,7 +23,7 @@ export function roundHalfUp(value: number, decimals = 2): number {
  * Gdy total = 0, zwraca 0.
  */
 export function calculatePercentage(part: number, total: number): number {
-  if (total === 0) return 0;
+  if (total === 0) {return 0;}
   return roundHalfUp((Math.abs(part) / Math.abs(total)) * 100, 1);
 }
 

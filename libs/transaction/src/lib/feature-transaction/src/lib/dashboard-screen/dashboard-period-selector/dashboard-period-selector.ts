@@ -115,7 +115,7 @@ export class DashboardPeriodSelectorComponent {
   }
 
   protected onMonthSelected(date: Date | null, picker: MatDatepicker<Date>): void {
-    if (this.dashboardState.periodMode() !== 'month' || !date) return;
+    if (this.dashboardState.periodMode() !== 'month' || !date) {return;}
 
     this.dashboardState.setMonth(date.getMonth());
     this.dashboardState.setYear(date.getFullYear());
@@ -123,7 +123,7 @@ export class DashboardPeriodSelectorComponent {
   }
 
   protected onYearSelected(date: Date | null, picker: MatDatepicker<Date>): void {
-    if (this.dashboardState.periodMode() !== 'year' || !date) return;
+    if (this.dashboardState.periodMode() !== 'year' || !date) {return;}
 
     this.dashboardState.setYear(date.getFullYear());
     picker.close();

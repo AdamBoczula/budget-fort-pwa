@@ -82,7 +82,7 @@ export class DashboardState {
 
   readonly totalSpending = computed(() => {
     const expenses = this.expenseTransactions();
-    if (expenses.length === 0) return 0;
+    if (expenses.length === 0) {return 0;}
     return roundHalfUp(
       expenses.reduce((sum, tx) => sum + Math.abs(tx.amount), 0),
       2,
@@ -115,7 +115,7 @@ export class DashboardState {
         2,
       );
 
-      if (totalAmount === 0) continue;
+      if (totalAmount === 0) {continue;}
 
       result.push({
         categoryId: entry.cat.id,
@@ -134,7 +134,7 @@ export class DashboardState {
   });
 readonly totalIncome = computed(() => {
     const incomes = this.filteredTransactions().filter((tx) => tx.amount > 0);
-    if (incomes.length === 0) return 0;
+    if (incomes.length === 0) {return 0;}
     return roundHalfUp(
       incomes.reduce((sum, tx) => sum + tx.amount, 0),
       2,

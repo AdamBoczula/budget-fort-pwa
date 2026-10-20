@@ -75,7 +75,7 @@ export function isInMonth(
   month: number,
 ): boolean {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return false;
+  if (isNaN(date.getTime())) {return false;}
   return date.getFullYear() === year && date.getMonth() === month;
 }
 
@@ -87,6 +87,6 @@ export function isInYear(
   year: number,
 ): boolean {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return false;
+  if (isNaN(date.getTime())) {return false;}
   return date.getFullYear() === year;
 }

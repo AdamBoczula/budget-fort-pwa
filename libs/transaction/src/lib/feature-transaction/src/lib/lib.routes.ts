@@ -14,6 +14,11 @@ export const featureTransactionRoutes: Route[] = [
       { path: '', component: HomePageScreen },
       { path: 'dashboard', component: DashboardPageScreen },
       { path: 'settings', component: SettingsPageScreen },
+      {
+        path: 'settings/budget',
+        loadComponent: () =>
+          import('@feature-budget').then((m) => m.SettingsBudgetScreenComponent),
+      },
     ],
   },
 ];

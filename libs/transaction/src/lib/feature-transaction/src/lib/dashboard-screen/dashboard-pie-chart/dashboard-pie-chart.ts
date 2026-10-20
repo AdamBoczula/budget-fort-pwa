@@ -99,7 +99,7 @@ export class DashboardPieChartComponent {
 
   private setupChart(): void {
     const canvasEl = this.chartCanvas();
-    if (!canvasEl) return;
+    if (!canvasEl) {return;}
 
     // Zniszcz poprzedni wykres
     if (this.chartInstance) {
@@ -108,7 +108,7 @@ export class DashboardPieChartComponent {
     }
 
     const data = this.dashboardState.categorySpending();
-    if (data.length === 0) return;
+    if (data.length === 0) {return;}
 
     const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',

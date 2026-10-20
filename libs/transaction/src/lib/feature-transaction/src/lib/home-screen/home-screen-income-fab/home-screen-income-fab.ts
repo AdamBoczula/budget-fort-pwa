@@ -35,7 +35,7 @@ export class HomeScreenIncomeFabComponent {
     const incomeCategory = categories.find(
       (c) => c.transactionType === 'income',
     );
-    if (!incomeCategory) return;
+    if (!incomeCategory) {return;}
 
     const dialogRef = this.dialog.open(TransactionFormComponent, {
       data: { category: incomeCategory },
