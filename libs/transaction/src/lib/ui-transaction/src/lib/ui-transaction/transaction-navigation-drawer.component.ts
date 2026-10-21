@@ -1,5 +1,8 @@
+// spec: docs/specs/budget/przeglad-historii-budzetu.md
+
 import { Component, inject, input, LOCALE_ID, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -13,9 +16,17 @@ export type TransactionThemeOption = {
   label: string;
 };
 
-type NavigationItem = {
+type MenuGroup = {
   label: string;
-  route: string;
+  icon: string;
+  items: MenuItem[];
+};
+
+type MenuItem = {
+  label: string;
+  icon: string;
+  route?: string;
+  action?: 'addTransaction';
 };
 
 @Component({
@@ -27,6 +38,7 @@ type NavigationItem = {
     MatIconModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatExpansionModule,
   ],
   template: `
     <div class="header">
@@ -42,13 +54,44 @@ type NavigationItem = {
       </button>
     </div>
 
-    <mat-nav-list>
-      @for (item of navigationItems; track item.route) {
-        <a mat-list-item [routerLink]="item.route" (click)="requestClose()">
-          {{ item.label }}
-        </a>
+    <mat-accordion displayMode="flat" [multi]="false">
+      @for (group of menuGroups; track group.label) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="menu-group-icon">{{ group.icon }}</mat-icon>
+              <span>{{ group.label }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <mat-nav-list class="submenu">
+            @for (item of group.items; track item.label) {
+              @if (item.route) {
+                <a
+                  mat-list-item
+                  [routerLink]="item.route"
+                  routerLinkActive="active-link"
+                  #rla="routerLinkActive"
+                  [class.active]="rla.isActive"
+                  (click)="requestClose()"
+                >
+                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                  <span>{{ item.label }}</span>
+                </a>
+              } @else if (item.action === 'addTransaction') {
+                <button
+                  mat-list-item
+                  (click)="onAddTransaction()"
+                >
+                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            }
+          </mat-nav-list>
+        </mat-expansion-panel>
       }
-    </mat-nav-list>
+    </mat-accordion>
 
     <div class="theme-switcher">
       <mat-form-field appearance="outline" class="theme-field">
@@ -66,9 +109,10 @@ type NavigationItem = {
 export class TransactionNavigationDrawerComponent {
   private readonly localeId = inject(LOCALE_ID);
 
-  protected readonly navigationItems: ReadonlyArray<NavigationItem> = this.createNavigationItems();
+  protected readonly menuGroups: ReadonlyArray<MenuGroup> = this.createMenuGroups();
 
   public readonly drawerClose = output<void>();
+  public readonly addTransactionRequest = output<void>();
   public readonly themeChange = output<TransactionThemeId>();
   public readonly activeTheme = input.required<TransactionThemeId>();
   public readonly themeOptions = input.required<ReadonlyArray<TransactionThemeOption>>();
@@ -85,21 +129,57 @@ export class TransactionNavigationDrawerComponent {
     this.themeChange.emit(themeId);
   }
 
-  private createNavigationItems(): ReadonlyArray<NavigationItem> {
-    if (this.localeId.startsWith('en')) {
-      return [
-        { label: 'Dashboard', route: '/feature-transaction/dashboard' },
-        { label: 'Transactions', route: '/feature-transaction' },
-        { label: 'Budget', route: '/feature-transaction/settings/budget' },
-        { label: 'Settings', route: '/feature-transaction/settings' },
-      ];
-    }
+  protected onAddTransaction(): void {
+    this.addTransactionRequest.emit();
+  }
+
+  private createMenuGroups(): ReadonlyArray<MenuGroup> {
+    const isEn = this.localeId.startsWith('en');
 
     return [
-      { label: 'Panel główny', route: '/feature-transaction/dashboard' },
-      { label: 'Transakcje', route: '/feature-transaction' },
-      { label: 'Budżet', route: '/feature-transaction/settings/budget' },
-      { label: 'Ustawienia', route: '/feature-transaction/settings' },
+      {
+        label: isEn ? 'Transactions' : 'Transakcje',
+        icon: 'receipt',
+        items: [
+          {
+            label: isEn ? 'Add new' : 'Dodaj nowe',
+            icon: 'add',
+            action: 'addTransaction',
+          },
+          {
+            label: isEn ? 'Dashboard' : 'Dashboard',
+            icon: 'dashboard',
+            route: '/feature-transaction/dashboard',
+          },
+        ],
+      },
+      {
+        label: isEn ? 'Budget' : 'Budżet',
+        icon: 'savings',
+        items: [
+          {
+            label: isEn ? 'Add new' : 'Dodaj nowy',
+            icon: 'add',
+            route: '/feature-transaction/settings/budget',
+          },
+          {
+            label: isEn ? 'Dashboard' : 'Dashboard',
+            icon: 'dashboard',
+            route: '/feature-transaction/dashboard',
+          },
+        ],
+      },
+      {
+        label: isEn ? 'Settings' : 'Ustawienia',
+        icon: 'settings',
+        items: [
+          {
+            label: isEn ? 'Settings' : 'Ustawienia',
+            icon: 'settings',
+            route: '/feature-transaction/settings',
+          },
+        ],
+      },
     ];
   }
 }
