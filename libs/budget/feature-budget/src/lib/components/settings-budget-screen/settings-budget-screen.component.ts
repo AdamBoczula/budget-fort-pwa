@@ -1,10 +1,12 @@
-// spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/przeglad-historii-budzetu.md
 
 import { Component, computed, effect, inject, resource, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormRecord, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
+import { MatDatepickerModule, MatDatepicker } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -23,12 +25,22 @@ import { BudgetPreviousMonthCardComponent } from '../budget-previous-month-card/
 import { BudgetCategoryCardComponent } from '../budget-category-card/budget-category-card.component';
 import { BudgetQuickActionsComponent } from '../budget-quick-actions/budget-quick-actions.component';
 
+type PeriodMode = 'month' | 'year';
+
+/** Get the current year and month in local timezone. */
+function getCurrentPeriod(): { year: number; month: number } {
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth() };
+}
+
 @Component({
   selector: 'budget-settings-budget-screen',
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatCardModule,
+    MatDatepickerModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
@@ -45,65 +57,105 @@ import { BudgetQuickActionsComponent } from '../budget-quick-actions/budget-quic
           <span>Ładowanie...</span>
         </div>
       } @else {
-        <h1 class="settings-budget__title">Budżet miesięczny</h1>
+        <!-- Period selector -->
+        <div class="period-selector">
+          <div class="period-selector__navigation">
+            <button
+              mat-icon-button
+              (click)="goToPrevious()"
+              [disabled]="!canGoPrevious()"
+              aria-label="Poprzedni okres"
+            >
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+
+            <span class="period-selector__label">{{ periodLabel() }}</span>
+
+            <button
+              mat-icon-button
+              (click)="goToNext()"
+              [disabled]="!canGoNext()"
+              aria-label="Następny okres"
+            >
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+
+          <div class="period-selector__controls">
+            <mat-button-toggle-group
+              [value]="periodMode()"
+              (change)="onModeChange($event.value)"
+              aria-label="Tryb okresu"
+            >
+              <mat-button-toggle value="month">Miesiąc</mat-button-toggle>
+              <mat-button-toggle value="year">Rok</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+        </div>
+
+        <h1 class="settings-budget__title">{{ pageTitle() }}</h1>
 
         <mat-card class="settings-budget__card" appearance="outlined">
           <mat-card-content>
             <budget-current-month-card
-              [spent]="currentMonthSpent()"
+              [spent]="selectedPeriodSpent()"
               [limit]="agg.overallBudget()"
-              [percentage]="agg.currentMonthPercentage()"
+              [percentage]="agg.selectedPeriodPercentage()"
             />
           </mat-card-content>
         </mat-card>
 
-        <budget-quick-actions />
+        @if (isCurrentPeriod()) {
+          <budget-quick-actions />
+        }
 
-        @if (agg.previousMonthSummary(); as summary) {
+        @if (agg.selectedPreviousPeriodSummary(); as summary) {
           <mat-card class="settings-budget__card" appearance="outlined">
             <mat-card-content>
               <budget-previous-month-card
                 [summary]="summary"
-                [comparison]="agg.monthComparison()"
+                [comparison]="agg.selectedPeriodComparison()"
               />
             </mat-card-content>
           </mat-card>
         }
 
-        <div class="settings-budget__categories-header">
-          <h2 class="settings-budget__section-title">Limity kategorii</h2>
-          @if (agg.previousMonthSummary()) {
-            <button mat-button color="primary" (click)="copyLimitsFromPreviousMonth()">
-              <mat-icon>content_copy</mat-icon>
-              Kopiuj limity z poprzedniego miesiąca
-            </button>
-          }
-        </div>
-
-        @if ((categories()?.length ?? 0) === 0) {
-          <p class="settings-budget__empty">Brak kategorii wydatkowych</p>
-        } @else {
-          @for (category of categories(); track category.id) {
-            <mat-card class="settings-budget__card" appearance="outlined">
-              <mat-card-content>
-                <budget-category-card
-                  [category]="category"
-                  [spending]="agg.categorySpendingMap().get(category.id)"
-                  [control]="getCategoryControl(category.id)"
-                />
-              </mat-card-content>
-            </mat-card>
-          }
-        }
-
-        <div class="settings-budget__actions">
-          <button mat-raised-button color="primary" [disabled]="saving()" (click)="onSave()">
-            @if (saving()) {
-              <mat-progress-spinner mode="indeterminate" diameter="20" />
+        @if (isCurrentPeriod()) {
+          <div class="settings-budget__categories-header">
+            <h2 class="settings-budget__section-title">Limity kategorii</h2>
+            @if (agg.selectedPreviousPeriodSummary()) {
+              <button mat-button color="primary" (click)="copyLimitsFromPreviousMonth()">
+                <mat-icon>content_copy</mat-icon>
+                Kopiuj limity z poprzedniego miesiąca
+              </button>
             }
-            Zapisz
-          </button>
-        </div>
+          </div>
+
+          @if ((categories()?.length ?? 0) === 0) {
+            <p class="settings-budget__empty">Brak kategorii wydatkowych</p>
+          } @else {
+            @for (category of categories(); track category.id) {
+              <mat-card class="settings-budget__card" appearance="outlined">
+                <mat-card-content>
+                  <budget-category-card
+                    [category]="category"
+                    [spending]="agg.categorySpendingMap().get(category.id)"
+                    [control]="getCategoryControl(category.id)"
+                  />
+                </mat-card-content>
+              </mat-card>
+            }
+          }
+
+          <div class="settings-budget__actions">
+            <button mat-raised-button color="primary" [disabled]="saving()" (click)="onSave()">
+              @if (saving()) {
+                <mat-progress-spinner mode="indeterminate" diameter="20" />
+              }
+              Zapisz
+            </button>
+          </div>
+        }
       }
     </div>
   `,
@@ -123,6 +175,127 @@ export class SettingsBudgetScreenComponent {
 
   readonly categoryForm = new FormRecord<FormControl<number | null>>({});
 
+  // ── Local period state (independent of DashboardState) ──
+  readonly periodMode = signal<PeriodMode>('month');
+  readonly selectedYear = signal<number>(getCurrentPeriod().year);
+  readonly selectedMonth = signal<number>(getCurrentPeriod().month);
+
+  readonly periodLabel = computed(() => {
+    const year = this.selectedYear();
+    if (this.periodMode() === 'year') {
+      return `${year}`;
+    }
+    const date = new Date(year, this.selectedMonth(), 1);
+    return date.toLocaleDateString('pl-PL', {
+      month: 'long',
+      year: 'numeric',
+    });
+  });
+
+  readonly canGoNext = computed(() => {
+    const now = getCurrentPeriod();
+    if (this.periodMode() === 'year') {
+      return this.selectedYear() < now.year;
+    }
+    const y = this.selectedYear();
+    const m = this.selectedMonth();
+    return y < now.year || (y === now.year && m < now.month);
+  });
+
+  readonly canGoPrevious = computed(() => {
+    if (this.periodMode() === 'year') {
+      return this.selectedYear() > 2020;
+    }
+    return true;
+  });
+
+  goToPrevious(): void {
+    if (this.periodMode() === 'year') {
+      this.selectedYear.update((y) => y - 1);
+    } else {
+      const m = this.selectedMonth();
+      const y = this.selectedYear();
+      if (m === 0) {
+        this.selectedMonth.set(11);
+        this.selectedYear.set(y - 1);
+      } else {
+        this.selectedMonth.set(m - 1);
+      }
+    }
+  }
+
+  goToNext(): void {
+    const now = getCurrentPeriod();
+    if (this.periodMode() === 'year') {
+      const nextYear = this.selectedYear() + 1;
+      if (nextYear <= now.year) {
+        this.selectedYear.set(nextYear);
+      }
+    } else {
+      const m = this.selectedMonth();
+      const y = this.selectedYear();
+      const nextMonth = m === 11 ? 0 : m + 1;
+      const nextYear = m === 11 ? y + 1 : y;
+
+      if (nextYear < now.year || (nextYear === now.year && nextMonth <= now.month)) {
+        this.selectedMonth.set(nextMonth);
+        this.selectedYear.set(nextYear);
+      }
+    }
+  }
+
+  onModeChange(mode: PeriodMode): void {
+    this.periodMode.set(mode);
+  }
+
+  // ── Period-based computed values ──
+
+  /** Is the selected period the current month? */
+  readonly isCurrentPeriod = computed(() => {
+    const now = getCurrentPeriod();
+    return (
+      this.periodMode() === 'month' &&
+      this.selectedYear() === now.year &&
+      this.selectedMonth() === now.month
+    );
+  });
+
+  /** Dynamic page title: "Budżet miesięczny" for current month, month name for past months */
+  readonly pageTitle = computed(() => {
+    if (this.isCurrentPeriod()) {
+      return 'Budżet miesięczny';
+    }
+
+    const year = this.selectedYear();
+    const month = this.selectedMonth();
+    const date = new Date(year, month, 1);
+    return date.toLocaleDateString('pl-PL', {
+      month: 'long',
+      year: 'numeric',
+    });
+  });
+
+  /** Expenses in the selected period (current or historical month/year) */
+  readonly selectedPeriodSpent = computed(() => {
+    const txs = this.transactionsResource.value() ?? [];
+    const year = this.selectedYear();
+    const mode = this.periodMode();
+
+    if (mode === 'year') {
+      return txs
+        .filter((tx) => {
+          const d = new Date(tx.date);
+          return tx.amount < 0 && d.getFullYear() === year;
+        })
+        .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+    }
+
+    const month = this.selectedMonth();
+    return txs
+      .filter((tx) => tx.amount < 0 && isInMonth(tx.date, year, month))
+      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  });
+
   private readonly budgetResource = resource({
     loader: async () => this.budgetService.getBudget(),
   });
@@ -140,16 +313,6 @@ export class SettingsBudgetScreenComponent {
   });
 
   readonly loading = signal(true);
-
-  readonly currentMonthSpent = computed(() => {
-    const txs = this.transactionsResource.value() ?? [];
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    return txs
-      .filter((tx) => tx.amount < 0 && isInMonth(tx.date, year, month))
-      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
-  });
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -169,6 +332,16 @@ export class SettingsBudgetScreenComponent {
     });
     effect(() => {
       this.agg.categoryBudgets.set(this.categoryBudgetsResource.value() ?? []);
+    });
+    effect(() => {
+      this.agg.currentMonthSpent.set(this.selectedPeriodSpent());
+    });
+    effect(() => {
+      this.agg.selectedPeriod.set({
+        year: this.selectedYear(),
+        month: this.selectedMonth(),
+        mode: this.periodMode(),
+      });
     });
 
     this.loadData();
@@ -212,7 +385,7 @@ export class SettingsBudgetScreenComponent {
   }
 
   copyLimitsFromPreviousMonth(): void {
-    const prev = this.agg.previousMonthSummary();
+    const prev = this.agg.selectedPreviousPeriodSummary();
     if (!prev) {return;}
     for (const cat of prev.categorySummaries) {
       this.getCategoryControl(cat.categoryId).setValue(cat.limit > 0 ? cat.limit : 0);
@@ -239,8 +412,8 @@ export class SettingsBudgetScreenComponent {
 
       const categories = this.categoriesResource.value() ?? [];
       for (const cat of categories) {
-        const limit = formValues[cat.id];
-        if (limit !== null && limit > 0) {
+        const limit: number | null | undefined = formValues[cat.id];
+        if (limit !== null && limit !== undefined && limit > 0) {
           await this.categoryBudgetService.save(cat.id, cat.name, limit);
         } else if (existingMap.has(cat.id)) {
           await this.categoryBudgetService.deleteByCategoryId(cat.id);

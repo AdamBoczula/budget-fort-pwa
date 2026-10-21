@@ -1,9 +1,10 @@
-// spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/przeglad-historii-budzetu.md
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { CategoryService, Category, TransactionService } from '@data-access-transaction';
 import { BudgetService, CategoryBudgetService } from '@data-access-budget';
 import { SettingsBudgetScreenComponent } from './settings-budget-screen.component';
@@ -56,6 +57,7 @@ describe('SettingsBudgetScreenComponent', () => {
 
   const mockCategoryService = {
     getVisibleCategoriesAsync: vi.fn().mockResolvedValue(MOCK_EXPENSE_CATEGORIES),
+    getCategoriesAsync: vi.fn().mockResolvedValue(MOCK_EXPENSE_CATEGORIES),
   };
 
   const mockBudgetService = {
@@ -99,6 +101,7 @@ describe('SettingsBudgetScreenComponent', () => {
       imports: [SettingsBudgetScreenComponent, ReactiveFormsModule],
       providers: [
         provideRouter([]),
+        provideNativeDateAdapter(),
         BudgetAggregationService,
         { provide: CategoryService, useValue: mockCategoryService },
         { provide: BudgetService, useValue: mockBudgetService },
@@ -116,7 +119,7 @@ describe('SettingsBudgetScreenComponent', () => {
     fixture.detectChanges();
   }
 
-  // covers: docs/specs/budget/planowanie-budzetu.md#AC-1
+  // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-1
   it('should display current month overview card with total limits', async () => {
     await setup();
 
@@ -128,12 +131,11 @@ describe('SettingsBudgetScreenComponent', () => {
     const agg = TestBed.inject(BudgetAggregationService);
     expect(agg.overallBudget()).toBe(2000);
 
-    // Current month spent should be 0 (no transactions provided)
-    const component = fixture.componentInstance;
-    expect(component.currentMonthSpent()).toBe(0);
+    // Selected period spent should be 0 (no transactions provided)
+    expect(fixture.componentInstance.selectedPeriodSpent()).toBe(0);
   });
 
-  // covers: docs/specs/budget/planowanie-budzetu.md#AC-2
+  // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-2
   it('should display list of expense categories with limit fields', async () => {
     await setup();
 
@@ -200,7 +202,7 @@ describe('SettingsBudgetScreenComponent', () => {
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md — quick actions
-  it('should display quick action links', async () => {
+  it('should display quick action links when on current month', async () => {
     await setup();
 
     const quickActions = fixture.debugElement.queryAll(By.css('budget-quick-actions'));
