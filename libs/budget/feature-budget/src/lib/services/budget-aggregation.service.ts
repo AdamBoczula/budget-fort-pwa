@@ -1,4 +1,4 @@
-// spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/przeglad-historii-budzetu.md
 
 import { computed, Service, signal } from '@angular/core';
 import type { Transaction, Category } from '@data-access-transaction';
@@ -30,6 +30,12 @@ export type MonthComparison = {
   isMore: boolean;
 };
 
+export type SelectedPeriod = {
+  year: number;
+  month: number;
+  mode: 'month' | 'year';
+};
+
 /** Reads from the provided signals and computes all budget aggregations. */
 @Service()
 export class BudgetAggregationService {
@@ -40,6 +46,13 @@ export class BudgetAggregationService {
   readonly categoryBudgets = signal<CategoryBudget[]>([]);
   readonly formVersion = signal(0);
   readonly currentMonthSpent = signal(0);
+
+  /** The selected period — defaults to current month. */
+  readonly selectedPeriod = signal<SelectedPeriod>({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
+    mode: 'month',
+  });
 
   /**
    * Call this from the container when the form changes so that
@@ -82,25 +95,66 @@ export class BudgetAggregationService {
     return Math.min(100, Math.round((spent / budget) * 100));
   });
 
-  /** Real previous month summary. */
-  readonly previousMonthSummary = computed<PreviousMonthSummary | null>(() => {
-    void this.formVersion();
-    const categories = this.categories();
-    const txs = this.transactions();
-    if (categories.length === 0) {return null;}
+  /** Progress percentage for selected period. */
+  readonly selectedPeriodPercentage = computed(() => {
+    const budget = this.overallBudget();
+    const spent = this.currentMonthSpent();
+    if (budget <= 0) {return 0;}
+    return Math.min(100, Math.round((spent / budget) * 100));
+  });
 
-    const prevDate = getPreviousMonth();
-    const prevYear = prevDate.getFullYear();
-    const prevMonth = prevDate.getMonth();
+  /**
+   * Get the previous period relative to the selected period.
+   * For 'month' mode: returns the month before selectedPeriod.
+   * For 'year' mode: returns the year before.
+   */
+  private getPreviousPeriod(year: number, month: number, mode: 'month' | 'year'): { year: number; month: number } {
+    if (mode === 'year') {
+      return { year: year - 1, month: 0 };
+    }
 
-    const monthLabel = prevDate.toLocaleString('pl-PL', {
+    if (month === 0) {
+      return { year: year - 1, month: 11 };
+    }
+
+    return { year, month: month - 1 };
+  }
+
+  /** Get the label for a given month. */
+  private getMonthLabel(year: number, month: number, mode: 'month' | 'year'): string {
+    if (mode === 'year') {
+      return `${year}`;
+    }
+
+    const date = new Date(year, month, 1);
+    const label = date.toLocaleString('pl-PL', {
       month: 'long',
       year: 'numeric',
     });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
 
-    const prevMonthExpenses = txs.filter(
-      (tx) => tx.amount < 0 && isInMonth(tx.date, prevYear, prevMonth),
-    );
+  /** Filter transactions for a specific period. */
+  private filterTransactions(txs: Transaction[], year: number, month: number, mode: 'month' | 'year'): Transaction[] {
+    if (mode === 'year') {
+      return txs.filter((tx) => {
+        const d = new Date(tx.date);
+        return tx.amount < 0 && d.getFullYear() === year;
+      });
+    }
+
+    return txs.filter((tx) => tx.amount < 0 && isInMonth(tx.date, year, month));
+  }
+
+  /** Build a PreviousMonthSummary for a given period. */
+  private buildSummary(year: number, month: number, mode: 'month' | 'year'): PreviousMonthSummary | null {
+    const categories = this.categories();
+    if (categories.length === 0) {return null;}
+
+    const txs = this.transactions();
+    const periodExpenses = this.filterTransactions(txs, year, month, mode);
+
+    const monthLabel = this.getMonthLabel(year, month, mode);
 
     const budgets = this.categoryBudgets();
     const budgetByCategory: Record<string, number> = {};
@@ -116,7 +170,7 @@ export class BudgetAggregationService {
     }
 
     const categorySummaries: CategorySpendingSummary[] = categories.map((cat) => {
-      const spent = prevMonthExpenses
+      const spent = periodExpenses
         .filter((tx) => tx.categoryId === cat.id)
         .reduce((s, tx) => s + Math.abs(tx.amount), 0);
       const limit = budgetByCategory[cat.id] ?? 0;
@@ -136,13 +190,30 @@ export class BudgetAggregationService {
     const budgetLimit = Object.values(budgetByCategory).reduce((s, v) => s + v, 0);
 
     return {
-      monthLabel: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1),
+      monthLabel,
       totalSpent,
       totalSpentFormatted: `${totalSpent.toFixed(0)} zł`,
       budgetLimit,
       budgetLimitFormatted: `${budgetLimit.toFixed(0)} zł`,
       categorySummaries,
     };
+  }
+
+  /** Real previous month summary (backward-compatible — always current month's previous). */
+  readonly previousMonthSummary = computed<PreviousMonthSummary | null>(() => {
+    void this.formVersion();
+    const prevDate = getPreviousMonth();
+    const prevYear = prevDate.getFullYear();
+    const prevMonth = prevDate.getMonth();
+    return this.buildSummary(prevYear, prevMonth, 'month');
+  });
+
+  /** Summary for the period before the selected period. */
+  readonly selectedPreviousPeriodSummary = computed<PreviousMonthSummary | null>(() => {
+    void this.formVersion();
+    const period = this.selectedPeriod();
+    const prev = this.getPreviousPeriod(period.year, period.month, period.mode);
+    return this.buildSummary(prev.year, prev.month, period.mode);
   });
 
   /** O(1) lookup for previous month category spending. */
@@ -154,9 +225,19 @@ export class BudgetAggregationService {
     return map;
   });
 
-  /** Month-over-month comparison. */
+  /** Month-over-month comparison (backward-compatible — current month vs previous). */
   readonly monthComparison = computed<MonthComparison | null>(() => {
     const prev = this.previousMonthSummary();
+    const current = this.currentMonthSpent();
+    if (!prev || prev.totalSpent === 0) {return null;}
+    const diff = current - prev.totalSpent;
+    const pct = Math.round((diff / prev.totalSpent) * 100);
+    return { diff, pct, isMore: pct > 0 };
+  });
+
+  /** Comparison between selected period and the period before it. */
+  readonly selectedPeriodComparison = computed<MonthComparison | null>(() => {
+    const prev = this.selectedPreviousPeriodSummary();
     const current = this.currentMonthSpent();
     if (!prev || prev.totalSpent === 0) {return null;}
     const diff = current - prev.totalSpent;
