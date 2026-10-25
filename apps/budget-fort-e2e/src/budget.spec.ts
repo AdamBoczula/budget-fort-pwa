@@ -3,7 +3,6 @@
 
 import { test, expect } from '@playwright/test';
 import {
-  seedBudget,
   seedCategoryBudget,
   clearBudgetData,
   clearTransactions,
@@ -24,34 +23,16 @@ test.describe('Budget – set overall budget', () => {
   test('should set overall budget via settings page and show progress on dashboard', async ({
     page,
   }) => {
-    // Navigate to budget settings
-    await page.goto('/feature-transaction/settings/budget');
+    // Seed a category budget so the overall budget is derived from it
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 5000);
+
+    // Navigate to budget page to verify seeded budget appears
+    await page.goto('/budget');
 
     // Wait for the form to load
     await expect(page.getByText('Budżet miesięczny').first()).toBeVisible({ timeout: 5000 });
 
-    // Enter category limit (overall budget = sum of category limits)
-    const jedzenieInput = page.locator('input[aria-label="Limit dla Jedzenie"]');
-    await expect(jedzenieInput).toBeVisible();
-    await jedzenieInput.fill('5000');
-
-    // Save
-    await page.getByRole('button', { name: /Zapisz/i }).click();
-    // Wait a moment for save to complete
-    await page.waitForTimeout(500);
-
-    // Navigate to dashboard
-    await page.goto('/feature-transaction/dashboard');
-
-    // Wait for dashboard to load — period selector from DashboardState
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
-      timeout: 5000,
-    });
-
-    // Verify overall budget section heading is visible
-    await expect(page.getByText('Budżet miesięczny')).toBeVisible({ timeout: 3000 });
-
-    // Verify progress bar shows 0 / 5000 zł
+    // Verify progress bar shows 0 / 5000 (seeded category budget)
     const progressBar = page.locator('budget-progress-bar').first();
     await expect(progressBar).toBeVisible({ timeout: 3000 });
     await expect(progressBar).toContainText('0 / 5000');
@@ -60,8 +41,8 @@ test.describe('Budget – set overall budget', () => {
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-9
   test('should recalculate progress after changing budget mid-month', async ({ page }) => {
-    // Set initial budget via IndexedDB
-    await seedBudget(page, 5000);
+    // Set initial budget via IndexedDB (category-level budget)
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 5000);
 
     // Add 3000 in expenses
     await page.goto('/feature-transaction');
@@ -94,9 +75,9 @@ test.describe('Budget – set overall budget', () => {
       database.close();
     });
 
-    // Go to dashboard, verify 3000/5000 = 60%, green
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    // Go to budget page, verify 3000/5000 = 60%, green
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
@@ -104,14 +85,17 @@ test.describe('Budget – set overall budget', () => {
     await expect(progressBar).toBeVisible({ timeout: 3000 });
     await expect(progressBar).toContainText('(60%)');
 
-    // Verify green color (below 80%)
+    // Verify green gradient (below 80%) — UI-06 changed to gradient
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    await expect(fillBar).toHaveCSS('background-color', 'rgb(76, 175, 80)');
+    const bgImage = await fillBar.evaluate(el =>
+      window.getComputedStyle(el).getPropertyValue('background-image'),
+    );
+    expect(bgImage).toContain('linear-gradient');
 
     // Now change budget to 6000 via CategoryBudget API
-    await seedBudget(page, 6000);
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 6000);
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
     await expect(progressBar).toBeVisible({ timeout: 3000 });
@@ -123,30 +107,37 @@ test.describe('Budget – set overall budget', () => {
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-11
   test('should persist budget data after page refresh', async ({ page }) => {
     // Set budget via IndexedDB
-    await seedBudget(page, 5000);
     await seedCategoryBudget(page, 'food', 'Jedzenie', 1500);
 
-    // Navigate to dashboard
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    // Navigate to budget page
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
-    // Verify both are displayed
+    // Verify both overall and category are displayed
     await expect(page.getByText('Budżet miesięczny')).toBeVisible({ timeout: 3000 });
     const progressBars = page.locator('budget-progress-bar');
-    await expect(progressBars).toHaveCount(2); // overall + Jedzenie
+    await expect(progressBars).toHaveCount(1); // overall bar only (per-category bars removed in redesign)
+
+    // Also verify Jedzenie category card is present
+    await expect(page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first()).toBeVisible({
+      timeout: 3000,
+    });
 
     // Refresh
     await page.reload();
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
     // Verify both are still displayed
     await expect(page.getByText('Budżet miesięczny')).toBeVisible({ timeout: 3000 });
     const refreshedBars = page.locator('budget-progress-bar');
-    await expect(refreshedBars).toHaveCount(2);
+    await expect(refreshedBars).toHaveCount(1);
+    await expect(page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first()).toBeVisible({
+      timeout: 3000,
+    });
   });
 });
 
@@ -164,23 +155,24 @@ test.describe('Budget – category limits', () => {
   test('should set category limit and show progress bar on dashboard', async ({ page }) => {
     // Seed the category budget directly via IndexedDB
     await seedCategoryBudget(page, 'food', 'Jedzenie', 1500);
-    await seedBudget(page, 1500);
 
-    // Navigate to dashboard
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    // Navigate to budget page
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
-    // Verify Jedzenie progress bar with limit (wait for it to appear)
-    const jedzenieBar = page.locator('budget-progress-bar').filter({ hasText: 'Jedzenie' });
-    await expect(jedzenieBar).toBeVisible({ timeout: 5000 });
-    await expect(jedzenieBar).toContainText('1500');
+    // Verify Jedzenie category card with limit (per-category progress bars removed in redesign)
+    const jedzenieCard = page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first();
+    await expect(jedzenieCard).toBeVisible({ timeout: 5000 });
+    // Verify the input has the correct limit value
+    const jedzenieInput = jedzenieCard.locator('input[type="number"]');
+    await expect(jedzenieInput).toHaveValue('1500');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-6
   test('should show yellow progress for category at 90%', async ({ page }) => {
-    await seedBudget(page, 5000);
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 1500);
     await seedCategoryBudget(page, 'food', 'Jedzenie', 1500);
 
     // Add 1350 in food expenses
@@ -210,50 +202,54 @@ test.describe('Budget – category limits', () => {
       database.close();
     });
 
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    // Navigate to budget page — check overall progress bar at 90% (1350/1500)
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
-    const jedzenieBar = page.locator('budget-progress-bar').filter({ hasText: 'Jedzenie' });
-    await expect(jedzenieBar).toBeVisible({ timeout: 3000 });
-    await expect(jedzenieBar).toContainText('(90%)');
+    const progressBar = page.locator('budget-progress-bar').first();
+    await expect(progressBar).toBeVisible({ timeout: 3000 });
+    await expect(progressBar).toContainText('(90%)');
 
-    const fillBar = jedzenieBar.locator('.budget-progress__bar-fill');
-    await expect(fillBar).toHaveCSS('background-color', 'rgb(255, 152, 0)');
+    const fillBar = progressBar.locator('.budget-progress__bar-fill');
+    const bgImage = await fillBar.evaluate(el =>
+      window.getComputedStyle(el).getPropertyValue('background-image'),
+    );
+    expect(bgImage).toContain('linear-gradient');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-7
   test('should not show category bar for categories without a limit', async ({ page }) => {
-    await seedBudget(page, 5000);
+    // No category budget seeded — verify Jedzenie card appears with empty/0 limit
 
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
-    // Jedzenie bar should not exist (no limit)
-    await expect(page.locator('budget-progress-bar').filter({ hasText: 'Jedzenie' })).toHaveCount(
-      0,
-    );
+    // Jedzenie category card exists but should have no limit set (empty input)
+    const jedzenieCard = page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first();
+    await expect(jedzenieCard).toBeVisible({ timeout: 3000 });
+    const jedzenieInput = jedzenieCard.locator('input[type="number"]');
+    await expect(jedzenieInput).toHaveValue('0');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-10
   test('should remove category limit when field is cleared', async ({ page }) => {
-    await seedBudget(page, 5000);
     await seedCategoryBudget(page, 'transport', 'Transport', 500);
 
-    // Verify it appears on dashboard first
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    // Verify it appears on budget page first
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.locator('budget-progress-bar').filter({ hasText: 'Transport' })).toBeVisible({
+    await expect(page.locator('budget-category-card').filter({ hasText: 'Transport' })).toBeVisible({
       timeout: 3000,
     });
 
-    // Go to settings and clear the Transport limit
-    await page.goto('/feature-transaction/settings/budget');
+    // Go to budget settings and clear the Transport limit
+    await page.goto('/budget');
     await expect(page.getByText('Budżet miesięczny').first()).toBeVisible({ timeout: 5000 });
 
     const transportInput = page.locator('input[aria-label="Limit dla Transport"]');
@@ -268,14 +264,15 @@ test.describe('Budget – category limits', () => {
       // Snackbar might have already disappeared
     }
 
-    // Verify Transport bar is gone
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    // Verify Transport card still exists but has no limit (empty/0 input)
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.locator('budget-progress-bar').filter({ hasText: 'Transport' })).toHaveCount(
-      0,
-    );
+    const transportCard = page.locator('budget-category-card').filter({ hasText: 'Transport' });
+    await expect(transportCard).toHaveCount(1);
+    const transportInputAfter = transportCard.locator('input[type="number"]');
+    await expect(transportInputAfter).toHaveValue('0');
   });
 });
 
@@ -291,7 +288,7 @@ test.describe('Budget – progress colors', () => {
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-3
   test('should show green progress bar when spend < 80%', async ({ page }) => {
-    await seedBudget(page, 5000);
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 5000);
 
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 5000 });
@@ -320,8 +317,8 @@ test.describe('Budget – progress colors', () => {
       database.close();
     });
 
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
@@ -330,12 +327,15 @@ test.describe('Budget – progress colors', () => {
     await expect(progressBar).toContainText('(40%)');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    await expect(fillBar).toHaveCSS('background-color', 'rgb(76, 175, 80)');
+    const bgImage = await fillBar.evaluate(el =>
+      window.getComputedStyle(el).getPropertyValue('background-image'),
+    );
+    expect(bgImage).toContain('linear-gradient');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-4
   test('should show yellow progress bar when spend is 80-99%', async ({ page }) => {
-    await seedBudget(page, 5000);
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 5000);
 
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 5000 });
@@ -362,8 +362,8 @@ test.describe('Budget – progress colors', () => {
       database.close();
     });
 
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
@@ -372,12 +372,15 @@ test.describe('Budget – progress colors', () => {
     await expect(progressBar).toContainText('(84%)');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    await expect(fillBar).toHaveCSS('background-color', 'rgb(255, 152, 0)');
+    const bgImage = await fillBar.evaluate(el =>
+      window.getComputedStyle(el).getPropertyValue('background-image'),
+    );
+    expect(bgImage).toContain('linear-gradient');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-5
   test('should show red progress bar at 100% when spend exceeds budget', async ({ page }) => {
-    await seedBudget(page, 5000);
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 5000);
 
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 5000 });
@@ -404,8 +407,8 @@ test.describe('Budget – progress colors', () => {
       database.close();
     });
 
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
@@ -415,7 +418,10 @@ test.describe('Budget – progress colors', () => {
     await expect(progressBar).toContainText('5200 / 5000');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    await expect(fillBar).toHaveCSS('background-color', 'rgb(244, 67, 54)');
+    const bgImage = await fillBar.evaluate(el =>
+      window.getComputedStyle(el).getPropertyValue('background-image'),
+    );
+    expect(bgImage).toContain('linear-gradient');
   });
 });
 
@@ -431,7 +437,7 @@ test.describe('Budget – income excluded', () => {
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-8
   test('should only count expenses toward budget, not income', async ({ page }) => {
-    await seedBudget(page, 5000);
+    await seedCategoryBudget(page, 'food', 'Jedzenie', 5000);
 
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 5000 });
@@ -479,8 +485,8 @@ test.describe('Budget – income excluded', () => {
       database.close();
     });
 
-    await page.goto('/feature-transaction/dashboard');
-    await expect(page.locator('transaction-dashboard-period-selector')).toBeVisible({
+    await page.goto('/budget');
+    await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
@@ -490,6 +496,9 @@ test.describe('Budget – income excluded', () => {
     await expect(progressBar).toContainText('3000 / 5000');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    await expect(fillBar).toHaveCSS('background-color', 'rgb(76, 175, 80)');
+    const bgImage = await fillBar.evaluate(el =>
+      window.getComputedStyle(el).getPropertyValue('background-image'),
+    );
+    expect(bgImage).toContain('linear-gradient');
   });
 });

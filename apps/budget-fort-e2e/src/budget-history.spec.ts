@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Budget History – period selector and read-only mode', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/feature-transaction/settings/budget');
+    await page.goto('/budget');
     // Wait for either the budget page or a redirect
     await page.waitForLoadState('domcontentloaded');
 

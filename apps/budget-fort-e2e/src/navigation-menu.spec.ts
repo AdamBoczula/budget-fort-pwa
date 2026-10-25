@@ -38,7 +38,7 @@ test.describe('Navigation Menu – accordion redesign', () => {
   });
 
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-5
-  test('AC-5: "Dodaj nowe" under Transakcje opens transaction dialog', async ({ page }) => {
+  test('AC-5: Transakcje panel has "Strona główna" and "Dashboard" items', async ({ page }) => {
     await openNavigationDrawer(page);
 
     const drawer = page.locator('transaction-navigation-drawer');
@@ -46,35 +46,24 @@ test.describe('Navigation Menu – accordion redesign', () => {
     // Expand "Transakcje" group
     await drawer.getByText('Transakcje').first().click();
 
-    // Click "Dodaj nowe" sub-item
-    const dodajNowe = drawer.getByText('Dodaj nowe').first();
-    await expect(dodajNowe).toBeVisible({ timeout: 3000 });
-    await dodajNowe.click();
+    // Verify sub-items are visible (accordion redesign: "Dodaj nowe" replaced with "Strona główna" + "Dashboard")
+    const stronaGlowna = drawer.getByText('Strona główna').first();
+    const dashboard = drawer.getByText('Dashboard').first();
+    await expect(stronaGlowna).toBeVisible({ timeout: 3000 });
+    await expect(dashboard).toBeVisible({ timeout: 3000 });
 
-    // Verify drawer closes
+    // Click "Strona główna" → should navigate to home page and close drawer
+    await stronaGlowna.click();
     await expect(page.locator('transaction-navigation-drawer')).not.toBeVisible({
       timeout: 3000,
     });
-
-    // Verify transaction form dialog opens
-    await expect(page.locator('mat-dialog-container')).toBeVisible({
+    await expect(page.locator('.categories-quick-add__grid')).toBeVisible({
       timeout: 5000,
-    });
-
-    // Verify dialog contains transaction form elements
-    await expect(page.getByPlaceholder('0.00')).toBeVisible();
-    await expect(page.getByRole('button', { name: /Zapisz/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Anuluj/i })).toBeVisible();
-
-    // Close the dialog
-    await page.getByRole('button', { name: /Anuluj/i }).click();
-    await expect(page.locator('mat-dialog-container')).not.toBeVisible({
-      timeout: 3000,
     });
   });
 
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-6
-  test('AC-6: "Budżet" group has "Dodaj nowy" and "Dashboard" links that navigate correctly', async ({
+  test('AC-6: "Budżet" group has "Planowanie budżetu" link that navigates correctly', async ({
     page,
   }) => {
     await openNavigationDrawer(page);
@@ -84,12 +73,12 @@ test.describe('Navigation Menu – accordion redesign', () => {
     // Expand "Budżet" group
     await drawer.getByText('Budżet').first().click();
 
-    // Verify both sub-items are visible
-    const dodajNowy = drawer.getByText('Dodaj nowy').first();
-    await expect(dodajNowy).toBeVisible({ timeout: 3000 });
+    // Verify the sub-item is visible (UI-02: renamed from "Dodaj nowy" to "Planowanie budżetu")
+    const planowanie = drawer.getByText('Planowanie budżetu').first();
+    await expect(planowanie).toBeVisible({ timeout: 3000 });
 
-    // Click "Dodaj nowy" → should navigate to budget settings
-    await dodajNowy.click();
+    // Click "Planowanie budżetu" → should navigate to budget settings
+    await planowanie.click();
     await expect(page.getByText('Budżet miesięczny').first()).toBeVisible({
       timeout: 5000,
     });
@@ -123,17 +112,17 @@ test.describe('Navigation Menu – accordion redesign', () => {
 
     // Expand "Transakcje" group
     await drawer.getByText('Transakcje').first().click();
-    await expect(drawer.getByText('Dodaj nowe').first()).toBeVisible({ timeout: 3000 });
+    await expect(drawer.getByText('Strona główna').first()).toBeVisible({ timeout: 3000 });
 
     // Expand "Budżet" group — should collapse Transakcje
     await drawer.getByText('Budżet').first().click();
-    await expect(drawer.getByText('Dodaj nowy').first()).toBeVisible({ timeout: 3000 });
+    await expect(drawer.getByText('Planowanie budżetu').first()).toBeVisible({ timeout: 3000 });
 
-    // "Dodaj nowe" (from Transakcje) should be hidden now
-    await expect(drawer.getByText('Dodaj nowe').first()).not.toBeVisible({ timeout: 3000 });
+    // "Strona główna" (from Transakcje) should be hidden now
+    await expect(drawer.getByText('Strona główna').first()).not.toBeVisible({ timeout: 3000 });
 
     // Expand "Ustawienia" group — should collapse Budżet
     await drawer.getByText('Ustawienia').first().click();
-    await expect(drawer.getByText('Dodaj nowy').first()).not.toBeVisible({ timeout: 3000 });
+    await expect(drawer.getByText('Planowanie budżetu').first()).not.toBeVisible({ timeout: 3000 });
   });
 });
