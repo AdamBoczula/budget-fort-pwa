@@ -34,7 +34,7 @@
   </mat-menu>
 </h2>
 
-<mat-dialog-content class="form-content">
+<mat-dialog-content class="form-content" (keydown)="onKeydown($event)">
   <div class="form-fields">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label i18n="@@transactionForm.amountLabel">Kwota</mat-label>

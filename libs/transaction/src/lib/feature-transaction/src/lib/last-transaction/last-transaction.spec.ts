@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { registerLocaleData } from '@angular/common';
 import localePl from '@angular/common/locales/pl';
 import { of } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   CategoryService,
   Category,
@@ -78,6 +79,10 @@ describe('LastTransactionComponent', () => {
     addTransaction: vi.fn().mockResolvedValue(undefined),
   };
 
+  const mockSnackBar = {
+    open: vi.fn().mockReturnValue({ onAction: () => of(undefined) }),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LastTransactionComponent],
@@ -85,7 +90,11 @@ describe('LastTransactionComponent', () => {
         { provide: CategoryService, useValue: mockCategoryService },
         { provide: TransactionState, useValue: mockTransactionState },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(LastTransactionComponent, {
+        add: { providers: [{ provide: MatSnackBar, useValue: mockSnackBar }] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(LastTransactionComponent);
     component = fixture.componentInstance;
@@ -210,7 +219,10 @@ describe('LastTransactionComponent', () => {
         { provide: CategoryService, useValue: mockCategoryService },
         { provide: TransactionState, useValue: emptyTxState },
       ],
-    });
+    })
+      .overrideComponent(LastTransactionComponent, {
+        add: { providers: [{ provide: MatSnackBar, useValue: mockSnackBar }] },
+      });
 
     const emptyFixture = TestBed.createComponent(LastTransactionComponent);
     emptyFixture.detectChanges();

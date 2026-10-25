@@ -1,7 +1,11 @@
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
+
 import { Component, computed, inject, resource } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Category, CategoryService, Transaction } from '@data-access-transaction';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 import {
@@ -12,7 +16,7 @@ import { LastTransactionItemComponent } from './last-transaction-item/last-trans
 
 @Component({
   selector: 'transaction-last-transaction',
-  imports: [MatButtonModule, MatDialogModule, MatIconModule, LastTransactionItemComponent],
+  imports: [MatButtonModule, MatDialogModule, MatIconModule, MatSnackBarModule, LastTransactionItemComponent],
   template: `
     <section class="last-transactions">
       <h2 class="last-transactions__title" i18n="@@lastTransactions.title">Ostatnie transakcje</h2>
@@ -39,6 +43,7 @@ export class LastTransactionComponent {
   private readonly transactionState = inject(TransactionState);
   private readonly categoryService = inject(CategoryService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   /**
    * Signal-based category lookup map.
@@ -104,6 +109,7 @@ export class LastTransactionComponent {
           accountId: result.accountId,
           comment: result.comment,
         });
+        this.snackBar.open('Zapisano zmiany.', undefined, { duration: 3000 });
       }
     });
   }
@@ -116,25 +122,37 @@ export class LastTransactionComponent {
         return;
       }
       void this.transactionState.deleteTransaction(transaction.id);
+
+      const snackBarRef = this.snackBar.open(
+        'Usunięto transakcję.',
+        'Cofnij',
+        { duration: 5000 },
+      );
+      snackBarRef.onAction().subscribe(() => {
+        void this.transactionState.addTransaction(transaction);
+      });
     });
   }
 }
 
 /** Simple confirmation dialog for delete action. */
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
 @Component({
   selector: 'transaction-delete-confirm',
-  imports: [MatButtonModule, MatDialogModule, MatIconModule],
+  imports: [MatButtonModule, MatDialogModule, MatIconModule, A11yModule],
   template: `
     <h2 mat-dialog-title i18n="@@deleteConfirm.title">Usuń transakcję</h2>
-    <mat-dialog-content>
+    <mat-dialog-content (keydown.enter)="dialogRef.close(true)">
       <p i18n="@@deleteConfirm.message">Czy na pewno chcesz usunąć tę transakcję?</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="false" i18n="@@deleteConfirm.cancel">Anuluj</button>
+      <button mat-button cdkFocusInitial [mat-dialog-close]="false" i18n="@@deleteConfirm.cancel">Anuluj</button>
       <button mat-flat-button color="warn" [mat-dialog-close]="true" i18n="@@deleteConfirm.confirm">
         Usuń
       </button>
     </mat-dialog-actions>
   `,
 })
-export class DeleteConfirmDialog {}
+export class DeleteConfirmDialog {
+  protected readonly dialogRef = inject(MatDialogRef<DeleteConfirmDialog>);
+}

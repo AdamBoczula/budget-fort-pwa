@@ -1,6 +1,23 @@
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
+
 :host {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
   z-index: 100;
+}
+
+.fab-income {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(0);
+  }
 }

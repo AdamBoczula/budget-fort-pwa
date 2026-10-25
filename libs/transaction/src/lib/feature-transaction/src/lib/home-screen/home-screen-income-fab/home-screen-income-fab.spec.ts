@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService, Category } from '@data-access-transaction';
 import { HomeScreenIncomeFabComponent } from './home-screen-income-fab';
 import { TransactionState } from '../../service/transaction-state/transaction-state';
@@ -22,23 +23,27 @@ describe('HomeScreenIncomeFabComponent', () => {
     updatedAt: '2026-08-01T00:00:00.000Z',
   };
 
-  const mockDialog = {
-    open: vi.fn(),
+  let mockDialog: { open: ReturnType<typeof vi.fn> };
+  let mockSnackBar: { open: ReturnType<typeof vi.fn> };
+  let mockCategoryService: {
+    getCategoriesAsync: ReturnType<typeof vi.fn>;
+    getVisibleCategories: () => ReturnType<typeof of>;
+    getVisibleCategoriesAsync: () => Promise<Category[]>;
+    getCategories: () => ReturnType<typeof of>;
   };
-
-  const mockCategoryService = {
-    getCategoriesAsync: vi.fn(),
-    getVisibleCategories: () => of([incomeCategory]),
-    getVisibleCategoriesAsync: () => Promise.resolve([incomeCategory]),
-    getCategories: () => of([incomeCategory]),
-  };
-
-  const mockTransactionState = {
-    addTransaction: vi.fn().mockResolvedValue(undefined),
-  };
+  let mockTransactionState: { addTransaction: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    mockDialog = { open: vi.fn() };
+    mockSnackBar = { open: vi.fn() };
+    mockCategoryService = {
+      getCategoriesAsync: vi.fn(),
+      getVisibleCategories: () => of([incomeCategory]),
+      getVisibleCategoriesAsync: () => Promise.resolve([incomeCategory]),
+      getCategories: () => of([incomeCategory]),
+    };
+    mockTransactionState = { addTransaction: vi.fn().mockResolvedValue(undefined) };
+
     mockDialog.open.mockReturnValue({
       afterClosed: () => of(null),
     });
@@ -51,7 +56,11 @@ describe('HomeScreenIncomeFabComponent', () => {
         { provide: CategoryService, useValue: mockCategoryService },
         { provide: TransactionState, useValue: mockTransactionState },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(HomeScreenIncomeFabComponent, {
+        add: { providers: [{ provide: MatSnackBar, useValue: mockSnackBar }] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(HomeScreenIncomeFabComponent);
     component = fixture.componentInstance;
@@ -88,17 +97,22 @@ describe('HomeScreenIncomeFabComponent', () => {
     );
   });
 
-  it('should not open dialog when no income category exists', async () => {
+  it('should show snackbar and not open dialog when no income category exists', async () => {
+    // covers: docs/qa/2026-10-21-ui-ux-audit.md#UI-08
     mockCategoryService.getCategoriesAsync.mockResolvedValue([]);
 
-    const fabButton = fixture.debugElement.query(By.css('.fab-income'));
-    fabButton.nativeElement.click();
-    await fixture.whenStable();
+    await component.openIncomeDialog();
 
+    expect(mockSnackBar.open).toHaveBeenCalledWith(
+      'Brak kategorii przychodów. Najpierw dodaj kategorię w ustawieniach.',
+      undefined,
+      { duration: 4000 },
+    );
     expect(mockDialog.open).not.toHaveBeenCalled();
   });
 
-  it('should add transaction after dialog confirms', async () => {
+  it('should add transaction and show snackbar after dialog confirms', async () => {
+    // covers: docs/qa/2026-10-21-ui-ux-audit.md#UI-09D
     const result = {
       amount: 1000,
       date: '2026-08-15T00:00:00.000Z',
@@ -110,9 +124,7 @@ describe('HomeScreenIncomeFabComponent', () => {
       afterClosed: () => of(result),
     });
 
-    const fabButton = fixture.debugElement.query(By.css('.fab-income'));
-    fabButton.nativeElement.click();
-    await fixture.whenStable();
+    await component.openIncomeDialog();
 
     expect(mockTransactionState.addTransaction).toHaveBeenCalledTimes(1);
     expect(mockTransactionState.addTransaction).toHaveBeenCalledWith(
@@ -121,6 +133,11 @@ describe('HomeScreenIncomeFabComponent', () => {
         categoryId: 'income',
         comment: 'Wypłata',
       }),
+    );
+    expect(mockSnackBar.open).toHaveBeenCalledWith(
+      'Dodano przychód.',
+      undefined,
+      { duration: 3000 },
     );
   });
 

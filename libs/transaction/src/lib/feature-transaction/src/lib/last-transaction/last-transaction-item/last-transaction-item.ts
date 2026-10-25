@@ -1,16 +1,21 @@
-import { Component, input, output } from '@angular/core';
-import { DatePipe, CurrencyPipe } from '@angular/common';
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+
+import { Component, inject, input, output } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Category, Transaction } from '@data-access-transaction';
+import { CurrencyService } from '@currency';
 
 @Component({
   selector: 'transaction-last-transaction-item',
-  imports: [CurrencyPipe, DatePipe, MatButtonModule, MatIconModule, MatTooltipModule],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MatTooltipModule],
   template: `
     <div
       class="item"
+      [style.border-left]="'3px solid ' + (category()?.colorHex ?? '#6B7280')"
       data-testid="last-transaction-item"
       tabindex="0"
       role="button"
@@ -43,7 +48,7 @@ import { Category, Transaction } from '@data-access-transaction';
             [class.income]="transaction().amount > 0"
             data-testid="last-transaction-item__amount"
           >
-            {{ transaction().amount | currency : 'PLN' : 'symbol' : '1.2-2' : 'pl' }}
+            {{ currencyService.format(transaction().amount) }}
           </span>
         </div>
       </div>
@@ -86,6 +91,8 @@ import { Category, Transaction } from '@data-access-transaction';
   styleUrl: './last-transaction-item.scss',
 })
 export class LastTransactionItemComponent {
+  protected readonly currencyService = inject(CurrencyService);
+
   transaction = input.required<Transaction>();
   category = input<Category>();
   edit = output<void>();

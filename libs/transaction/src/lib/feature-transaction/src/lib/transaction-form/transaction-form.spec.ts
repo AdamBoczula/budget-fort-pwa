@@ -33,7 +33,7 @@ describe('TransactionFormComponent', () => {
   };
   const mockDialogRef = { close: () => void 0, afterClosed: () => of(undefined) };
 
-  const renderForm = (category: Category) =>
+  const renderForm = (category: Category): ReturnType<typeof render<TransactionFormComponent>> =>
     render(TransactionFormComponent, {
       providers: [
         { provide: MatDialogRef, useValue: mockDialogRef },
@@ -274,7 +274,7 @@ describe('TransactionFormComponent', () => {
       comment: 'Lunch',
     };
 
-    const renderEditForm = () =>
+    const renderEditForm = (): ReturnType<typeof render<TransactionFormComponent>> =>
       render(TransactionFormComponent, {
         providers: [
           { provide: MatDialogRef, useValue: mockDialogRef },

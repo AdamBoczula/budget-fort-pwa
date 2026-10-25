@@ -32,7 +32,7 @@ describe('HomePageScreen', () => {
     loading: boolean;
     initialized: boolean;
     error: string | null;
-  }>) {
+  }>): ReturnType<typeof createTransactionState> {
     const { loading = false, initialized = true, error = null } = overrides ?? {};
     return {
       transactions: () => [],

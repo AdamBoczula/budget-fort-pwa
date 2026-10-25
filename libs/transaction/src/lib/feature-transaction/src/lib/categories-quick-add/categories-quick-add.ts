@@ -1,6 +1,9 @@
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
+
 import { Component, inject, resource } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Category, CategoryService } from '@data-access-transaction';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 import {
@@ -10,7 +13,7 @@ import {
 
 @Component({
   selector: 'transaction-categories-quick-add',
-  imports: [MatIconModule],
+  imports: [MatIconModule, MatSnackBarModule],
   templateUrl: './categories-quick-add.html',
   styleUrl: './categories-quick-add.scss',
 })
@@ -18,6 +21,7 @@ export class CategoriesQuickAddComponent {
   private readonly categoryService = inject(CategoryService);
   private readonly transactionState = inject(TransactionState);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   /** Kategorie załadowane przez resource(). */
   protected readonly categories = resource({
@@ -45,6 +49,7 @@ export class CategoriesQuickAddComponent {
           comment: result.comment,
           subcategory: result.subcategory,
         });
+        this.snackBar.open('Dodano transakcję.', undefined, { duration: 3000 });
       }
     });
   }

@@ -3,6 +3,7 @@ import { userEvent } from '@testing-library/user-event';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { LocalStorageService } from 'local-db';
+import { CurrencyService } from '@currency';
 import { SettingsCurrencySelectorComponent } from './settings-currency-selector';
 
 describe('SettingsCurrencySelectorComponent', () => {
@@ -20,6 +21,7 @@ describe('SettingsCurrencySelectorComponent', () => {
       providers: [
         provideAnimationsAsync(),
         { provide: LocalStorageService, useValue: localStorageMock },
+        CurrencyService,
       ],
     }).compileComponents();
   });

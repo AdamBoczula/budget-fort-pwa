@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
 import { CategoriesQuickAddComponent } from './categories-quick-add';
 import { Category, CategoryService, SubcategoryService } from '@data-access-transaction';
@@ -41,6 +42,7 @@ describe('CategoriesQuickAddComponent', () => {
     upsertSubcategoryAsync: () => Promise.resolve(),
   };
   const mockTxState = { addTransaction: () => Promise.resolve(), mutationError: () => null };
+  const mockSnackBar = { open: vi.fn() };
 
   it('should render category cards', async () => {
     await render(CategoriesQuickAddComponent, {
@@ -49,6 +51,9 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
+      ],
+      componentProviders: [
+        { provide: MatSnackBar, useValue: mockSnackBar },
       ],
     });
 
@@ -74,6 +79,9 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
       ],
+      componentProviders: [
+        { provide: MatSnackBar, useValue: mockSnackBar },
+      ],
     });
 
     const foodButton = (await screen.findByText('Jedzenie')).closest('button');
@@ -90,6 +98,9 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
+      ],
+      componentProviders: [
+        { provide: MatSnackBar, useValue: mockSnackBar },
       ],
     });
 

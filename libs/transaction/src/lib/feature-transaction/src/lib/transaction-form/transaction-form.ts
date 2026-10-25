@@ -1,3 +1,5 @@
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
+
 import {
   AfterViewInit,
   Component,
@@ -200,5 +202,19 @@ export class TransactionFormComponent implements AfterViewInit {
 
   protected cancel(): void {
     this.dialogRef.close();
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter') {
+      return;
+    }
+    if (!this.amount || this.amount <= 0 || !this.selectedDate) {
+      return;
+    }
+    if (this.isEditMode && !this.isDirty) {
+      return;
+    }
+    event.preventDefault();
+    void this.save();
   }
 }
