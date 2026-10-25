@@ -13,7 +13,8 @@
 }
 
 .transaction-header-toolbar__menu-icon {
-	color: inherit;
+	color: var(--mat-sys-on-primary-container, #1a1a1a);
+	opacity: 0.87;
 }
 
 .transaction-header-toolbar__month,
@@ -35,4 +36,23 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	font-weight: 700;
+	font-size: 1.1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+
+	&--positive {
+		color: #16a34a; // green
+	}
+
+	&--negative {
+		color: var(--mat-sys-error, #f44336); // red
+	}
+}
+
+.transaction-header-toolbar__balance-icon {
+	font-size: 1.2rem;
+	width: 1.2rem;
+	height: 1.2rem;
 }

@@ -1,12 +1,10 @@
-// spec: docs/specs/budget/przeglad-historii-budzetu.md
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
 
-import { Component, inject, input, LOCALE_ID, output } from '@angular/core';
+import { Component, inject, LOCALE_ID, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 
 export type TransactionThemeId = 'azure-blue' | 'rose-red' | 'magenta-violet' | 'cyan-orange';
@@ -25,8 +23,7 @@ type MenuGroup = {
 type MenuItem = {
   label: string;
   icon: string;
-  route?: string;
-  action?: 'addTransaction';
+  route: string;
 };
 
 @Component({
@@ -36,8 +33,6 @@ type MenuItem = {
     MatListModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatExpansionModule,
   ],
   template: `
@@ -66,43 +61,22 @@ type MenuItem = {
 
           <mat-nav-list class="submenu">
             @for (item of group.items; track item.label) {
-              @if (item.route) {
-                <a
-                  mat-list-item
-                  [routerLink]="item.route"
-                  routerLinkActive="active-link"
-                  #rla="routerLinkActive"
-                  [class.active]="rla.isActive"
-                  (click)="requestClose()"
-                >
-                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-                  <span>{{ item.label }}</span>
-                </a>
-              } @else if (item.action === 'addTransaction') {
-                <button
-                  mat-list-item
-                  (click)="onAddTransaction()"
-                >
-                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-                  <span>{{ item.label }}</span>
-                </button>
-              }
+              <a
+                mat-list-item
+                [routerLink]="item.route"
+                routerLinkActive="active-link"
+                #rla="routerLinkActive"
+                [class.active]="rla.isActive"
+                (click)="requestClose()"
+              >
+                <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                <span>{{ item.label }}</span>
+              </a>
             }
           </mat-nav-list>
         </mat-expansion-panel>
       }
     </mat-accordion>
-
-    <div class="theme-switcher">
-      <mat-form-field appearance="outline" class="theme-field">
-        <mat-label i18n="@@navigation.themeLabel">Motyw</mat-label>
-        <mat-select [value]="activeTheme()" (selectionChange)="selectTheme($event.value)">
-          @for (theme of themeOptions(); track theme.id) {
-            <mat-option [value]="theme.id">{{ theme.label }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
   `,
   styleUrl: './transaction-navigation-drawer.component.scss',
 })
@@ -112,25 +86,9 @@ export class TransactionNavigationDrawerComponent {
   protected readonly menuGroups: ReadonlyArray<MenuGroup> = this.createMenuGroups();
 
   public readonly drawerClose = output<void>();
-  public readonly addTransactionRequest = output<void>();
-  public readonly themeChange = output<TransactionThemeId>();
-  public readonly activeTheme = input.required<TransactionThemeId>();
-  public readonly themeOptions = input.required<ReadonlyArray<TransactionThemeOption>>();
 
   protected requestClose(): void {
     this.drawerClose.emit();
-  }
-
-  protected selectTheme(themeId: TransactionThemeId): void {
-    if (themeId === this.activeTheme()) {
-      return;
-    }
-
-    this.themeChange.emit(themeId);
-  }
-
-  protected onAddTransaction(): void {
-    this.addTransactionRequest.emit();
   }
 
   private createMenuGroups(): ReadonlyArray<MenuGroup> {
@@ -142,14 +100,14 @@ export class TransactionNavigationDrawerComponent {
         icon: 'receipt',
         items: [
           {
-            label: isEn ? 'Add new' : 'Dodaj nowe',
-            icon: 'add',
-            action: 'addTransaction',
+            label: isEn ? 'Home' : 'Strona główna',
+            icon: 'home',
+            route: '/home',
           },
           {
             label: isEn ? 'Dashboard' : 'Dashboard',
             icon: 'dashboard',
-            route: '/feature-transaction/dashboard',
+            route: '/dashboard',
           },
         ],
       },
@@ -158,14 +116,9 @@ export class TransactionNavigationDrawerComponent {
         icon: 'savings',
         items: [
           {
-            label: isEn ? 'Add new' : 'Dodaj nowy',
-            icon: 'add',
-            route: '/feature-transaction/settings/budget',
-          },
-          {
-            label: isEn ? 'Dashboard' : 'Dashboard',
-            icon: 'dashboard',
-            route: '/feature-transaction/dashboard',
+            label: isEn ? 'Budget planning' : 'Planowanie budżetu',
+            icon: 'account_balance_wallet',
+            route: '/budget',
           },
         ],
       },
@@ -176,7 +129,7 @@ export class TransactionNavigationDrawerComponent {
           {
             label: isEn ? 'Settings' : 'Ustawienia',
             icon: 'settings',
-            route: '/feature-transaction/settings',
+            route: '/settings',
           },
         ],
       },

@@ -7,18 +7,11 @@
   padding: 1rem;
 }
 
-.theme-switcher {
-  padding: 0.5rem 1rem 1rem;
-}
-
-.theme-field {
-  width: 100%;
-}
-
 .menu-group-icon {
   margin-right: 8px;
 }
 
+/* stylelint-disable-next-line selector-pseudo-element-no-unknown */
 ::ng-deep .mat-expansion-panel-body {
   padding: 0 !important;
 }

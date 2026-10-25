@@ -1,3 +1,4 @@
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 import { Route } from '@angular/router';
 import { HomePageScreen } from './home-screen/home-screen';
 import { DashboardPageScreen } from './dashboard-screen/dashboard-screen';
@@ -11,11 +12,12 @@ export const featureTransactionRoutes: Route[] = [
     component: TransactionShellComponent,
     resolve: { categoriesInitialized: categoryInitializerResolver },
     children: [
-      { path: '', component: HomePageScreen },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: HomePageScreen },
       { path: 'dashboard', component: DashboardPageScreen },
       { path: 'settings', component: SettingsPageScreen },
       {
-        path: 'settings/budget',
+        path: 'budget',
         loadComponent: () =>
           import('@feature-budget').then((m) => m.SettingsBudgetScreenComponent),
       },

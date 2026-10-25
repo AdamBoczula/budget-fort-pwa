@@ -1,14 +1,15 @@
-// spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
-    path: 'feature-transaction',
+    path: '',
     loadChildren: () => import('@feature-transaction').then((m) => m.featureTransactionRoutes),
   },
+  // Backward compatibility: redirect old routes
   {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'feature-transaction',
+    path: 'feature-transaction',
+    redirectTo: '',
+    pathMatch: 'prefix',
   },
 ];

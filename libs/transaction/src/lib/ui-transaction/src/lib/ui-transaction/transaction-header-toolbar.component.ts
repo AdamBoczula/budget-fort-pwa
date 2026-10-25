@@ -1,7 +1,10 @@
-import { Component, inject, input, LOCALE_ID, output } from '@angular/core';
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+import { Component, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { CurrencyService } from '@currency';
 
 @Component({
   selector: 'transaction-header-toolbar',
@@ -19,15 +22,20 @@ import { MatToolbarModule } from '@angular/material/toolbar';
       </button>
 
       <p class="transaction-header-toolbar__month">{{ monthName() }}</p>
-      <p class="transaction-header-toolbar__balance">
-        {{ formatBalance(balance()) }}
+      <p
+        class="transaction-header-toolbar__balance"
+        [class.transaction-header-toolbar__balance--positive]="balance() >= 0"
+        [class.transaction-header-toolbar__balance--negative]="balance() < 0"
+      >
+        <mat-icon class="transaction-header-toolbar__balance-icon">paid</mat-icon>
+        {{ currencyService.format(balance()) }}
       </p>
     </mat-toolbar>
   `,
   styleUrl: './transaction-header-toolbar.component.scss',
 })
 export class TransactionHeaderToolbarComponent {
-  private readonly localeId = inject(LOCALE_ID);
+  protected readonly currencyService = inject(CurrencyService);
 
   public readonly monthName = input('');
   public readonly balance = input(0);
@@ -35,13 +43,5 @@ export class TransactionHeaderToolbarComponent {
 
   protected onMenuClick(): void {
     this.menuClick.emit();
-  }
-
-  protected formatBalance(balance: number): string {
-    return new Intl.NumberFormat(this.localeId, {
-      style: 'currency',
-      currency: 'PLN',
-      minimumFractionDigits: 2,
-    }).format(balance);
   }
 }
