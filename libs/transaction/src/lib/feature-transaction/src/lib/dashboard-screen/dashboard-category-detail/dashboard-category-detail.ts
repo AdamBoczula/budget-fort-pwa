@@ -1,14 +1,14 @@
-import { Component, input, output } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, inject, input, output } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { Transaction } from '@data-access-transaction';
+import { CurrencyService } from '@currency';
 
 @Component({
   selector: 'transaction-dashboard-category-detail',
   imports: [
-    CurrencyPipe,
     DatePipe,
     MatButtonModule,
     MatIconModule,
@@ -35,7 +35,7 @@ import { Transaction } from '@data-access-transaction';
         <ng-container matColumnDef="amount">
           <th mat-header-cell *matHeaderCellDef i18n="@@dashboard.detailAmount">Kwota</th>
           <td mat-cell *matCellDef="let tx" class="detail-table__amount">
-            {{ tx.amount | currency : 'PLN' : 'symbol' : '1.2-2' : 'pl' }}
+            {{ currencyService.format(tx.amount) }}
           </td>
         </ng-container>
 
@@ -48,7 +48,7 @@ import { Transaction } from '@data-access-transaction';
               (click)="edit.emit(tx)"
               matTooltip="Edytuj"
               i18n-matTooltip="@@dashboard.detailEditTooltip"
-              attr.aria-label="Edytuj transakcję"
+              aria-label="Edytuj transakcję"
               i18n-aria-label="@@dashboard.detailEditAria"
               class="detail-table__edit-btn"
             >
@@ -89,6 +89,8 @@ import { Transaction } from '@data-access-transaction';
   `],
 })
 export class DashboardCategoryDetailComponent {
+  protected readonly currencyService = inject(CurrencyService);
+
   readonly transactions = input.required<Transaction[]>();
   readonly edit = output<Transaction>();
 

@@ -3,14 +3,13 @@ import {
   computed,
   ElementRef,
   inject,
-  LOCALE_ID,
   viewChild,
   afterRenderEffect,
 } from '@angular/core';
 import { Chart, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js';
 import type { ChartConfiguration } from 'chart.js';
 import { DashboardState } from '../../service/dashboard-state/dashboard-state';
-import { formatCompactCurrency } from '../../service/dashboard-utils/money-utils';
+import { CurrencyService } from '@currency';
 
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 
@@ -51,7 +50,7 @@ Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 })
 export class DashboardPieChartComponent {
   private readonly dashboardState = inject(DashboardState);
-  private readonly localeId = inject(LOCALE_ID);
+  private readonly currencyService = inject(CurrencyService);
   private readonly chartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('chartCanvas');
 
   private chartInstance: Chart<'doughnut'> | null = null;
@@ -69,7 +68,7 @@ export class DashboardPieChartComponent {
       ctx.save();
 
       const total = this.dashboardState.totalSpending();
-      const text = formatCompactCurrency(total, 'PLN', this.localeId);
+      const text = this.currencyService.format(total);
 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -87,9 +86,6 @@ export class DashboardPieChartComponent {
   };
 
   constructor() {
-    // afterRenderEffect to reaktywny odpowiednik afterNextRender.
-    // Uruchamia się po renderze DOM i automatycznie reaguje na zmiany
-    // śledzonych sygnałów (categorySpending, totalSpending).
     afterRenderEffect({
       read: () => {
         this.setupChart();
@@ -143,10 +139,7 @@ export class DashboardPieChartComponent {
             callbacks: {
               label: (context) => {
                 const cat = data[context.dataIndex];
-                const amount = cat.totalAmount.toLocaleString(this.localeId, {
-                  style: 'currency',
-                  currency: 'PLN',
-                });
+                const amount = this.currencyService.format(cat.totalAmount);
                 return `${cat.categoryName}: ${amount} (${cat.percentage}%)`;
               },
             },

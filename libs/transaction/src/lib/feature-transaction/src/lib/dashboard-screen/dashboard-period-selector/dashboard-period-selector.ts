@@ -20,7 +20,7 @@ import { DashboardState, PeriodMode } from '../../service/dashboard-state/dashbo
           mat-icon-button
           (click)="dashboardState.goToPrevious()"
           [disabled]="!dashboardState.canGoPrevious()"
-          attr.aria-label="Poprzedni okres"
+          aria-label="Poprzedni okres"
           i18n-aria-label="@@dashboard.prevPeriodAria"
         >
           <mat-icon>chevron_left</mat-icon>
@@ -29,7 +29,7 @@ import { DashboardState, PeriodMode } from '../../service/dashboard-state/dashbo
         <button
           class="period-selector__label"
           (click)="picker.open()"
-          attr.aria-label="Wybierz okres"
+          aria-label="Wybierz okres"
           i18n-aria-label="@@dashboard.pickPeriodAria"
         >
           {{ dashboardState.periodLabel() }}
@@ -39,7 +39,7 @@ import { DashboardState, PeriodMode } from '../../service/dashboard-state/dashbo
           mat-icon-button
           (click)="dashboardState.goToNext()"
           [disabled]="!dashboardState.canGoNext()"
-          attr.aria-label="Następny okres"
+          aria-label="Następny okres"
           i18n-aria-label="@@dashboard.nextPeriodAria"
         >
           <mat-icon>chevron_right</mat-icon>

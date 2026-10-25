@@ -7,8 +7,6 @@ import {
 import { TransactionState } from '../transaction-state/transaction-state';
 import {
   getCurrentLocalMonth,
-  getMonthRange,
-  getYearRange,
   getAvailableYears,
   isInMonth,
   isInYear,

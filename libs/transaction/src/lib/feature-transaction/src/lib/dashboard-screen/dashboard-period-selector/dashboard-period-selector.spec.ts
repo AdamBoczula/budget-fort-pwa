@@ -15,7 +15,7 @@ describe('DashboardPeriodSelectorComponent', () => {
   });
 
   let mockDashboardState: ReturnType<typeof createMockState>;
-  const createMockState = (overrides?: Partial<ReturnType<typeof createMockState>>) => ({
+  const createMockState = (overrides?: Partial<ReturnType<typeof createMockState>>): ReturnType<typeof createMockState> => ({
     periodMode: vi.fn(() => 'month' as const),
     selectedYear: vi.fn(() => 2026),
     selectedMonth: vi.fn(() => 6),

@@ -1,15 +1,14 @@
 import { Component, inject, output } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { Transaction } from '@data-access-transaction';
+import { CurrencyService } from '@currency';
 import { DashboardState } from '../../service/dashboard-state/dashboard-state';
 import { DashboardCategoryDetailComponent } from '../dashboard-category-detail/dashboard-category-detail';
 
 @Component({
   selector: 'transaction-dashboard-category-list',
   imports: [
-    CurrencyPipe,
     MatExpansionModule,
     MatIconModule,
     DashboardCategoryDetailComponent,
@@ -34,7 +33,7 @@ import { DashboardCategoryDetailComponent } from '../dashboard-category-detail/d
                 </mat-panel-title>
                 <mat-panel-description class="panel-description">
                   <span class="panel-description__amount">
-                    {{ cat.totalAmount | currency : 'PLN' : 'symbol' : '1.2-2' : 'pl' }}
+                    {{ currencyService.format(cat.totalAmount) }}
                   </span>
                   <span class="panel-description__percentage">
                     {{ cat.percentage }}%
@@ -49,7 +48,7 @@ import { DashboardCategoryDetailComponent } from '../dashboard-category-detail/d
                       <mat-icon class="subcategory__icon">subdirectory_arrow_right</mat-icon>
                       <span class="subcategory__name">{{ sub.name }}</span>
                       <span class="subcategory__amount">
-                        {{ sub.totalAmount | currency : 'PLN' : 'symbol' : '1.2-2' : 'pl' }}
+                        {{ currencyService.format(sub.totalAmount) }}
                       </span>
                     </div>
 
@@ -158,6 +157,7 @@ import { DashboardCategoryDetailComponent } from '../dashboard-category-detail/d
 })
 export class DashboardCategoryListComponent {
   protected readonly dashboardState = inject(DashboardState);
+  protected readonly currencyService = inject(CurrencyService);
   readonly editTransaction = output<Transaction>();
 
   protected onEditTransaction(transaction: Transaction): void {

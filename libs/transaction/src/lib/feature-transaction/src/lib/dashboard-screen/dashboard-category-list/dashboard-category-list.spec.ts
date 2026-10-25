@@ -34,7 +34,7 @@ describe('DashboardCategoryListComponent', () => {
     },
   ];
 
-  function createMockState(data: { hasData: boolean }) {
+  function createMockState(data: { hasData: boolean }): ReturnType<typeof createMockState> {
     return {
       categoryWithSubcategories: () => data.hasData ? mockCategoryWithSubcategories : [],
       periodMode: () => 'month' as const,
