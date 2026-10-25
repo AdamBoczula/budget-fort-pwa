@@ -13,6 +13,11 @@ The team wants these AI roles available:
 - **Release/CI monitor** — monitors CI pipeline and reports status
 - **Architecture guard** — enforces module boundaries and Nx tags
 - **Docs maintainer** — keeps documentation in sync with code
+- **QA Coordinator** — orchestrates UI/UX/A11y/Responsive review, generates unified QA report (phase [4b])
+- **UI Reviewer** — analyzes visual consistency, layout, typography, component states
+- **UX Analyzer** — evaluates user experience, Nielsen's heuristics, click efficiency
+- **A11y Auditor** — audits WCAG 2.1 AA compliance, Axe-core, ARIA, keyboard navigation
+- **Responsive Checker** — tests viewport breakpoints, touch targets, layout integrity
 
 ## Spec-Driven Development (SDD)
 
@@ -26,6 +31,7 @@ defined in `docs/specs/01-spec-workflow.md`. The flow is:
    - **3B: Tester (E2E)** — reads spec, creates/updates E2E tests
    - Both start simultaneously after Bramka 2
 4. **Quality Gate** (QA/Tester) → `nx affected -t lint test build e2e` (Bramka 3)
+4b. **UI/UX Review** (QA Coordinator, optional) → user runs `/qa-review` → spawns 4 subagents → generates `docs/qa/YYYY-MM-DD-qa-report.md`
 5. **Done** → code is ready, deployed locally
 
 Key optimizations:
@@ -33,6 +39,7 @@ Key optimizations:
 - User reviews code **locally and continuously** during implementation — no formal Code Review phase needed (solo project)
 - Dev updates the spec's "Implemented in" table **continuously**, not at the end
 - **Manual QA is optional and outside the formal workflow** — it does not block the pipeline
+- **UI/UX Review (phase [4b])** is triggered manually by `/qa-review` — QA Coordinator spawns 4 specialized subagents in parallel (UI, UX, A11y, Responsive) and generates a unified report. **Does not block the pipeline.**
 
 For **bug fixes** and **small refactors**, use the simpler workflow below (Mandatory Agent Workflow).
 
@@ -299,3 +306,20 @@ The authoritative quality gates are defined in `docs/ai/03-testing-quality-gates
 
 Manual QA is performed **optionally** after the formal SDD workflow completes (after Quality Gate).
 It does **not** block the pipeline. The manual QA checklist is in `docs/ai/03-testing-quality-gates.md#manual-qa-checklist`.
+
+## Automated UI/UX Review (Phase [4b], Optional)
+
+In addition to manual QA, an automated UI/UX/A11y/Responsive review can be triggered by running
+`/qa-review` in OpenCode. The **QA Coordinator** subagent orchestrates four specialized subagents:
+
+| Subagent | Focus | Tools | Model |
+|----------|-------|-------|-------|
+| `ui-reviewer` | Visual consistency, layout, typography, component states | Playwright MCP | DeepSeek-V4-Flash |
+| `ux-analyzer` | User experience, Nielsen's heuristics, click efficiency | Playwright MCP | DeepSeek-V4-Flash |
+| `a11y-auditor` | WCAG 2.1 AA, Axe-core, ARIA, keyboard navigation | Chrome DevTools MCP + Playwright MCP | DeepSeek-V4-Flash |
+| `responsive-checker` | Viewport testing, touch targets, layout integrity | Playwright MCP | DeepSeek-V4-Flash |
+
+Results are compiled into a unified report at `docs/qa/YYYY-MM-DD-qa-report.md`. The review
+does **not** block the pipeline — it is an informational aid for the developer.
+
+See `.opencode/agents/qa-coordinator.md` for the full workflow.

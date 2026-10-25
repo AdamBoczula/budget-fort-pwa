@@ -22,15 +22,19 @@ export default [
             },
             {
               sourceTag: 'type:feature',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:data', 'type:ui'],
+              onlyDependOnLibsWithTags: ['type:feature', 'type:data', 'type:ui', 'type:util'],
             },
             {
               sourceTag: 'type:data',
-              onlyDependOnLibsWithTags: ['type:data'],
+              onlyDependOnLibsWithTags: ['type:data', 'type:util'],
             },
             {
               sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:data'],
+              onlyDependOnLibsWithTags: ['type:ui', 'type:data', 'type:util'],
+            },
+            {
+              sourceTag: 'type:util',
+              onlyDependOnLibsWithTags: ['type:util', 'type:data'],
             },
           ],
         },

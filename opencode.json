@@ -13,7 +13,29 @@
           "-y",
           "@angular/cli",
           "mcp"
-        ]
+        ],
+        "enabled": true
+      },
+      "playwright": {
+        "type": "local",
+        "command": ["npx", "-y", "@playwright/mcp@latest"],
+        "enabled": true,
+        "comment": "Playwright MCP — browser automation: navigation, screenshots, viewport testing"
+      },
+      "chrome-devtools": {
+        "type": "local",
+        "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+        "enabled": true,
+        "comment": "Chrome DevTools MCP — accessibility audits (Axe-core), performance, CSS coverage"
+      },
+      "github": {
+        "type": "local",
+        "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+        "enabled": true,
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+        },
+        "comment": "GitHub MCP — issue creation, PR management, branch operations"
       }
     }
   }

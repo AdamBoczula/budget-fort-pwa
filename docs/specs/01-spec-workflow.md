@@ -18,6 +18,11 @@ Proces wykorzystuje następujące role agenta:
 | **Architekt** | Projektuje architekturę, tworzy ADR-y, rozszerza spec o sekcję "Architektura" | Spec zatwierdzony |
 | **Developer (Dev)** | Implementuje kod metodą TDD, aktualizuje "Implemented in" na bieżąco | Architektura zatwierdzona |
 | **Tester (QA)** | Tworzy i aktualizuje testy E2E, odpala quality gate | Architektura zatwierdzona (równolegle z Devem) |
+| **QA Coordinator** | Orkiestruje przegląd UI/UX/A11y/Responsive, generuje raport QA | Użytkownik wywołuje `/qa-review` (faza [4b]) |
+| **UI Reviewer** | Analizuje spójność wizualną, layout, typografię, stany komponentów | Wywoływany przez QA Coordinator |
+| **UX Analyzer** | Ocenia user experience, heurystyki Nielsena, efektywność kliknięć | Wywoływany przez QA Coordinator |
+| **A11y Auditor** | Audytuje dostępność WCAG 2.1 AA, Axe-core, ARIA, klawiatura | Wywoływany przez QA Coordinator |
+| **Responsive Checker** | Testuje viewporty, touch targety, overflow, adaptację layoutu | Wywoływany przez QA Coordinator |
 
 ## Sekwencja (Pipeline)
 
@@ -59,6 +64,16 @@ Proces wykorzystuje następujące role agenta:
      ▼                                                          │
   🛑 BRAMKA 3: Quality gate przechodzi                           │
 
+[4b] UI/UX REVIEW       → Użytkownik wywołuje /qa-review         │
+     │                    → QA Coordinator orkiestruje 4         │
+     │                      subagentów: ui-reviewer,             │
+     │                      ux-analyzer, a11y-auditor,           │
+     │                      responsive-checker                   │
+     │                    → Generowany raport:                   │
+     │                      docs/qa/YYYY-MM-DD-qa-report.md      │
+     ▼                                                          │
+  (opcjonalne, nie blokuje pipeline'u)                           │
+
 [5] DONE                → Kod gotowy, wdrożony lokalnie          │
 ```
 
@@ -68,6 +83,7 @@ Proces wykorzystuje następujące role agenta:
 - **Użytkownik review'uje kod lokalnie na bieżąco** podczas implementacji — projekt solo, nie ma potrzeby formalnego Code Review jako osobnej fazy
 - **Dokumentacja "Implemented in" aktualizowana na bieżąco** przez Deva w trakcie implementacji, nie dopiero na końcu
 - **Manual QA jest poza formalnym workflow** — nie blokuje pipeline'u, wykonuje się opcjonalnie po fazie [4]
+- **Faza [4b] UI/UX Review** — automatyczny przegląd UI/UX/A11y/Responsive wyzwalany ręcznie przez `/qa-review`. QA Coordinator orkiestruje 4 subagentów (ui-reviewer, ux-analyzer, a11y-auditor, responsive-checker), którzy używają Playwright MCP + Chrome DevTools MCP. Raport zapisywany w `docs/qa/`. **Nie blokuje pipeline'u.**
 - **ADR-y** to artefakt tworzony przez Architekta w fazie [2] (docs/adr/<NNN>-<title>.md)
 - **Pipeline ma 5 faz i 3 bramki** — zoptymalizowany pod kątem projektu solo
 
@@ -144,10 +160,22 @@ Gdzie `<NNN>` to kolejny numer (001, 002, ...), a `<title>` to zwięzły tytuł 
 
 ## Manual QA (opcjonalne, poza workflow)
 
-Po zakończeniu formalnego workflow (po Bramce 3), można opcjonalnie wykonać manualne testy QA.
-Manual QA **nie blokuje pipeline'u** i jest wykonywane niezależnie.
+Po zakończeniu formalnego workflow (po Bramce 3), można opcjonalnie wykonać manualne testy QA
+lub automatyczny przegląd UI/UX przez `/qa-review`.
+Oba **nie blokują pipeline'u** i są wykonywane niezależnie.
 
 Lista kontrolna manual QA znajduje się w `docs/ai/03-testing-quality-gates.md#manual-qa-checklist`.
+Automatyczny przegląd UI/UX przez QA Coordinator jest opisany w `.opencode/agents/qa-coordinator.md`.
+
+### Automatyczny przegląd UI/UX (faza [4b])
+
+Wywołaj `/qa-review` w OpenCode aby uruchomić automatyczny przegląd:
+- **UI Reviewer** — spójność wizualna, layout, typografia, stany komponentów
+- **UX Analyzer** — user experience, heurystyki Nielsena, efektywność
+- **A11y Auditor** — dostępność WCAG 2.1 AA, Axe-core, klawiatura, ARIA
+- **Responsive Checker** — viewporty, touch targety, adaptacja layoutu
+
+Raport zapisywany jest w `docs/qa/YYYY-MM-DD-qa-report.md`.
 
 ## Powiązane pliki
 
@@ -157,3 +185,10 @@ Lista kontrolna manual QA znajduje się w `docs/ai/03-testing-quality-gates.md#m
 - `.opencode/skills/business-analyst.md` – definicja skillu analityka
 - `docs/ai/02-agent-operating-model.md` – role agenta i permission model
 - `docs/ai/03-testing-quality-gates.md` – quality gates i manual QA checklist
+- `.opencode/agents/qa-coordinator.md` – QA Coordinator (faza [4b])
+- `.opencode/agents/ui-reviewer.md` – UI Reviewer subagent
+- `.opencode/agents/ux-analyzer.md` – UX Analyzer subagent
+- `.opencode/agents/a11y-auditor.md` – A11y Auditor subagent
+- `.opencode/agents/responsive-checker.md` – Responsive Checker subagent
+- `.opencode/commands/qa-review.md` – komenda /qa-review
+- `docs/qa/qa-report-template.md` – szablon raportu QA

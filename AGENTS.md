@@ -169,3 +169,38 @@ npm exec nx e2e budget-fort-e2e --skip-nx-cache             # 5 e2e tests
 - **Component design:** follow the decomposition rules in `docs/ai/02-agent-operating-model.md#component-design-standards`. Use Container/Presenter pattern for data-heavy screens. One concern per component. Container components MUST use inline templates. Extracted aggregation logic goes into dedicated `@Service()` classes. Avoid mega-components.
 - **Angular 22 specifics:** omit `standalone: true` (now default). Use `@Service()` instead of `@Injectable({ providedIn: 'root' })`. Prefer Reactive Forms over template-driven. Template MUST be inline (`template: \`...\``). Styles MUST be in a separate `.scss` file (`styleUrl: './*.component.scss'`) — never `styles: \`...\`` inline.
 - **CSS:** BEM nesting (`&__element`, `&--modifier`) is standard in SCSS files. Use `styleUrl` to a `.scss` file for all components.
+
+## UI/UX Review (Phase [4b])
+
+After the quality gate passes, you can trigger an automated UI/UX/Accessibility/Responsive review:
+
+```
+/qa-review
+```
+
+This invokes the **QA Coordinator**, which spawns 4 subagents in parallel:
+- **UI Reviewer** — visual consistency, layout, typography, component states
+- **UX Analyzer** — user experience, Nielsen's heuristics, click efficiency
+- **A11y Auditor** — WCAG 2.1 AA, Axe-core, keyboard, ARIA, contrast
+- **Responsive Checker** — viewport breakpoints, touch targets, overflow
+
+The review is **optional** — it does NOT block the pipeline. Results are saved to
+`docs/qa/YYYY-MM-DD-qa-report.md`. See `.opencode/agents/qa-coordinator.md` for details.
+
+### MCP servers used by QA subagents
+
+| MCP Server | Purpose |
+|------------|---------|
+| Playwright MCP | Browser automation, navigation, screenshots, viewport resizing |
+| Chrome DevTools MCP | Axe-core audits, ARIA tree inspection, contrast checks |
+| GitHub MCP | Optional: create GitHub Issues from QA reports |
+
+### Agent models
+
+| Agent | Model | Why |
+|-------|-------|-----|
+| QA Coordinator | DeepSeek-V4-Pro | Orchestration, report merging, decision-making |
+| UI Reviewer | DeepSeek-V4-Flash | Visual analysis — doesn't need deep reasoning |
+| UX Analyzer | DeepSeek-V4-Flash | Heuristic evaluation — procedural task |
+| A11y Auditor | DeepSeek-V4-Flash | Audits are tool-driven, not reasoning-heavy |
+| Responsive Checker | DeepSeek-V4-Flash | Viewport testing is procedural |
