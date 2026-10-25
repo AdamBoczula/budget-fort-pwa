@@ -1,9 +1,11 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { BudgetProgressBarComponent } from '@ui-budget';
+import { CurrencyService } from '@currency';
 
 @Component({
   selector: 'budget-current-month-card',
@@ -29,22 +31,32 @@ import { BudgetProgressBarComponent } from '@ui-budget';
           [class.current-month-card__value--warn]="percentage() >= 80 && percentage() < 100"
           [class.current-month-card__value--over]="percentage() >= 100"
         >
-          {{ spent() | number: '1.0-0' }} zł
+          {{ formatInteger(spent()) }} {{ currencySymbol }}
         </span>
         <span class="current-month-card__separator">/</span>
         <span class="current-month-card__label">Zaplanowano</span>
-        <span class="current-month-card__limit">{{ limit() | number: '1.0-0' }} zł</span>
+        <span class="current-month-card__limit">{{ formatInteger(limit()) }} {{ currencySymbol }}</span>
       </div>
 
       <div class="current-month-card__summary">
-        Suma limitów kategorii: <strong>{{ limit() | number: '1.0-0' }} zł</strong>
+        Suma limitów kategorii: <strong>{{ formatInteger(limit()) }} {{ currencySymbol }}</strong>
       </div>
     </div>
   `,
   styleUrl: './budget-current-month-card.component.scss',
 })
 export class BudgetCurrentMonthCardComponent {
+  private readonly currencyService = inject(CurrencyService);
+
   readonly spent = input.required<number>();
   readonly limit = input.required<number>();
   readonly percentage = input.required<number>();
+
+  protected readonly currencySymbol = this.currencyService.getSymbol();
+
+  protected formatInteger(value: number): string {
+    return new Intl.NumberFormat(this.currencyService.currentLocale(), {
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
 }

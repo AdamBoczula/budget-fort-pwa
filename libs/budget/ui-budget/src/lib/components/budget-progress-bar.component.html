@@ -1,4 +1,4 @@
-<!-- spec: docs/specs/budget/planowanie-budzetu.md -->
+<!-- spec: docs/qa/2026-10-21-ui-ux-audit.md -->
 <div
   class="budget-progress"
   role="progressbar"
@@ -13,12 +13,16 @@
   <div class="budget-progress__bar-bg">
     <div
       class="budget-progress__bar-fill"
-      [style.width.%]="percentage()"
-      [style.background-color]="color()"
+      [style.width.%]="showZeroLimit() ? 0 : percentage()"
+      [style.background]="showZeroLimit() ? 'var(--mat-sys-surface-container-high, #e0e0e0)' : gradientStyle()"
     ></div>
   </div>
   <div class="budget-progress__text">
-    {{ formattedSpent() }} / {{ formattedLimit() }} zł
-    <span class="budget-progress__percentage">({{ percentage() }}%)</span>
+    @if (showZeroLimit()) {
+      <span i18n="@@budgetProgress.noLimit">Brak limitu</span>
+    } @else {
+      {{ formattedSpent() }} / {{ formattedLimit() }} {{ currencySymbol }}
+      <span class="budget-progress__percentage">({{ percentage() }}%)</span>
+    }
   </div>
 </div>

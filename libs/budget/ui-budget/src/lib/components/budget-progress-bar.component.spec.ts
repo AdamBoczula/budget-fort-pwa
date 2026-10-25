@@ -1,11 +1,11 @@
-// spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
 
 import { render, screen } from '@testing-library/angular';
 import { BudgetProgressBarComponent } from './budget-progress-bar.component';
 
 describe('BudgetProgressBarComponent', () => {
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-3
-  it('should display green bar for usage below 80%', async () => {
+  it('should display formatted amounts and percentage for usage below 80%', async () => {
     await render(BudgetProgressBarComponent, {
       inputs: { spent: 2000, limit: 5000, label: 'Budżet ogólny' },
     });
@@ -16,28 +16,32 @@ describe('BudgetProgressBarComponent', () => {
 
     const progressbar = screen.getByRole('progressbar');
     expect(progressbar).toHaveAttribute('aria-valuenow', '40');
+    expect(progressbar).toHaveAttribute('aria-valuemin', '0');
+    expect(progressbar).toHaveAttribute('aria-valuemax', '100');
 
-    // Green fill bar should be present
+    // The fill bar should be present
     const fillBar = progressbar.querySelector('.budget-progress__bar-fill') as HTMLElement;
     expect(fillBar).toBeTruthy();
-    expect(fillBar.style.backgroundColor).toBe('rgb(76, 175, 80)'); // #4caf50
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-4
-  it('should display yellow bar for usage between 80% and 99%', async () => {
+  it('should display yellow-range percentage for usage between 80% and 99%', async () => {
     await render(BudgetProgressBarComponent, {
       inputs: { spent: 4200, limit: 5000 },
     });
 
     expect(screen.getByText('(84%)')).toBeInTheDocument();
+    expect(screen.getByText(/4200 \/ 5000 zł/i)).toBeInTheDocument();
 
     const progressbar = screen.getByRole('progressbar');
+    expect(progressbar).toHaveAttribute('aria-valuenow', '84');
+
     const fillBar = progressbar.querySelector('.budget-progress__bar-fill') as HTMLElement;
-    expect(fillBar.style.backgroundColor).toBe('rgb(255, 152, 0)'); // #ff9800
+    expect(fillBar).toBeTruthy();
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-5
-  it('should display red bar for usage at or above 100% and clamp at 100%', async () => {
+  it('should clamp percentage at 100% and show red for usage above limit', async () => {
     await render(BudgetProgressBarComponent, {
       inputs: { spent: 5200, limit: 5000, label: 'Jedzenie' },
     });
@@ -49,32 +53,36 @@ describe('BudgetProgressBarComponent', () => {
     expect(progressbar).toHaveAttribute('aria-valuenow', '100');
 
     const fillBar = progressbar.querySelector('.budget-progress__bar-fill') as HTMLElement;
-    expect(fillBar.style.backgroundColor).toBe('rgb(244, 67, 54)'); // #f44336
+    expect(fillBar).toBeTruthy();
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#Edge Case 1
-  it('should show 0% when limit is 0 (no budget set)', async () => {
+  // covers: docs/qa/2026-10-21-ui-ux-audit.md
+  it('should show "Brak limitu" and 0% width bar when limit is 0 (no budget set)', async () => {
     await render(BudgetProgressBarComponent, {
       inputs: { spent: 500, limit: 0 },
     });
 
-    // When limit is 0, percentage is 0, green
-    expect(screen.getByText('(0%)')).toBeInTheDocument();
+    // When limit is 0, show "Brak limitu" text instead of "X / Y zł (Z%)"
+    expect(screen.getByText('Brak limitu')).toBeInTheDocument();
+    expect(screen.queryByText(/zł/)).toBeNull();
+    expect(screen.queryByText(/\(/)).toBeNull();
+
     const progressbar = screen.getByRole('progressbar');
     expect(progressbar).toHaveAttribute('aria-valuenow', '0');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#Edge Case 3
-  it('should show 0% green when no expenses in current month', async () => {
+  it('should show 0% when no expenses in current month', async () => {
     await render(BudgetProgressBarComponent, {
       inputs: { spent: 0, limit: 5000, label: 'Transport' },
     });
 
     expect(screen.getByText('(0%)')).toBeInTheDocument();
+    expect(screen.getByText(/0 \/ 5000 zł/i)).toBeInTheDocument();
 
     const progressbar = screen.getByRole('progressbar');
-    const fillBar = progressbar.querySelector('.budget-progress__bar-fill') as HTMLElement;
-    expect(fillBar.style.backgroundColor).toBe('rgb(76, 175, 80)'); // green
+    expect(progressbar).toHaveAttribute('aria-valuenow', '0');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-6

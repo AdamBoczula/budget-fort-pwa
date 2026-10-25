@@ -19,6 +19,20 @@
 
   &__card {
     margin-bottom: 16px;
+
+    &--clickable {
+      cursor: pointer;
+      transition: box-shadow 0.2s ease, transform 0.15s ease;
+
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--mat-sys-primary, #2563eb);
+        outline-offset: 2px;
+      }
+    }
   }
 
   &__categories-header {
@@ -43,6 +57,16 @@
     button {
       min-width: 120px;
     }
+  }
+
+  &__actions-sticky {
+    position: sticky;
+    bottom: 0;
+    background: var(--mat-sys-surface, #ffffff);
+    padding: 12px 0 16px;
+    margin-top: 8px;
+    border-top: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+    z-index: 10;
   }
 
   &__loading {

@@ -10,11 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [RouterLink, MatButtonModule, MatIconModule],
   template: `
     <div class="quick-actions">
-      <a mat-stroked-button routerLink="/feature-transaction" class="quick-actions__btn">
+      <a mat-stroked-button routerLink="/home" class="quick-actions__btn">
         <mat-icon>add_circle</mat-icon>
         Dodaj transakcję
       </a>
-      <a mat-stroked-button routerLink="/feature-transaction/dashboard" class="quick-actions__btn">
+      <a mat-stroked-button routerLink="/dashboard" class="quick-actions__btn">
         <mat-icon>dashboard</mat-icon>
         Dashboard
       </a>

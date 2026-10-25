@@ -1,0 +1,87 @@
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.picker-label {
+  display: block;
+  margin: 12px 0 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant, #666666);
+}
+
+.color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.15s;
+
+  &:hover,
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary, #2563eb);
+    outline-offset: 2px;
+  }
+
+  &.selected {
+    border-color: var(--mat-sys-on-surface, #000);
+    transform: scale(1.15);
+  }
+}
+
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.icon-item {
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+    outline: 2px solid var(--mat-sys-primary, #2563eb);
+    outline-offset: 2px;
+  }
+
+  &.selected {
+    background: var(--mat-sys-primary-container, rgba(37, 99, 235, 0.12));
+  }
+}
+
+mat-dialog-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  // Push "Usuń kategorię" to the left, save/cancel to the right
+  button:first-child {
+    margin-right: auto;
+  }
+}

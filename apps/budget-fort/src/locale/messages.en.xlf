@@ -239,6 +239,10 @@
         <source>Edytuj transakcję</source>
         <target>Edit transaction</target>
       </trans-unit>
+      <trans-unit id="budgetProgress.noLimit" datatype="html">
+        <source>Brak limitu</source>
+        <target>No limit</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,4 +1,5 @@
 // spec: docs/specs/budget/przeglad-historii-budzetu.md
+// spec: docs/qa/2026-10-21-ui-ux-audit.md
 
 import { Component, computed, effect, inject, resource, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -7,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule, MatDatepicker } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -24,6 +27,10 @@ import { BudgetCurrentMonthCardComponent } from '../budget-current-month-card/bu
 import { BudgetPreviousMonthCardComponent } from '../budget-previous-month-card/budget-previous-month-card.component';
 import { BudgetCategoryCardComponent } from '../budget-category-card/budget-category-card.component';
 import { BudgetQuickActionsComponent } from '../budget-quick-actions/budget-quick-actions.component';
+import {
+  CategoryEditDialogComponent,
+  CategoryEditDialogResult,
+} from '../category-edit-dialog/category-edit-dialog.component';
 
 type PeriodMode = 'month' | 'year';
 
@@ -41,6 +48,7 @@ function getCurrentPeriod(): { year: number; month: number } {
     MatButtonToggleModule,
     MatCardModule,
     MatDatepickerModule,
+    MatExpansionModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
@@ -48,6 +56,7 @@ function getCurrentPeriod(): { year: number; month: number } {
     BudgetPreviousMonthCardComponent,
     BudgetCategoryCardComponent,
     BudgetQuickActionsComponent,
+    CategoryEditDialogComponent,
   ],
   template: `
     <div class="settings-budget">
@@ -131,29 +140,51 @@ function getCurrentPeriod(): { year: number; month: number } {
             }
           </div>
 
-          @if ((categories()?.length ?? 0) === 0) {
+          @if (expenseCategories().length === 0) {
             <p class="settings-budget__empty">Brak kategorii wydatkowych</p>
           } @else {
-            @for (category of categories(); track category.id) {
-              <mat-card class="settings-budget__card" appearance="outlined">
-                <mat-card-content>
-                  <budget-category-card
-                    [category]="category"
-                    [spending]="agg.categorySpendingMap().get(category.id)"
-                    [control]="getCategoryControl(category.id)"
-                  />
-                </mat-card-content>
-              </mat-card>
-            }
+            <mat-accordion displayMode="flat">
+              <mat-expansion-panel [expanded]="true">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-icon>category</mat-icon>
+                    <span>Kategorie wydatków ({{ expenseCategories().length }})</span>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                @for (category of expenseCategories(); track category.id) {
+                  <mat-card
+                    class="settings-budget__card settings-budget__card--clickable"
+                    appearance="outlined"
+                    (click)="editCategory(category)"
+                    role="button"
+                    tabindex="0"
+                    [attr.aria-label]="'Edytuj kategorię ' + category.name"
+                    (keydown.enter)="editCategory(category)"
+                    (keydown.space)="editCategory(category); $event.preventDefault()"
+                  >
+                    <mat-card-content>
+                      <budget-category-card
+                        [category]="category"
+                        [spending]="agg.categorySpendingMap().get(category.id)"
+                        [control]="getCategoryControl(category.id)"
+                      />
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </mat-expansion-panel>
+            </mat-accordion>
           }
 
-          <div class="settings-budget__actions">
-            <button mat-raised-button color="primary" [disabled]="saving()" (click)="onSave()">
-              @if (saving()) {
-                <mat-progress-spinner mode="indeterminate" diameter="20" />
-              }
-              Zapisz
-            </button>
+          <div class="settings-budget__actions-sticky">
+            <div class="settings-budget__actions">
+              <button mat-raised-button color="primary" [disabled]="saving()" (click)="onSave()">
+                @if (saving()) {
+                  <mat-progress-spinner mode="indeterminate" diameter="20" />
+                }
+                Zapisz
+              </button>
+            </div>
           </div>
         }
       }
@@ -170,6 +201,7 @@ export class SettingsBudgetScreenComponent {
   private readonly transactionService = inject(TransactionService);
   private readonly budgetState = inject(BudgetState);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly saving = signal(false);
 
@@ -392,6 +424,42 @@ export class SettingsBudgetScreenComponent {
     }
   }
 
+  async editCategory(category: Category): Promise<void> {
+    const dialogRef = this.dialog.open<
+      CategoryEditDialogComponent,
+      { category: Category },
+      CategoryEditDialogResult | undefined
+    >(CategoryEditDialogComponent, {
+      data: { category },
+      width: '480px',
+      maxWidth: '95vw',
+    });
+
+    const result = await new Promise<CategoryEditDialogResult | undefined>(
+      (resolve) => {
+        dialogRef.afterClosed().subscribe(resolve);
+      },
+    );
+
+    if (!result) {
+      return;
+    }
+
+    if (result.action === 'save') {
+      this.snackBar.open(
+        `Zapisano zmiany dla kategorii "${result.category.name}".`,
+        undefined,
+        { duration: 3000 },
+      );
+      this.categoriesResource.reload();
+      this.budgetState.reload();
+    } else if (result.action === 'delete') {
+      this.snackBar.open('Usunięto kategorię.', undefined, { duration: 3000 });
+      this.categoriesResource.reload();
+      this.budgetState.reload();
+    }
+  }
+
   async onSave(): Promise<void> {
     if (this.categoryForm.invalid) {
       this.categoryForm.markAllAsTouched();
@@ -410,7 +478,7 @@ export class SettingsBudgetScreenComponent {
         existingMap.set(String(cb.categoryId), cb);
       }
 
-      const categories = this.categoriesResource.value() ?? [];
+      const categories = this.expenseCategories();
       for (const cat of categories) {
         const limit: number | null | undefined = formValues[cat.id];
         if (limit !== null && limit !== undefined && limit > 0) {
@@ -421,11 +489,17 @@ export class SettingsBudgetScreenComponent {
       }
 
       this.budgetState.reload();
-      this.snackBar.open('Zapisano', undefined, { duration: 2000 });
+      this.snackBar.open('Zapisano limity budżetu.', undefined, { duration: 3000 });
     } finally {
       this.saving.set(false);
     }
   }
+
+  /** Only show expense categories for budget limits (treat missing transactionType as expense). */
+  readonly expenseCategories = computed(() => {
+    const cats = this.categoriesResource.value() ?? [];
+    return cats.filter((c) => (c.transactionType ?? 'expense') === 'expense');
+  });
 
   protected readonly categories = this.categoriesResource.value;
 }

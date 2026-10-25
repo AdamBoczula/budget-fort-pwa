@@ -5,12 +5,15 @@ import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { CategoryService, Category, TransactionService } from '@data-access-transaction';
 import { BudgetService, CategoryBudgetService } from '@data-access-budget';
 import { SettingsBudgetScreenComponent } from './settings-budget-screen.component';
 import { BudgetAggregationService } from '../../services/budget-aggregation.service';
 import { BudgetState } from '../../services/budget-state';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { CategoryEditDialogComponent } from '../category-edit-dialog/category-edit-dialog.component';
 
 const MOCK_EXPENSE_CATEGORIES: Category[] = [
   {
@@ -86,6 +89,12 @@ describe('SettingsBudgetScreenComponent', () => {
     open: vi.fn(),
   };
 
+  const mockDialog = {
+    open: vi.fn().mockReturnValue({
+      afterClosed: () => ({ subscribe: vi.fn() }),
+    }),
+  };
+
   async function setup() {
     vi.clearAllMocks();
     mockBudgetService.getBudget.mockResolvedValue({
@@ -97,11 +106,22 @@ describe('SettingsBudgetScreenComponent', () => {
     mockCategoryService.getVisibleCategoriesAsync.mockResolvedValue(MOCK_EXPENSE_CATEGORIES);
     mockTransactionService.getTransactionsAsync.mockResolvedValue([]);
 
+    // Reset the dialog mock with a working return value that resolves immediately
+    mockDialog.open.mockReturnValue({
+      afterClosed: () => ({
+        subscribe: (fn: (value: unknown) => void) => {
+          fn(undefined);
+          return { unsubscribe: vi.fn() };
+        },
+      }),
+    });
+
     await TestBed.configureTestingModule({
       imports: [SettingsBudgetScreenComponent, ReactiveFormsModule],
       providers: [
         provideRouter([]),
         provideNativeDateAdapter(),
+        provideNoopAnimations(),
         BudgetAggregationService,
         { provide: CategoryService, useValue: mockCategoryService },
         { provide: BudgetService, useValue: mockBudgetService },
@@ -109,8 +129,11 @@ describe('SettingsBudgetScreenComponent', () => {
         { provide: TransactionService, useValue: mockTransactionService },
         { provide: BudgetState, useValue: mockBudgetState },
         { provide: MatSnackBar, useValue: mockSnackBar },
+        { provide: MatDialog, useValue: mockDialog },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(MatDialog, { useValue: mockDialog })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SettingsBudgetScreenComponent);
     fixture.detectChanges();
@@ -133,6 +156,72 @@ describe('SettingsBudgetScreenComponent', () => {
 
     // Selected period spent should be 0 (no transactions provided)
     expect(fixture.componentInstance.selectedPeriodSpent()).toBe(0);
+  });
+
+  // covers: docs/qa/2026-10-21-ui-ux-audit.md — UI-04: filter income categories
+  it('should filter out income categories from budget limits', async () => {
+    const mixedCategories: Category[] = [
+      {
+        id: '1',
+        name: 'Jedzenie',
+        colorHex: '#16A34A',
+        icon: 'restaurant',
+        sortOrder: 10,
+        isHidden: false,
+        transactionType: 'expense',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: '2',
+        name: 'Transport',
+        colorHex: '#2563EB',
+        icon: 'directions_car',
+        sortOrder: 20,
+        isHidden: false,
+        transactionType: 'expense',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: '3',
+        name: 'Wynagrodzenie',
+        colorHex: '#DC2626',
+        icon: 'payments',
+        sortOrder: 5,
+        isHidden: false,
+        transactionType: 'income',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      },
+    ];
+
+    mockCategoryService.getVisibleCategoriesAsync.mockResolvedValue(mixedCategories);
+
+    await setup();
+
+    // Only expense categories should appear
+    const categoryCards = fixture.debugElement.queryAll(By.css('budget-category-card'));
+    expect(categoryCards.length).toBe(2);
+
+    const labelTexts = fixture.debugElement.nativeElement.textContent ?? '';
+    expect(labelTexts).toContain('Jedzenie');
+    expect(labelTexts).toContain('Transport');
+    expect(labelTexts).not.toContain('Wynagrodzenie');
+  });
+
+  // covers: docs/qa/2026-10-21-ui-ux-audit.md — UI-04: backward compat (missing transactionType = expense)
+  it('should treat categories without transactionType as expense', async () => {
+    // MOCK_EXPENSE_CATEGORIES already lack transactionType
+    await setup();
+
+    // All categories should appear (treated as expense)
+    const categoryCards = fixture.debugElement.queryAll(By.css('budget-category-card'));
+    expect(categoryCards.length).toBe(2);
+
+    const labelTexts = fixture.debugElement.nativeElement.textContent ?? '';
+    expect(labelTexts).toContain('Jedzenie');
+    expect(labelTexts).toContain('Transport');
   });
 
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-2
@@ -276,5 +365,36 @@ describe('SettingsBudgetScreenComponent', () => {
     // Form was invalid, so saveBudget should not have been called by onSave
     expect(mockBudgetService.saveBudget).not.toHaveBeenCalled();
     expect(mockCategoryBudgetService.save).not.toHaveBeenCalled();
+  });
+
+  // covers: docs/qa/2026-10-21-ui-ux-audit.md — UI-03: category edit dialog
+  it('should open edit dialog when calling editCategory', async () => {
+    await setup();
+
+    // Call editCategory directly on component instance
+    await fixture.componentInstance.editCategory(MOCK_EXPENSE_CATEGORIES[0]);
+
+    // Verify dialog was opened with correct data
+    expect(mockDialog.open).toHaveBeenCalledWith(
+      CategoryEditDialogComponent,
+      expect.objectContaining({
+        data: { category: MOCK_EXPENSE_CATEGORIES[0] },
+      }),
+    );
+  });
+
+  // covers: docs/qa/2026-10-21-ui-ux-audit.md — UI-03: category cards are clickable
+  it('should have clickable category cards', async () => {
+    await setup();
+
+    const clickableCards = fixture.debugElement.queryAll(
+      By.css('.settings-budget__card--clickable'),
+    );
+    expect(clickableCards.length).toBe(2);
+
+    for (const card of clickableCards) {
+      expect(card.nativeElement.getAttribute('role')).toBe('button');
+      expect(card.nativeElement.getAttribute('tabindex')).toBe('0');
+    }
   });
 });

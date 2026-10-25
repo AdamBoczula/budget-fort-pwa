@@ -1,6 +1,7 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import type { FormControl } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import type { Category } from '@data-access-transaction';
 import type { CategorySpendingSummary } from '../../services/budget-aggregation.service';
+import { CurrencyService } from '@currency';
 
 @Component({
   selector: 'budget-category-card',
@@ -47,7 +49,7 @@ import type { CategorySpendingSummary } from '../../services/budget-aggregation.
           [attr.aria-label]="'Limit dla ' + category().name"
           [formControl]="control()"
         />
-        <span matTextSuffix>zł</span>
+        <span matTextSuffix>{{ currencySymbol }}</span>
         @if (control().hasError('min')) {
           <mat-error>Limit nie może być ujemny</mat-error>
         }
@@ -57,7 +59,11 @@ import type { CategorySpendingSummary } from '../../services/budget-aggregation.
   styleUrl: './budget-category-card.component.scss',
 })
 export class BudgetCategoryCardComponent {
+  private readonly currencyService = inject(CurrencyService);
+
   readonly category = input.required<Category>();
   readonly spending = input<CategorySpendingSummary>();
   readonly control = input.required<FormControl<number | null>>();
+
+  protected readonly currencySymbol = this.currencyService.getSymbol();
 }

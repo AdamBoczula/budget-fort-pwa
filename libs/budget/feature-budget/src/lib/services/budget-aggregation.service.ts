@@ -1,9 +1,11 @@
 // spec: docs/specs/budget/przeglad-historii-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
-import { computed, Service, signal } from '@angular/core';
+import { computed, Service, signal, inject } from '@angular/core';
 import type { Transaction, Category } from '@data-access-transaction';
 import { getPreviousMonth, isInMonth } from '@ui-budget';
 import type { CategoryBudget } from '@data-access-budget';
+import { CurrencyService } from '@currency';
 
 export type CategorySpendingSummary = {
   categoryId: string;
@@ -39,6 +41,8 @@ export type SelectedPeriod = {
 /** Reads from the provided signals and computes all budget aggregations. */
 @Service()
 export class BudgetAggregationService {
+  private readonly currencyService = inject(CurrencyService);
+
   // ── Inputs (set by the container) ──
 
   readonly transactions = signal<Transaction[]>([]);
@@ -179,9 +183,9 @@ export class BudgetAggregationService {
         categoryId: cat.id,
         categoryName: cat.name,
         spent,
-        spentFormatted: `${spent.toFixed(0)} zł`,
+        spentFormatted: this.formatInteger(spent),
         limit,
-        limitFormatted: `${limit.toFixed(0)} zł`,
+        limitFormatted: this.formatInteger(limit),
         isOverLimit: limit > 0 && spent > limit,
       };
     });
@@ -192,11 +196,19 @@ export class BudgetAggregationService {
     return {
       monthLabel,
       totalSpent,
-      totalSpentFormatted: `${totalSpent.toFixed(0)} zł`,
+      totalSpentFormatted: this.formatInteger(totalSpent),
       budgetLimit,
-      budgetLimitFormatted: `${budgetLimit.toFixed(0)} zł`,
+      budgetLimitFormatted: this.formatInteger(budgetLimit),
       categorySummaries,
     };
+  }
+
+  /** Format a number as an integer with the current currency symbol, e.g. "1 234 zł". */
+  private formatInteger(value: number): string {
+    const formatted = new Intl.NumberFormat(this.currencyService.currentLocale(), {
+      maximumFractionDigits: 0,
+    }).format(value);
+    return `${formatted} ${this.currencyService.getSymbol()}`;
   }
 
   /** Real previous month summary (backward-compatible — always current month's previous). */
