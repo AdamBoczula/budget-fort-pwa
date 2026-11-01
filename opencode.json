@@ -36,6 +36,15 @@
           "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
         },
         "comment": "GitHub MCP — issue creation, PR management, branch operations"
+      },
+      "firebase": {
+        "type": "local",
+        "command": ["npx", "-y", "firebase-tools@latest", "mcp"],
+        "enabled": true,
+        "env": {
+          "FIREBASE_TOKEN": "${FIREBASE_TOKEN}"
+        },
+        "comment": "Firebase MCP — CLI, Firestore, Auth, Hosting, deployment"
       }
     }
   }

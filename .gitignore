@@ -55,6 +55,11 @@ vitest.config.*.timestamp*
 .nx/self-healing
 .nx/migrate-runs
 
+# Environment variables (contains secrets — NEVER commit)
+.env
+.env.local
+.env.*.local
+
 # Temporary / test artifacts
 temp_ts.txt
 test-results/
