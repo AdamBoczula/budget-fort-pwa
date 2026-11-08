@@ -243,6 +243,182 @@
         <source>Brak limitu</source>
         <target>No limit</target>
       </trans-unit>
+      <trans-unit id="lastTransactions.editAria" datatype="html">
+        <source>Edytuj transakcję</source>
+        <target>Edit transaction</target>
+      </trans-unit>
+      <trans-unit id="lastTransactions.editTooltip" datatype="html">
+        <source>Edytuj</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="lastTransactions.deleteAria" datatype="html">
+        <source>Usuń transakcję</source>
+        <target>Delete transaction</target>
+      </trans-unit>
+      <trans-unit id="lastTransactions.deleteTooltip" datatype="html">
+        <source>Usuń</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="lastTransactions.title" datatype="html">
+        <source> Ostatnie transakcje </source>
+        <target> Recent transactions </target>
+      </trans-unit>
+      <trans-unit id="lastTransactions.empty" datatype="html">
+        <source> Brak transakcji. Dodaj pierwszą za pomocą przycisków powyżej. </source>
+        <target> No transactions yet. Add your first one using the buttons above. </target>
+      </trans-unit>
+      <trans-unit id="deleteConfirm.title" datatype="html">
+        <source>Usuń transakcję</source>
+        <target>Delete transaction</target>
+      </trans-unit>
+      <trans-unit id="deleteConfirm.message" datatype="html">
+        <source>Czy na pewno chcesz usunąć tę transakcję?</source>
+        <target>Are you sure you want to delete this transaction?</target>
+      </trans-unit>
+      <trans-unit id="deleteConfirm.cancel" datatype="html">
+        <source> Anuluj </source>
+        <target> Cancel </target>
+      </trans-unit>
+      <trans-unit id="deleteConfirm.confirm" datatype="html">
+        <source> Usuń </source>
+        <target> Delete </target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.title" datatype="html">
+        <source> <x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Edytuj kategorię&apos; : &apos;Dodaj kategorię&apos; }}"/>
+</source>
+        <target> <x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Edytuj kategorię&apos; : &apos;Dodaj kategorię&apos; }}"/>
+</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.name" datatype="html">
+        <source>Nazwa kategorii</source>
+        <target>Category name</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.color" datatype="html">
+        <source>Kolor</source>
+        <target>Color</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.icon" datatype="html">
+        <source>Ikona</source>
+        <target>Icon</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.sortOrder" datatype="html">
+        <source>Kolejność sortowania</source>
+        <target>Sort order</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.transactionType" datatype="html">
+        <source>Typ transakcji</source>
+        <target>Transaction type</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.typeExpense" datatype="html">
+        <source>Wydatek</source>
+        <target>Expense</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.typeIncome" datatype="html">
+        <source>Przychód</source>
+        <target>Income</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.hidden" datatype="html">
+        <source> Ukryta kategoria </source>
+        <target> Hidden category </target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.cancel" datatype="html">
+        <source>Anuluj</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="categoryEditDialog.save" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Zapisz&apos; : &apos;Dodaj&apos; }}"/></source>
+        <target><x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Zapisz&apos; : &apos;Dodaj&apos; }}"/></target>
+      </trans-unit>
+      <trans-unit id="subcategoryEditDialog.title" datatype="html">
+        <source> <x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Edytuj podkategorię&apos; : &apos;Dodaj podkategorię&apos; }}"/>
+</source>
+        <target> <x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Edytuj podkategorię&apos; : &apos;Dodaj podkategorię&apos; }}"/>
+</target>
+      </trans-unit>
+      <trans-unit id="subcategoryEditDialog.name" datatype="html">
+        <source>Nazwa podkategorii</source>
+        <target>Subcategory name</target>
+      </trans-unit>
+      <trans-unit id="subcategoryEditDialog.cancel" datatype="html">
+        <source>Anuluj</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="subcategoryEditDialog.save" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Zapisz&apos; : &apos;Dodaj&apos; }}"/></source>
+        <target><x id="INTERPOLATION" equiv-text="{{ isEditMode ? &apos;Zapisz&apos; : &apos;Dodaj&apos; }}"/></target>
+      </trans-unit>
+      <trans-unit id="settings.addCategoryBtn" datatype="html">
+        <source><x id="START_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;mat-icon&gt;"/>add<x id="CLOSE_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;/mat-icon&gt;"/> Dodaj kategorię </source>
+        <target><x id="START_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;mat-icon&gt;"/>add<x id="CLOSE_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;/mat-icon&gt;"/> Add category </target>
+      </trans-unit>
+      <trans-unit id="settings.editCategoryTooltip" datatype="html">
+        <source>Edytuj kategorię</source>
+        <target>Edit category</target>
+      </trans-unit>
+      <trans-unit id="settings.deleteCategoryTooltip" datatype="html">
+        <source>Usuń kategorię</source>
+        <target>Delete category</target>
+      </trans-unit>
+      <trans-unit id="settings.addSubcategoryTooltip" datatype="html">
+        <source>Dodaj podkategorię</source>
+        <target>Add subcategory</target>
+      </trans-unit>
+      <trans-unit id="settings.subcategoriesLabel" datatype="html">
+        <source>Podkategorie</source>
+        <target>Subcategories</target>
+      </trans-unit>
+      <trans-unit id="settings.editSubcategoryTooltip" datatype="html">
+        <source>Edytuj</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.title" datatype="html">
+        <source> Edytuj kategorię </source>
+        <target> Edit category </target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.name" datatype="html">
+        <source>Nazwa kategorii</source>
+        <target>Category name</target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.color" datatype="html">
+        <source>Kolor</source>
+        <target>Color</target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.icon" datatype="html">
+        <source>Ikona</source>
+        <target>Icon</target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.sortOrder" datatype="html">
+        <source>Kolejność sortowania</source>
+        <target>Sort order</target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.transactionType" datatype="html">
+        <source>Typ transakcji</source>
+        <target>Transaction type</target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.typeExpense" datatype="html">
+        <source> Wydatek </source>
+        <target> Expense </target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.typeIncome" datatype="html">
+        <source> Przychód </source>
+        <target> Income </target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.hidden" datatype="html">
+        <source> Ukryta kategoria </source>
+        <target> Hidden category </target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.delete" datatype="html">
+        <source> Usuń kategorię </source>
+        <target> Delete category </target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.cancel" datatype="html">
+        <source> Anuluj </source>
+        <target> Cancel </target>
+      </trans-unit>
+      <trans-unit id="budgetCategoryEditDialog.save" datatype="html">
+        <source> Zapisz </source>
+        <target> Save </target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
