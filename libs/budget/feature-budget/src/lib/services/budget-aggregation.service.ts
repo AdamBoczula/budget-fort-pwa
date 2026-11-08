@@ -95,7 +95,9 @@ export class BudgetAggregationService {
   readonly currentMonthPercentage = computed(() => {
     const budget = this.overallBudget();
     const spent = this.currentMonthSpent();
-    if (budget <= 0) {return 0;}
+    if (budget <= 0) {
+      return 0;
+    }
     return Math.min(100, Math.round((spent / budget) * 100));
   });
 
@@ -103,7 +105,9 @@ export class BudgetAggregationService {
   readonly selectedPeriodPercentage = computed(() => {
     const budget = this.overallBudget();
     const spent = this.currentMonthSpent();
-    if (budget <= 0) {return 0;}
+    if (budget <= 0) {
+      return 0;
+    }
     return Math.min(100, Math.round((spent / budget) * 100));
   });
 
@@ -112,7 +116,11 @@ export class BudgetAggregationService {
    * For 'month' mode: returns the month before selectedPeriod.
    * For 'year' mode: returns the year before.
    */
-  private getPreviousPeriod(year: number, month: number, mode: 'month' | 'year'): { year: number; month: number } {
+  private getPreviousPeriod(
+    year: number,
+    month: number,
+    mode: 'month' | 'year',
+  ): { year: number; month: number } {
     if (mode === 'year') {
       return { year: year - 1, month: 0 };
     }
@@ -139,7 +147,12 @@ export class BudgetAggregationService {
   }
 
   /** Filter transactions for a specific period. */
-  private filterTransactions(txs: Transaction[], year: number, month: number, mode: 'month' | 'year'): Transaction[] {
+  private filterTransactions(
+    txs: Transaction[],
+    year: number,
+    month: number,
+    mode: 'month' | 'year',
+  ): Transaction[] {
     if (mode === 'year') {
       return txs.filter((tx) => {
         const d = new Date(tx.date);
@@ -151,9 +164,15 @@ export class BudgetAggregationService {
   }
 
   /** Build a PreviousMonthSummary for a given period. */
-  private buildSummary(year: number, month: number, mode: 'month' | 'year'): PreviousMonthSummary | null {
+  private buildSummary(
+    year: number,
+    month: number,
+    mode: 'month' | 'year',
+  ): PreviousMonthSummary | null {
     const categories = this.categories();
-    if (categories.length === 0) {return null;}
+    if (categories.length === 0) {
+      return null;
+    }
 
     const txs = this.transactions();
     const periodExpenses = this.filterTransactions(txs, year, month, mode);
@@ -164,13 +183,6 @@ export class BudgetAggregationService {
     const budgetByCategory: Record<string, number> = {};
     for (const cb of budgets) {
       budgetByCategory[String(cb.categoryId)] = cb.amount;
-    }
-    // Augment with current form values (for categories not yet saved)
-    const formValues = this.getFormValues();
-    for (const [catId, amount] of Object.entries(formValues)) {
-      if (amount !== null && amount > 0 && !(catId in budgetByCategory)) {
-        budgetByCategory[catId] = amount;
-      }
     }
 
     const categorySummaries: CategorySpendingSummary[] = categories.map((cat) => {
@@ -213,7 +225,6 @@ export class BudgetAggregationService {
 
   /** Real previous month summary (backward-compatible — always current month's previous). */
   readonly previousMonthSummary = computed<PreviousMonthSummary | null>(() => {
-    void this.formVersion();
     const prevDate = getPreviousMonth();
     const prevYear = prevDate.getFullYear();
     const prevMonth = prevDate.getMonth();
@@ -222,7 +233,6 @@ export class BudgetAggregationService {
 
   /** Summary for the period before the selected period. */
   readonly selectedPreviousPeriodSummary = computed<PreviousMonthSummary | null>(() => {
-    void this.formVersion();
     const period = this.selectedPeriod();
     const prev = this.getPreviousPeriod(period.year, period.month, period.mode);
     return this.buildSummary(prev.year, prev.month, period.mode);
@@ -241,7 +251,9 @@ export class BudgetAggregationService {
   readonly monthComparison = computed<MonthComparison | null>(() => {
     const prev = this.previousMonthSummary();
     const current = this.currentMonthSpent();
-    if (!prev || prev.totalSpent === 0) {return null;}
+    if (!prev || prev.totalSpent === 0) {
+      return null;
+    }
     const diff = current - prev.totalSpent;
     const pct = Math.round((diff / prev.totalSpent) * 100);
     return { diff, pct, isMore: pct > 0 };
@@ -251,7 +263,9 @@ export class BudgetAggregationService {
   readonly selectedPeriodComparison = computed<MonthComparison | null>(() => {
     const prev = this.selectedPreviousPeriodSummary();
     const current = this.currentMonthSpent();
-    if (!prev || prev.totalSpent === 0) {return null;}
+    if (!prev || prev.totalSpent === 0) {
+      return null;
+    }
     const diff = current - prev.totalSpent;
     const pct = Math.round((diff / prev.totalSpent) * 100);
     return { diff, pct, isMore: pct > 0 };

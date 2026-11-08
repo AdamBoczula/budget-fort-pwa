@@ -1,0 +1,17 @@
+// spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0.5rem 0.25rem 4.5rem;
+  box-sizing: border-box;
+
+  @media (width >= 600px) {
+    gap: 1.25rem;
+    padding: 1rem 1rem 2rem;
+  }
+}

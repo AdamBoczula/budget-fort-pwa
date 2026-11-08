@@ -38,24 +38,27 @@ import { CurrencyService } from '@currency';
               <span class="subcategory">· {{ transaction().subcategory }}</span>
             }
           </span>
-          @if (transaction().comment) {
-            <span class="comment" data-testid="last-transaction-item__comment">
-              {{ transaction().comment }}
+          <div class="meta">
+            @if (transaction().comment) {
+              <span class="comment" data-testid="last-transaction-item__comment">
+                {{ transaction().comment }}
+              </span>
+              <span class="meta__dot" aria-hidden="true">·</span>
+            }
+            <span class="date" data-testid="last-transaction-item__date">
+              {{ transaction().date | date: 'dd.MM.yyyy' }}
             </span>
-          }
-          <span
-            class="amount"
-            [class.income]="transaction().amount > 0"
-            data-testid="last-transaction-item__amount"
-          >
-            {{ currencyService.format(transaction().amount) }}
-          </span>
+          </div>
         </div>
       </div>
 
       <div class="right">
-        <span class="date" data-testid="last-transaction-item__date">
-          {{ transaction().date | date : 'dd.MM.yyyy' }}
+        <span
+          class="amount"
+          [class.income]="transaction().amount > 0"
+          data-testid="last-transaction-item__amount"
+        >
+          {{ currencyService.format(transaction().amount) }}
         </span>
         <div class="actions">
           <button
@@ -73,7 +76,7 @@ import { CurrencyService } from '@currency';
           </button>
           <button
             mat-icon-button
-            class="action-btn"
+            class="action-btn action-btn--delete"
             type="button"
             i18n-aria-label="@@lastTransactions.deleteAria"
             aria-label="Usuń transakcję"

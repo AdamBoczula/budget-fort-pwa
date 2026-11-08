@@ -9,6 +9,8 @@
     "format:check": "prettier --check .",
     "lint:css": "stylelint \"**/*.{css,scss}\"",
     "lint:all": "npm exec nx run-many -t lint && stylelint \"**/*.{css,scss}\"",
+    "verify": "nx affected --targets=lint,test,build,e2e --outputStyle=stream",
+    "build:firebase": "nx run budget-fort:build:production && nx run budget-fort:build:production-en && node scripts/prepare-firebase-deploy.mjs",
     "prepare": "husky"
   },
   "private": true,

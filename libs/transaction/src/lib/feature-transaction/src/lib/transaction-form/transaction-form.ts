@@ -1,4 +1,5 @@
 // spec: docs/qa/2026-10-21-ui-ux-audit.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import {
   AfterViewInit,
@@ -58,7 +59,151 @@ export type TransactionFormResult = {
     MatMenuModule,
     MatTooltipModule,
   ],
-  templateUrl: './transaction-form.html',
+  template: `
+    <div class="sheet-handle" aria-hidden="true"></div>
+
+    <h2 mat-dialog-title class="form-title">
+      @if (selectedCategory) {
+        <span
+          class="form-title__category-badge"
+          [class.form-title__category-badge--income]="selectedCategory.transactionType === 'income'"
+          [style.background-color]="
+            selectedCategory.transactionType !== 'income' ? selectedCategory.colorHex : undefined
+          "
+          (click)="categoryMenuTrigger.openMenu()"
+          (keydown.enter)="categoryMenuTrigger.openMenu()"
+          (keydown.space)="categoryMenuTrigger.openMenu()"
+          role="button"
+          tabindex="0"
+        >
+          <mat-icon>{{ selectedCategory.icon }}</mat-icon>
+          {{ selectedCategory.name }}
+          <mat-icon class="form-title__change-icon">arrow_drop_down</mat-icon>
+        </span>
+      }
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="categoryMenu"
+        #categoryMenuTrigger="matMenuTrigger"
+        type="button"
+        i18n-aria-label="@@transactionForm.changeCategoryAria"
+        aria-label="Zmień kategorię"
+      >
+        <mat-icon>swap_horiz</mat-icon>
+      </button>
+      <mat-menu #categoryMenu="matMenu">
+        @if (changeableCategories(); as cats) {
+          @for (cat of cats; track cat.id) {
+            <button mat-menu-item (click)="selectCategory(cat)">
+              <span class="category-menu-item">
+                <span
+                  class="category-menu-item__dot"
+                  [style.background-color]="cat.colorHex"
+                ></span>
+                <mat-icon>{{ cat.icon }}</mat-icon>
+                {{ cat.name }}
+              </span>
+            </button>
+          }
+        }
+      </mat-menu>
+    </h2>
+
+    <mat-dialog-content class="form-content" (keydown)="onKeydown($event)">
+      <div class="form-fields">
+        <mat-form-field appearance="outline" class="full-width amount-field">
+          <mat-label i18n="@@transactionForm.amountLabel">Kwota</mat-label>
+          <input
+            matInput
+            type="number"
+            #amountInput
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+            cdkFocusInitial
+            placeholder="0.00"
+            [(ngModel)]="amount"
+            required
+            i18n-placeholder="@@transactionForm.amountPlaceholder"
+          />
+        </mat-form-field>
+
+        @if (subcategories.value(); as quickSubs) {
+          @if (quickSubs.length > 0) {
+            <div class="subcategory-chips" aria-label="Szybki wybór podkategorii">
+              @for (sub of quickSubs; track sub.id) {
+                <button
+                  type="button"
+                  class="subcategory-chip"
+                  [class.subcategory-chip--active]="subcategory === sub.name"
+                  (click)="selectSubcategoryChip(sub.name)"
+                >
+                  {{ sub.name }}
+                </button>
+              }
+            </div>
+          }
+        }
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label i18n="@@transactionForm.dateLabel">Data</mat-label>
+            <input matInput [matDatepicker]="datePicker" [(ngModel)]="selectedDate" required />
+            <mat-datepicker-toggle matIconSuffix [for]="datePicker" />
+            <mat-datepicker #datePicker />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label i18n="@@transactionForm.subcategoryLabel"
+              >Podkategoria (opcjonalna)</mat-label
+            >
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="subcategory"
+              [matAutocomplete]="auto"
+              i18n-placeholder="@@transactionForm.subcategoryPlaceholder"
+              placeholder="Np. Naprawa"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+              @if (filteredSubcategories(); as subs) {
+                @for (sub of subs; track sub.id) {
+                  <mat-option [value]="sub.name">{{ sub.name }}</mat-option>
+                }
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label i18n="@@transactionForm.commentLabel">Komentarz (opcjonalny)</mat-label>
+          <input
+            matInput
+            type="text"
+            [(ngModel)]="comment"
+            i18n-placeholder="@@transactionForm.commentPlaceholder"
+            placeholder="Np. Obiad w pracy"
+          />
+        </mat-form-field>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="form-actions">
+      <button mat-button (click)="cancel()" i18n="@@transactionForm.cancel">Anuluj</button>
+      <button
+        mat-flat-button
+        class="form-actions__save"
+        (click)="save()"
+        [disabled]="!amount || amount <= 0 || !selectedDate || (isEditMode && !isDirty)"
+        [matTooltip]="isEditMode && !isDirty ? 'Dokonaj zmian, aby móc zapisać transakcję.' : ''"
+        i18n-matTooltip="@@transactionForm.saveDisabledTooltip"
+        matTooltipPosition="above"
+        i18n="@@transactionForm.save"
+      >
+        Zapisz
+      </button>
+    </mat-dialog-actions>
+  `,
   styleUrl: './transaction-form.scss',
 })
 export class TransactionFormComponent implements AfterViewInit {
@@ -167,12 +312,27 @@ export class TransactionFormComponent implements AfterViewInit {
     if (this.isEditMode) {
       return;
     }
-    this.amountInput.nativeElement.focus();
+    this.focusAmountInput();
+    this.dialogRef.afterOpened?.().subscribe(() => {
+      this.focusAmountInput();
+    });
+  }
+
+  private focusAmountInput(): void {
+    const input = this.amountInput?.nativeElement;
+    if (input) {
+      input.focus();
+      input.click();
+    }
   }
 
   protected selectCategory(category: Category): void {
     this.selectedCategory = category;
     this.subcategory = '';
+  }
+
+  protected selectSubcategoryChip(name: string): void {
+    this.subcategory = this.subcategory === name ? '' : name;
   }
 
   protected async save(): Promise<void> {

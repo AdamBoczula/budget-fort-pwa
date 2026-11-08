@@ -2,11 +2,7 @@
 // Updated for new budget UI (category limits drive overall budget)
 
 import { test, expect } from '@playwright/test';
-import {
-  seedCategoryBudget,
-  clearBudgetData,
-  clearTransactions,
-} from './utils/seed-budget';
+import { seedCategoryBudget, clearBudgetData, clearTransactions } from './utils/seed-budget';
 import { seedCurrentMonthTransactions } from './utils/seed-transactions';
 
 test.describe('Budget – set overall budget', () => {
@@ -87,7 +83,7 @@ test.describe('Budget – set overall budget', () => {
 
     // Verify green gradient (below 80%) — UI-06 changed to gradient
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    const bgImage = await fillBar.evaluate(el =>
+    const bgImage = await fillBar.evaluate((el) =>
       window.getComputedStyle(el).getPropertyValue('background-image'),
     );
     expect(bgImage).toContain('linear-gradient');
@@ -121,7 +117,9 @@ test.describe('Budget – set overall budget', () => {
     await expect(progressBars).toHaveCount(1); // overall bar only (per-category bars removed in redesign)
 
     // Also verify Jedzenie category card is present
-    await expect(page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first()).toBeVisible({
+    await expect(
+      page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first(),
+    ).toBeVisible({
       timeout: 3000,
     });
 
@@ -135,7 +133,9 @@ test.describe('Budget – set overall budget', () => {
     await expect(page.getByText('Budżet miesięczny')).toBeVisible({ timeout: 3000 });
     const refreshedBars = page.locator('budget-progress-bar');
     await expect(refreshedBars).toHaveCount(1);
-    await expect(page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first()).toBeVisible({
+    await expect(
+      page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first(),
+    ).toBeVisible({
       timeout: 3000,
     });
   });
@@ -152,22 +152,46 @@ test.describe('Budget – category limits', () => {
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-2
-  test('should set category limit and show progress bar on dashboard', async ({ page }) => {
-    // Seed the category budget directly via IndexedDB
-    await seedCategoryBudget(page, 'food', 'Jedzenie', 1500);
-
-    // Navigate to budget page
+  test('should set category limit via UI form and save without opening edit dialog', async ({
+    page,
+  }) => {
     await page.goto('/budget');
     await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
 
-    // Verify Jedzenie category card with limit (per-category progress bars removed in redesign)
-    const jedzenieCard = page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first();
+    const jedzenieCard = page
+      .locator('budget-category-card')
+      .filter({ hasText: 'Jedzenie' })
+      .first();
     await expect(jedzenieCard).toBeVisible({ timeout: 5000 });
-    // Verify the input has the correct limit value
+
     const jedzenieInput = jedzenieCard.locator('input[type="number"]');
-    await expect(jedzenieInput).toHaveValue('1500');
+    await jedzenieInput.click();
+
+    // Clicking the input must not open the category edit dialog
+    await expect(page.locator('mat-dialog-container')).toHaveCount(0);
+
+    await jedzenieInput.fill('1500');
+
+    // Previous month limit on the card should remain 0 while typing
+    await expect(jedzenieCard.locator('.category-card__history-limit')).toContainText('/ 0');
+
+    // Save via button
+    await page.getByRole('button', { name: /Zapisz/i }).click();
+    await expect(page.getByText('Zapisano limity budżetu.')).toBeVisible({ timeout: 3000 });
+
+    // Reload and verify limit was persisted
+    await page.reload();
+    await expect(page.locator('.period-selector')).toBeVisible({
+      timeout: 5000,
+    });
+    const reloadedInput = page
+      .locator('budget-category-card')
+      .filter({ hasText: 'Jedzenie' })
+      .first()
+      .locator('input[type="number"]');
+    await expect(reloadedInput).toHaveValue('1500');
   });
 
   // covers: docs/specs/budget/planowanie-budzetu.md#AC-6
@@ -213,7 +237,7 @@ test.describe('Budget – category limits', () => {
     await expect(progressBar).toContainText('(90%)');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    const bgImage = await fillBar.evaluate(el =>
+    const bgImage = await fillBar.evaluate((el) =>
       window.getComputedStyle(el).getPropertyValue('background-image'),
     );
     expect(bgImage).toContain('linear-gradient');
@@ -229,7 +253,10 @@ test.describe('Budget – category limits', () => {
     });
 
     // Jedzenie category card exists but should have no limit set (empty input)
-    const jedzenieCard = page.locator('budget-category-card').filter({ hasText: 'Jedzenie' }).first();
+    const jedzenieCard = page
+      .locator('budget-category-card')
+      .filter({ hasText: 'Jedzenie' })
+      .first();
     await expect(jedzenieCard).toBeVisible({ timeout: 3000 });
     const jedzenieInput = jedzenieCard.locator('input[type="number"]');
     await expect(jedzenieInput).toHaveValue('0');
@@ -244,9 +271,11 @@ test.describe('Budget – category limits', () => {
     await expect(page.locator('.period-selector')).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.locator('budget-category-card').filter({ hasText: 'Transport' })).toBeVisible({
-      timeout: 3000,
-    });
+    await expect(page.locator('budget-category-card').filter({ hasText: 'Transport' })).toBeVisible(
+      {
+        timeout: 3000,
+      },
+    );
 
     // Go to budget settings and clear the Transport limit
     await page.goto('/budget');
@@ -327,7 +356,7 @@ test.describe('Budget – progress colors', () => {
     await expect(progressBar).toContainText('(40%)');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    const bgImage = await fillBar.evaluate(el =>
+    const bgImage = await fillBar.evaluate((el) =>
       window.getComputedStyle(el).getPropertyValue('background-image'),
     );
     expect(bgImage).toContain('linear-gradient');
@@ -372,7 +401,7 @@ test.describe('Budget – progress colors', () => {
     await expect(progressBar).toContainText('(84%)');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    const bgImage = await fillBar.evaluate(el =>
+    const bgImage = await fillBar.evaluate((el) =>
       window.getComputedStyle(el).getPropertyValue('background-image'),
     );
     expect(bgImage).toContain('linear-gradient');
@@ -418,7 +447,7 @@ test.describe('Budget – progress colors', () => {
     await expect(progressBar).toContainText('5200 / 5000');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    const bgImage = await fillBar.evaluate(el =>
+    const bgImage = await fillBar.evaluate((el) =>
       window.getComputedStyle(el).getPropertyValue('background-image'),
     );
     expect(bgImage).toContain('linear-gradient');
@@ -496,7 +525,7 @@ test.describe('Budget – income excluded', () => {
     await expect(progressBar).toContainText('3000 / 5000');
 
     const fillBar = progressBar.locator('.budget-progress__bar-fill');
-    const bgImage = await fillBar.evaluate(el =>
+    const bgImage = await fillBar.evaluate((el) =>
       window.getComputedStyle(el).getPropertyValue('background-image'),
     );
     expect(bgImage).toContain('linear-gradient');

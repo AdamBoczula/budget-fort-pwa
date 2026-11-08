@@ -24,8 +24,9 @@ import { CurrencyService } from '@currency';
       <p class="transaction-header-toolbar__month">{{ monthName() }}</p>
       <p
         class="transaction-header-toolbar__balance"
-        [class.transaction-header-toolbar__balance--positive]="balance() >= 0"
+        [class.transaction-header-toolbar__balance--positive]="balance() > 0"
         [class.transaction-header-toolbar__balance--negative]="balance() < 0"
+        [class.transaction-header-toolbar__balance--zero]="balance() === 0"
       >
         <mat-icon class="transaction-header-toolbar__balance-icon">paid</mat-icon>
         {{ currencyService.format(balance()) }}

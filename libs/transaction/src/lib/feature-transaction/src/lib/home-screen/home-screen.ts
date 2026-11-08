@@ -1,3 +1,5 @@
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+
 import { Component, computed, inject } from '@angular/core';
 import { CategoriesQuickAddComponent } from '../categories-quick-add/categories-quick-add';
 import { HomeScreenOfflineIndicatorComponent } from './home-screen-offline-indicator/home-screen-offline-indicator';
@@ -15,7 +17,17 @@ import { TransactionState } from '../service/transaction-state/transaction-state
     HomeScreenSkeletonComponent,
     LastTransactionComponent,
   ],
-  templateUrl: './home-screen.html',
+  template: `
+    @if (isInitialLoading()) {
+      <transaction-home-screen-skeleton />
+    } @else {
+      <transaction-categories-quick-add />
+      <transaction-last-transaction />
+    }
+
+    <transaction-home-screen-offline-indicator [error]="transactionState.error()" />
+    <transaction-home-screen-income-fab />
+  `,
   styleUrl: './home-screen.scss',
 })
 export class HomePageScreen {

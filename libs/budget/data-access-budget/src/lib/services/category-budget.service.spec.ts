@@ -1,13 +1,12 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
 
 import { TestBed } from '@angular/core/testing';
-import { LocalDbService, CATEGORY_BUDGET_DB_TOKEN } from 'local-db';
+import { LocalDbService } from 'local-db';
 import { CategoryBudgetService } from './category-budget.service';
 import type { CategoryBudget } from '../model/category-budget.type';
 
 function createMockTable() {
   const store: CategoryBudget[] = [];
-  let nextId = 1;
 
   const whereMock = {
     equals: vi.fn().mockReturnThis(),
@@ -28,7 +27,7 @@ function createMockTable() {
     get: vi.fn(async (id: number) => store.find((cb) => cb.id === id) ?? undefined),
     put: vi.fn(async (item: CategoryBudget) => {
       if (item.id === undefined) {
-        item.id = nextId++;
+        throw new Error('DataError: Evaluating the object store key path did not yield a value.');
       }
       const idx = store.findIndex((cb) => cb.id === item.id);
       if (idx >= 0) {

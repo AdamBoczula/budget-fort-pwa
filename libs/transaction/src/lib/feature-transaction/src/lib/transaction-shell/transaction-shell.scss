@@ -1,3 +1,5 @@
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+
 :host {
   display: block;
   width: 100%;
@@ -39,7 +41,7 @@ transaction-header {
   box-sizing: border-box;
   overflow-y: auto;
 
-  @media (max-width: 600px) {
-    padding: 0.75rem;
+  @media (width <= 600px) {
+    padding: 0.625rem 0.75rem;
   }
 }

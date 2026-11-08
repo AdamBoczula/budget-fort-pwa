@@ -19,9 +19,7 @@ export class CategoryStore {
     return this.categoriesTable.orderBy('sortOrder').toArray();
   }
 
-  public seedCategoriesIfEmpty(
-    categories: ReadonlyArray<Category>,
-  ): Observable<void> {
+  public seedCategoriesIfEmpty(categories: ReadonlyArray<Category>): Observable<void> {
     return defer(async () => {
       const count = await this.categoriesTable.count();
 
@@ -54,9 +52,7 @@ export class CategoryStore {
    * Reorder categories by bulk-updating their sortOrder values.
    * Expects the full array of categories (all visible + hidden) in the new order.
    */
-  public async reorderCategoriesAsync(
-    categories: Category[],
-  ): Promise<void> {
+  public async reorderCategoriesAsync(categories: Category[]): Promise<void> {
     await this.categoriesTable.bulkPut(categories);
   }
 }

@@ -1,4 +1,5 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Transaction, CategoryService, Category } from '@data-access-transaction';
@@ -25,18 +26,10 @@ import { DashboardCategoryListComponent } from './dashboard-category-list/dashbo
 
       <transaction-dashboard-pie-chart />
 
-      <transaction-dashboard-category-list
-        (editTransaction)="onEditTransaction($event)"
-      />
+      <transaction-dashboard-category-list (editTransaction)="onEditTransaction($event)" />
     </div>
   `,
-  styles: [`
-    .dashboard {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-  `],
+  styleUrl: './dashboard-screen.scss',
 })
 export class DashboardPageScreen {
   private readonly dashboardState = inject(DashboardState);
@@ -54,17 +47,17 @@ export class DashboardPageScreen {
   }
 
   protected onEditTransaction(transaction: Transaction): void {
-    const category = this.categories.find(
-      (c) => c.id === transaction.categoryId,
-    );
-    if (!category) {return;}
+    const category = this.categories.find((c) => c.id === transaction.categoryId);
+    if (!category) {
+      return;
+    }
 
     const dialogRef = this.dialog.open(TransactionFormComponent, {
       data: { category, transaction },
       minWidth: '320px',
       maxWidth: '480px',
       width: '100%',
-      position: { top: '20%' },
+      panelClass: 'transaction-bottom-sheet-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {

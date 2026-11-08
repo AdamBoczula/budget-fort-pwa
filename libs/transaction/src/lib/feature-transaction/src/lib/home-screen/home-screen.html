@@ -1,9 +1,0 @@
-@if (isInitialLoading()) {
-  <transaction-home-screen-skeleton />
-} @else {
-  <transaction-categories-quick-add />
-  <transaction-last-transaction />
-}
-
-<transaction-home-screen-offline-indicator [error]="transactionState.error()" />
-<transaction-home-screen-income-fab />

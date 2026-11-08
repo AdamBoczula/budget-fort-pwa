@@ -1,0 +1,30 @@
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+
+.pie-chart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 240px;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--app-color-surface-muted);
+  border: 1px solid var(--app-color-outline, rgb(148 163 184 / 0.18));
+}
+
+.pie-chart-container {
+  position: relative;
+  width: min(260px, 78vw);
+  height: min(260px, 78vw);
+
+  @media (width >= 600px) {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+.pie-chart-empty {
+  color: var(--mat-sys-on-surface-variant, #6b7280);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem 1rem;
+}

@@ -1,9 +1,10 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import type { FormControl } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,13 +14,30 @@ import { CurrencyService } from '@currency';
 
 @Component({
   selector: 'budget-category-card',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+  ],
   template: `
     <div class="category-card">
       <div class="category-card__row">
         <div class="category-card__name">
-          <mat-icon class="category-card__icon">{{ category().icon }}</mat-icon>
+          <span class="category-card__icon-badge" [style.background-color]="category().colorHex">
+            <mat-icon class="category-card__icon">{{ category().icon }}</mat-icon>
+          </span>
           <span class="category-card__label">{{ category().name }}</span>
+          <button
+            type="button"
+            mat-icon-button
+            class="category-card__edit-btn"
+            [attr.aria-label]="'Edytuj kategorię ' + category().name"
+            (click)="editCategory.emit()"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
         </div>
 
         @if (spending(); as catSpending) {
@@ -46,6 +64,7 @@ import { CurrencyService } from '@currency';
           type="number"
           min="0"
           step="1"
+          inputmode="numeric"
           [attr.aria-label]="'Limit dla ' + category().name"
           [formControl]="control()"
         />
@@ -64,6 +83,7 @@ export class BudgetCategoryCardComponent {
   readonly category = input.required<Category>();
   readonly spending = input<CategorySpendingSummary>();
   readonly control = input.required<FormControl<number | null>>();
+  readonly editCategory = output<void>();
 
   protected readonly currencySymbol = this.currencyService.getSymbol();
 }

@@ -29,7 +29,10 @@ export class CategoryBudgetService {
         updatedAt: now,
       });
     } else {
+      const all = await this.categoryBudgetTable.toArray();
+      const maxId = all.reduce((max, item) => (item.id && item.id > max ? item.id : max), 0);
       await this.categoryBudgetTable.put({
+        id: maxId + 1,
         categoryId,
         categoryName,
         amount,

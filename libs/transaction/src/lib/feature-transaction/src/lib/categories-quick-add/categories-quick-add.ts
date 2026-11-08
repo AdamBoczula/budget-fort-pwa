@@ -1,4 +1,5 @@
 // spec: docs/qa/2026-10-21-ui-ux-audit.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import { Component, inject, resource } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,7 +15,33 @@ import {
 @Component({
   selector: 'transaction-categories-quick-add',
   imports: [MatIconModule, MatSnackBarModule],
-  templateUrl: './categories-quick-add.html',
+  template: `
+    <section class="categories-quick-add">
+      <div class="categories-quick-add__header">
+        <h2 class="categories-quick-add__title" i18n="@@categoriesQuickAdd.title">
+          Wybierz kategorię
+        </h2>
+      </div>
+
+      @if (categories.value(); as cats) {
+        <div class="categories-quick-add__grid">
+          @for (category of cats; track category.id) {
+            <button
+              type="button"
+              class="category-card"
+              [style.--category-color]="category.colorHex"
+              (click)="openTransactionForm(category)"
+            >
+              <span class="category-card__icon">
+                <mat-icon>{{ category.icon }}</mat-icon>
+              </span>
+              <span class="category-card__name">{{ category.name }}</span>
+            </button>
+          }
+        </div>
+      }
+    </section>
+  `,
   styleUrl: './categories-quick-add.scss',
 })
 export class CategoriesQuickAddComponent {
@@ -36,7 +63,8 @@ export class CategoriesQuickAddComponent {
       minWidth: '320px',
       maxWidth: '480px',
       width: '100%',
-      position: { top: '20%' },
+      panelClass: 'transaction-bottom-sheet-dialog',
+      autoFocus: 'input',
     });
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
       if (result) {

@@ -56,7 +56,6 @@ function getCurrentPeriod(): { year: number; month: number } {
     BudgetPreviousMonthCardComponent,
     BudgetCategoryCardComponent,
     BudgetQuickActionsComponent,
-    CategoryEditDialogComponent,
   ],
   template: `
     <div class="settings-budget">
@@ -153,21 +152,13 @@ function getCurrentPeriod(): { year: number; month: number } {
                 </mat-expansion-panel-header>
 
                 @for (category of expenseCategories(); track category.id) {
-                  <mat-card
-                    class="settings-budget__card settings-budget__card--clickable"
-                    appearance="outlined"
-                    (click)="editCategory(category)"
-                    role="button"
-                    tabindex="0"
-                    [attr.aria-label]="'Edytuj kategorię ' + category.name"
-                    (keydown.enter)="editCategory(category)"
-                    (keydown.space)="editCategory(category); $event.preventDefault()"
-                  >
+                  <mat-card class="settings-budget__card" appearance="outlined">
                     <mat-card-content>
                       <budget-category-card
                         [category]="category"
                         [spending]="agg.categorySpendingMap().get(category.id)"
                         [control]="getCategoryControl(category.id)"
+                        (editCategory)="editCategory(category)"
                       />
                     </mat-card-content>
                   </mat-card>
@@ -418,7 +409,9 @@ export class SettingsBudgetScreenComponent {
 
   copyLimitsFromPreviousMonth(): void {
     const prev = this.agg.selectedPreviousPeriodSummary();
-    if (!prev) {return;}
+    if (!prev) {
+      return;
+    }
     for (const cat of prev.categorySummaries) {
       this.getCategoryControl(cat.categoryId).setValue(cat.limit > 0 ? cat.limit : 0);
     }
@@ -435,22 +428,18 @@ export class SettingsBudgetScreenComponent {
       maxWidth: '95vw',
     });
 
-    const result = await new Promise<CategoryEditDialogResult | undefined>(
-      (resolve) => {
-        dialogRef.afterClosed().subscribe(resolve);
-      },
-    );
+    const result = await new Promise<CategoryEditDialogResult | undefined>((resolve) => {
+      dialogRef.afterClosed().subscribe(resolve);
+    });
 
     if (!result) {
       return;
     }
 
     if (result.action === 'save') {
-      this.snackBar.open(
-        `Zapisano zmiany dla kategorii "${result.category.name}".`,
-        undefined,
-        { duration: 3000 },
-      );
+      this.snackBar.open(`Zapisano zmiany dla kategorii "${result.category.name}".`, undefined, {
+        duration: 3000,
+      });
       this.categoriesResource.reload();
       this.budgetState.reload();
     } else if (result.action === 'delete') {
@@ -488,8 +477,13 @@ export class SettingsBudgetScreenComponent {
         }
       }
 
+      this.categoryBudgetsResource.reload();
       this.budgetState.reload();
       this.snackBar.open('Zapisano limity budżetu.', undefined, { duration: 3000 });
+    } catch {
+      this.snackBar.open('Nie udało się zapisać limitów budżetu.', undefined, {
+        duration: 3000,
+      });
     } finally {
       this.saving.set(false);
     }

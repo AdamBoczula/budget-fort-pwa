@@ -1,3 +1,4 @@
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 import { Component, inject, output } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,11 +9,7 @@ import { DashboardCategoryDetailComponent } from '../dashboard-category-detail/d
 
 @Component({
   selector: 'transaction-dashboard-category-list',
-  imports: [
-    MatExpansionModule,
-    MatIconModule,
-    DashboardCategoryDetailComponent,
-  ],
+  imports: [MatExpansionModule, MatIconModule, DashboardCategoryDetailComponent],
   template: `
     <section class="category-list">
       @if (dashboardState.categoryWithSubcategories().length === 0) {
@@ -35,9 +32,7 @@ import { DashboardCategoryDetailComponent } from '../dashboard-category-detail/d
                   <span class="panel-description__amount">
                     {{ currencyService.format(cat.totalAmount) }}
                   </span>
-                  <span class="panel-description__percentage">
-                    {{ cat.percentage }}%
-                  </span>
+                  <span class="panel-description__percentage"> {{ cat.percentage }}% </span>
                 </mat-panel-description>
               </mat-expansion-panel-header>
 
@@ -65,95 +60,7 @@ import { DashboardCategoryDetailComponent } from '../dashboard-category-detail/d
       }
     </section>
   `,
-  styles: [`
-    .category-list {
-      margin-top: 16px;
-    }
-
-    .category-list__empty {
-      text-align: center;
-      color: var(--mat-sys-on-surface-variant, #6B7280);
-      font-style: italic;
-      padding: 32px;
-    }
-
-    .category-list__accordion {
-      --mat-expansion-container-shape: 12px;
-    }
-
-    .panel-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .panel-title__color-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .panel-title__name {
-      font-weight: 500;
-    }
-
-    .panel-description {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .panel-description__amount {
-      font-variant-numeric: tabular-nums;
-      font-weight: 600;
-    }
-
-    .panel-description__percentage {
-      color: var(--mat-sys-on-surface-variant, #6B7280);
-      font-size: 0.85em;
-      min-width: 45px;
-      text-align: right;
-    }
-
-    .subcategories {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .subcategory {
-      border-left: 3px solid var(--mat-sys-outline-variant, #E5E7EB);
-      padding-left: 8px;
-    }
-
-    .subcategory__header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 0;
-    }
-
-    .subcategory__icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      color: var(--mat-sys-on-surface-variant, #6B7280);
-    }
-
-    .subcategory__name {
-      flex: 1;
-      font-weight: 500;
-      font-size: 0.9em;
-    }
-
-    .subcategory__amount {
-      font-variant-numeric: tabular-nums;
-      font-weight: 600;
-      font-size: 0.9em;
-    }
-  `],
+  styleUrl: './dashboard-category-list.scss',
 })
 export class DashboardCategoryListComponent {
   protected readonly dashboardState = inject(DashboardState);

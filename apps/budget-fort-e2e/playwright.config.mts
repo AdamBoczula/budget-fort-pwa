@@ -1,6 +1,29 @@
-import { defineConfig, devices } from '@playwright/test';
+import { existsSync, readdirSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { chromium, defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
+
+function resolveChromiumExecutablePath(): string | undefined {
+  const defaultPath = chromium.executablePath();
+  if (existsSync(defaultPath)) {
+    return undefined;
+  }
+  const cacheDir = join(homedir(), '.cache', 'ms-playwright');
+  if (existsSync(cacheDir)) {
+    const entries = readdirSync(cacheDir).filter((name) => name.startsWith('chromium-'));
+    for (const entry of entries) {
+      const candidate = join(cacheDir, entry, 'chrome-linux64', 'chrome');
+      if (existsSync(candidate)) {
+        return candidate;
+      }
+    }
+  }
+  return undefined;
+}
+
+const customExecutablePath = resolveChromiumExecutablePath();
 
 // For CI, you may want to set BASE_URL to the deployed application.
 const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
@@ -23,6 +46,7 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
  */
 export default defineConfig({
   ...nxE2EPreset(import.meta.dirname, { testDir: './src' }),
+  reporter: [['list'], ['html', { open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
@@ -42,13 +66,16 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        ...(customExecutablePath
+          ? { launchOptions: { executablePath: customExecutablePath } }
+          : {}),
+      },
     },
 
-    // Firefox and WebKit are enabled only in CI where the browsers are
-    // pre-installed. Running them locally requires `npx playwright install
-    // firefox webkit` first.
-    ...(process.env['CI']
+    // Firefox and WebKit require `npx playwright install firefox webkit` first.
+    ...(process.env['PLAYWRIGHT_ALL_BROWSERS'] === 'true'
       ? [
           {
             name: 'firefox',

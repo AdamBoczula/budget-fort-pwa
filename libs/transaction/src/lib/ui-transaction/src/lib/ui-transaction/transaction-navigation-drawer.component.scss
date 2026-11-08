@@ -1,29 +1,36 @@
 // spec: docs/specs/budget/przeglad-historii-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--app-color-outline, rgb(148 163 184 / 0.2));
+
+  h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
 }
 
-.menu-group-icon {
-  margin-right: 8px;
-}
-
-/* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-::ng-deep .mat-expansion-panel-body {
-  padding: 0 !important;
-}
-
-.submenu {
-  padding-top: 0;
+.nav-list {
+  padding: 0.5rem;
 
   .mat-mdc-list-item {
-    padding-left: 24px;
+    border-radius: 0.75rem;
+    margin-bottom: 0.25rem;
 
     &.active-link {
-      background: rgba(0, 0, 0, 0.04);
+      background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 14%, transparent);
+      color: var(--mat-sys-primary, #3b82f6);
+      font-weight: 600;
+
+      mat-icon {
+        color: var(--mat-sys-primary, #3b82f6);
+      }
     }
   }
 

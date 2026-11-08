@@ -1,4 +1,5 @@
 // spec: docs/qa/2026-10-21-ui-ux-audit.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,9 +37,7 @@ export class HomeScreenIncomeFabComponent {
 
   protected async openIncomeDialog(): Promise<void> {
     const categories = await this.categoryService.getCategoriesAsync();
-    const incomeCategory = categories.find(
-      (c) => c.transactionType === 'income',
-    );
+    const incomeCategory = categories.find((c) => c.transactionType === 'income');
     if (!incomeCategory) {
       this.snackBar.open(
         'Brak kategorii przychodów. Najpierw dodaj kategorię w ustawieniach.',
@@ -53,7 +52,8 @@ export class HomeScreenIncomeFabComponent {
       minWidth: '320px',
       maxWidth: '480px',
       width: '100%',
-      position: { top: '20%' },
+      panelClass: 'transaction-bottom-sheet-dialog',
+      autoFocus: 'input',
     });
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {

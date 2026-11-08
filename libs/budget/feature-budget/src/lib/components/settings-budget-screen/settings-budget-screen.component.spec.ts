@@ -95,14 +95,14 @@ describe('SettingsBudgetScreenComponent', () => {
     }),
   };
 
-  async function setup() {
+  async function setup(categoryBudgets = MOCK_CATEGORY_BUDGETS): Promise<void> {
     vi.clearAllMocks();
     mockBudgetService.getBudget.mockResolvedValue({
       id: 1,
       amount: 5000,
       updatedAt: '2026-10-01T00:00:00.000Z',
     });
-    mockCategoryBudgetService.getAll.mockResolvedValue(MOCK_CATEGORY_BUDGETS);
+    mockCategoryBudgetService.getAll.mockResolvedValue(categoryBudgets);
     mockCategoryService.getVisibleCategoriesAsync.mockResolvedValue(MOCK_EXPENSE_CATEGORIES);
     mockTransactionService.getTransactionsAsync.mockResolvedValue([]);
 
@@ -383,18 +383,58 @@ describe('SettingsBudgetScreenComponent', () => {
     );
   });
 
-  // covers: docs/qa/2026-10-21-ui-ux-audit.md — UI-03: category cards are clickable
-  it('should have clickable category cards', async () => {
+  // covers: docs/qa/2026-10-21-ui-ux-audit.md — UI-03: category edit button
+  it('should render edit button on each category card and not make the whole card a button', async () => {
     await setup();
 
     const clickableCards = fixture.debugElement.queryAll(
       By.css('.settings-budget__card--clickable'),
     );
-    expect(clickableCards.length).toBe(2);
+    expect(clickableCards.length).toBe(0);
 
-    for (const card of clickableCards) {
-      expect(card.nativeElement.getAttribute('role')).toBe('button');
-      expect(card.nativeElement.getAttribute('tabindex')).toBe('0');
-    }
+    const editButtons = fixture.debugElement.queryAll(
+      By.css('budget-category-card .category-card__edit-btn'),
+    );
+    expect(editButtons.length).toBe(2);
+
+    editButtons[0].nativeElement.click();
+    fixture.detectChanges();
+
+    expect(mockDialog.open).toHaveBeenCalledWith(
+      CategoryEditDialogComponent,
+      expect.objectContaining({
+        data: { category: MOCK_EXPENSE_CATEGORIES[0] },
+      }),
+    );
+  });
+
+  // covers: docs/specs/budget/planowanie-budzetu.md#AC-2
+  it('should not open category edit dialog when clicking the limit input', async () => {
+    await setup();
+
+    const limitInput = fixture.debugElement.query(
+      By.css('budget-category-card input[type="number"]'),
+    );
+    expect(limitInput).toBeTruthy();
+
+    limitInput.nativeElement.click();
+    fixture.detectChanges();
+
+    expect(mockDialog.open).not.toHaveBeenCalled();
+  });
+
+  // covers: docs/specs/budget/planowanie-budzetu.md#AC-2
+  it('should not update previous month limit when typing a new limit in the form', async () => {
+    await setup([]);
+
+    const agg = TestBed.inject(BudgetAggregationService);
+    expect(agg.categorySpendingMap().get('1')?.limit).toBe(0);
+
+    fixture.componentInstance.getCategoryControl('1').setValue(1200);
+    fixture.detectChanges();
+
+    expect(agg.overallBudget()).toBe(1200);
+    expect(agg.categorySpendingMap().get('1')?.limit).toBe(0);
+    expect(agg.previousMonthSummary()?.budgetLimit).toBe(0);
   });
 });

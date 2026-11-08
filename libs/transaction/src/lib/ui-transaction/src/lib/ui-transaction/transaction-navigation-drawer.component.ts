@@ -2,7 +2,6 @@
 
 import { Component, inject, LOCALE_ID, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
@@ -14,12 +13,6 @@ export type TransactionThemeOption = {
   label: string;
 };
 
-type MenuGroup = {
-  label: string;
-  icon: string;
-  items: MenuItem[];
-};
-
 type MenuItem = {
   label: string;
   icon: string;
@@ -28,13 +21,7 @@ type MenuItem = {
 
 @Component({
   selector: 'transaction-navigation-drawer',
-  imports: [
-    RouterModule,
-    MatListModule,
-    MatButtonModule,
-    MatIconModule,
-    MatExpansionModule,
-  ],
+  imports: [RouterModule, MatListModule, MatButtonModule, MatIconModule],
   template: `
     <div class="header">
       <h2 i18n="@@navigation.title">Nawigacja</h2>
@@ -49,41 +36,28 @@ type MenuItem = {
       </button>
     </div>
 
-    <mat-accordion displayMode="flat" [multi]="false">
-      @for (group of menuGroups; track group.label) {
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <mat-icon class="menu-group-icon">{{ group.icon }}</mat-icon>
-              <span>{{ group.label }}</span>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-
-          <mat-nav-list class="submenu">
-            @for (item of group.items; track item.label) {
-              <a
-                mat-list-item
-                [routerLink]="item.route"
-                routerLinkActive="active-link"
-                #rla="routerLinkActive"
-                [class.active]="rla.isActive"
-                (click)="requestClose()"
-              >
-                <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-                <span>{{ item.label }}</span>
-              </a>
-            }
-          </mat-nav-list>
-        </mat-expansion-panel>
+    <mat-nav-list class="nav-list">
+      @for (item of menuItems; track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          #rla="routerLinkActive"
+          [class.active]="rla.isActive"
+          (click)="requestClose()"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
       }
-    </mat-accordion>
+    </mat-nav-list>
   `,
   styleUrl: './transaction-navigation-drawer.component.scss',
 })
 export class TransactionNavigationDrawerComponent {
   private readonly localeId = inject(LOCALE_ID);
 
-  protected readonly menuGroups: ReadonlyArray<MenuGroup> = this.createMenuGroups();
+  protected readonly menuItems: ReadonlyArray<MenuItem> = this.createMenuItems();
 
   public readonly drawerClose = output<void>();
 
@@ -91,47 +65,29 @@ export class TransactionNavigationDrawerComponent {
     this.drawerClose.emit();
   }
 
-  private createMenuGroups(): ReadonlyArray<MenuGroup> {
+  private createMenuItems(): ReadonlyArray<MenuItem> {
     const isEn = this.localeId.startsWith('en');
 
     return [
       {
-        label: isEn ? 'Transactions' : 'Transakcje',
-        icon: 'receipt',
-        items: [
-          {
-            label: isEn ? 'Home' : 'Strona główna',
-            icon: 'home',
-            route: '/home',
-          },
-          {
-            label: isEn ? 'Dashboard' : 'Dashboard',
-            icon: 'dashboard',
-            route: '/dashboard',
-          },
-        ],
+        label: isEn ? 'Home' : 'Strona główna',
+        icon: 'home',
+        route: '/home',
+      },
+      {
+        label: isEn ? 'Dashboard' : 'Dashboard',
+        icon: 'dashboard',
+        route: '/dashboard',
       },
       {
         label: isEn ? 'Budget' : 'Budżet',
-        icon: 'savings',
-        items: [
-          {
-            label: isEn ? 'Budget planning' : 'Planowanie budżetu',
-            icon: 'account_balance_wallet',
-            route: '/budget',
-          },
-        ],
+        icon: 'account_balance_wallet',
+        route: '/budget',
       },
       {
         label: isEn ? 'Settings' : 'Ustawienia',
         icon: 'settings',
-        items: [
-          {
-            label: isEn ? 'Settings' : 'Ustawienia',
-            icon: 'settings',
-            route: '/settings',
-          },
-        ],
+        route: '/settings',
       },
     ];
   }

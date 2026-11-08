@@ -1,4 +1,5 @@
 // spec: docs/qa/2026-10-21-ui-ux-audit.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import { Component, computed, inject, resource } from '@angular/core';
 import { A11yModule } from '@angular/cdk/a11y';
@@ -16,10 +17,23 @@ import { LastTransactionItemComponent } from './last-transaction-item/last-trans
 
 @Component({
   selector: 'transaction-last-transaction',
-  imports: [MatButtonModule, MatDialogModule, MatIconModule, MatSnackBarModule, LastTransactionItemComponent],
+  imports: [
+    MatButtonModule,
+    MatDialogModule,
+    MatIconModule,
+    MatSnackBarModule,
+    LastTransactionItemComponent,
+  ],
   template: `
     <section class="last-transactions">
-      <h2 class="last-transactions__title" i18n="@@lastTransactions.title">Ostatnie transakcje</h2>
+      <div class="last-transactions__header">
+        <h2 class="last-transactions__title" i18n="@@lastTransactions.title">
+          Ostatnie transakcje
+        </h2>
+        @if (lastTransactions().length > 0) {
+          <span class="last-transactions__count">{{ lastTransactions().length }}</span>
+        }
+      </div>
 
       @if (lastTransactions().length === 0) {
         <p class="last-transactions__empty" i18n="@@lastTransactions.empty">
@@ -96,7 +110,7 @@ export class LastTransactionComponent {
       minWidth: '320px',
       maxWidth: '480px',
       width: '100%',
-      position: { top: '20%' },
+      panelClass: 'transaction-bottom-sheet-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
@@ -108,6 +122,7 @@ export class LastTransactionComponent {
           date: result.date,
           accountId: result.accountId,
           comment: result.comment,
+          subcategory: result.subcategory,
         });
         this.snackBar.open('Zapisano zmiany.', undefined, { duration: 3000 });
       }
@@ -123,11 +138,7 @@ export class LastTransactionComponent {
       }
       void this.transactionState.deleteTransaction(transaction.id);
 
-      const snackBarRef = this.snackBar.open(
-        'Usunięto transakcję.',
-        'Cofnij',
-        { duration: 5000 },
-      );
+      const snackBarRef = this.snackBar.open('Usunięto transakcję.', 'Cofnij', { duration: 5000 });
       snackBarRef.onAction().subscribe(() => {
         void this.transactionState.addTransaction(transaction);
       });
@@ -146,7 +157,9 @@ export class LastTransactionComponent {
       <p i18n="@@deleteConfirm.message">Czy na pewno chcesz usunąć tę transakcję?</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button cdkFocusInitial [mat-dialog-close]="false" i18n="@@deleteConfirm.cancel">Anuluj</button>
+      <button mat-button cdkFocusInitial [mat-dialog-close]="false" i18n="@@deleteConfirm.cancel">
+        Anuluj
+      </button>
       <button mat-flat-button color="warn" [mat-dialog-close]="true" i18n="@@deleteConfirm.confirm">
         Usuń
       </button>

@@ -4,28 +4,50 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { TransactionFormComponent } from './transaction-form';
-import { Category, CategoryService, SubcategoryService, Transaction } from '@data-access-transaction';
+import {
+  Category,
+  CategoryService,
+  SubcategoryService,
+  Transaction,
+} from '@data-access-transaction';
 
 describe('TransactionFormComponent', () => {
   const expenseCategory: Category = {
-    id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-    sortOrder: 10, isHidden: false,
-    createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    id: 'food',
+    name: 'Jedzenie',
+    colorHex: '#16A34A',
+    icon: 'restaurant',
+    sortOrder: 10,
+    isHidden: false,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
   };
   const incomeCategory: Category = {
-    id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
-    sortOrder: 5, isHidden: false, transactionType: 'income',
-    createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    id: 'income',
+    name: 'Zarobek',
+    colorHex: '#10B981',
+    icon: 'savings',
+    sortOrder: 5,
+    isHidden: false,
+    transactionType: 'income',
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
   };
   const anotherExpenseCategory: Category = {
-    id: 'transport', name: 'Transport', colorHex: '#0EA5E9', icon: 'directions_car',
-    sortOrder: 20, isHidden: false,
-    createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    id: 'transport',
+    name: 'Transport',
+    colorHex: '#0EA5E9',
+    icon: 'directions_car',
+    sortOrder: 20,
+    isHidden: false,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
   };
   const mockService = {
     getVisibleCategories: () => of([expenseCategory, anotherExpenseCategory, incomeCategory]),
     getCategories: () => of([expenseCategory, anotherExpenseCategory, incomeCategory]),
-    getCategoriesAsync: () => Promise.resolve([expenseCategory, anotherExpenseCategory, incomeCategory]),
+    getCategoriesAsync: () =>
+      Promise.resolve([expenseCategory, anotherExpenseCategory, incomeCategory]),
   };
   const mockSubcategoryService = {
     getSubcategoriesAsync: () => Promise.resolve([]),
@@ -55,13 +77,15 @@ describe('TransactionFormComponent', () => {
     await renderForm(incomeCategory);
     expect(screen.getByText('Zarobek')).toBeInTheDocument();
     const savingsIcons = document.querySelectorAll('mat-icon');
-    const found = Array.from(savingsIcons).find(i => i.textContent?.trim() === 'savings');
+    const found = Array.from(savingsIcons).find((i) => i.textContent?.trim() === 'savings');
     expect(found).toBeDefined();
   });
 
-  it('should auto-focus amount field in create mode', async () => {
+  it('should auto-focus amount field in create mode and set decimal inputmode', async () => {
     await renderForm(expenseCategory);
-    expect(screen.getByLabelText('Kwota')).toHaveFocus();
+    const amountInput = screen.getByLabelText('Kwota');
+    expect(amountInput).toHaveFocus();
+    expect(amountInput).toHaveAttribute('inputmode', 'decimal');
   });
 
   it('should not auto-focus amount field in edit mode', async () => {
@@ -103,9 +127,13 @@ describe('TransactionFormComponent', () => {
     await user.clear(screen.getByLabelText('Kwota'));
     await user.type(screen.getByLabelText('Kwota'), '42.50');
     await user.click(screen.getByRole('button', { name: /Zapisz/i }));
-    expect(closeSpy).toHaveBeenCalledWith(expect.objectContaining({
-      categoryId: 'food', amount: -42.50, type: 'expense',
-    }));
+    expect(closeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categoryId: 'food',
+        amount: -42.5,
+        type: 'expense',
+      }),
+    );
   });
 
   it('should save income with positive amount', async () => {
@@ -123,9 +151,13 @@ describe('TransactionFormComponent', () => {
     await user.clear(screen.getByLabelText('Kwota'));
     await user.type(screen.getByLabelText('Kwota'), '100');
     await user.click(screen.getByRole('button', { name: /Zapisz/i }));
-    expect(closeSpy).toHaveBeenCalledWith(expect.objectContaining({
-      categoryId: 'income', amount: 100, type: 'income',
-    }));
+    expect(closeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categoryId: 'income',
+        amount: 100,
+        type: 'income',
+      }),
+    );
   });
 
   it('should disable save button when amount is empty', async () => {
@@ -149,9 +181,13 @@ describe('TransactionFormComponent', () => {
     await user.type(screen.getByLabelText('Kwota'), '42.50');
     await user.type(screen.getByLabelText('Podkategoria (opcjonalna)'), 'Naprawa');
     await user.click(screen.getByRole('button', { name: /Zapisz/i }));
-    expect(closeSpy).toHaveBeenCalledWith(expect.objectContaining({
-      categoryId: 'food', amount: -42.50, subcategory: 'Naprawa',
-    }));
+    expect(closeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categoryId: 'food',
+        amount: -42.5,
+        subcategory: 'Naprawa',
+      }),
+    );
   });
 
   it('should filter subcategories by query ignoring case and spaces', async () => {
@@ -163,11 +199,12 @@ describe('TransactionFormComponent', () => {
         {
           provide: SubcategoryService,
           useValue: {
-            getSubcategoriesAsync: () => Promise.resolve([
-              { id: 's1', categoryId: 'food', name: 'buty' },
-              { id: 's2', categoryId: 'food', name: 'bluzy' },
-              { id: 's3', categoryId: 'food', name: 'kurtka puchowa' },
-            ]),
+            getSubcategoriesAsync: () =>
+              Promise.resolve([
+                { id: 's1', categoryId: 'food', name: 'buty' },
+                { id: 's2', categoryId: 'food', name: 'bluzy' },
+                { id: 's3', categoryId: 'food', name: 'kurtka puchowa' },
+              ]),
             upsertSubcategoryAsync: () => Promise.resolve(),
           },
         },
@@ -178,10 +215,13 @@ describe('TransactionFormComponent', () => {
     const subcategoryInput = screen.getByLabelText('Podkategoria (opcjonalna)');
 
     // Czekamy aż resource załaduje podkategorie
-    await vi.waitFor(() => {
-      // @ts-expect-error — test accesses protected resource to verify loading status
-      expect(component.subcategories.status()).toBe('resolved');
-    }, { timeout: 3000 });
+    await vi.waitFor(
+      () => {
+        // @ts-expect-error — test accesses protected resource to verify loading status
+        expect(component.subcategories.status()).toBe('resolved');
+      },
+      { timeout: 3000 },
+    );
 
     const user = userEvent.setup();
     const filterFor = async (query: string): Promise<string[]> => {
@@ -207,6 +247,40 @@ describe('TransactionFormComponent', () => {
 
     // Po pustym zapytaniu wszystkie
     await expect(filterFor('')).resolves.toHaveLength(3);
+  });
+
+  it('should select and toggle subcategory via quick chip', async () => {
+    const { fixture } = await render(TransactionFormComponent, {
+      providers: [
+        { provide: MatDialogRef, useValue: { close: vi.fn(), afterClosed: () => of(undefined) } },
+        { provide: MAT_DIALOG_DATA, useValue: { category: expenseCategory } },
+        { provide: CategoryService, useValue: mockService },
+        {
+          provide: SubcategoryService,
+          useValue: {
+            getSubcategoriesAsync: () =>
+              Promise.resolve([
+                { id: 's1', categoryId: 'food', name: 'Biedronka' },
+                { id: 's2', categoryId: 'food', name: 'Lidl' },
+              ]),
+            upsertSubcategoryAsync: () => Promise.resolve(),
+          },
+        },
+        provideNativeDateAdapter(),
+      ],
+    });
+
+    const chip = await screen.findByRole('button', { name: 'Biedronka' });
+    const user = userEvent.setup();
+    await user.click(chip);
+    fixture.detectChanges();
+
+    const subcategoryInput = screen.getByLabelText('Podkategoria (opcjonalna)') as HTMLInputElement;
+    expect(subcategoryInput.value).toBe('Biedronka');
+
+    await user.click(chip);
+    fixture.detectChanges();
+    expect(subcategoryInput.value).toBe('');
   });
 
   it('should show only expense categories in menu when expense category is selected', async () => {

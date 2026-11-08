@@ -1,9 +1,13 @@
 // spec: docs/specs/budget/przeglad-historii-budzetu.md
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import { Component, inject, signal } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
-import { TransactionNavigationDrawerComponent } from '@ui-transaction';
+import {
+  TransactionBottomNavComponent,
+  TransactionNavigationDrawerComponent,
+} from '@ui-transaction';
 import { TransactionTopBarComponent } from '../header/header';
 import { DashboardState } from '../service/dashboard-state/dashboard-state';
 
@@ -14,6 +18,7 @@ import { DashboardState } from '../service/dashboard-state/dashboard-state';
     MatSidenavModule,
     TransactionTopBarComponent,
     TransactionNavigationDrawerComponent,
+    TransactionBottomNavComponent,
   ],
   template: `
     <mat-sidenav-container class="container">
@@ -22,16 +27,14 @@ import { DashboardState } from '../service/dashboard-state/dashboard-state';
         [opened]="isSidebarOpen()"
         (openedChange)="onSidebarStateChange($event)"
       >
-        <transaction-navigation-drawer
-          (drawerClose)="closeSidebar()"
-        />
+        <transaction-navigation-drawer (drawerClose)="closeSidebar()" />
       </mat-sidenav>
 
       <mat-sidenav-content>
         <header>
           <transaction-header
             [monthName]="dashboardState.periodLabel()"
-            [balance]="dashboardState.totalSpending()"
+            [balance]="dashboardState.balance()"
             (menuClick)="toggleSidebar()"
           />
         </header>
@@ -39,6 +42,8 @@ import { DashboardState } from '../service/dashboard-state/dashboard-state';
         <main class="transaction-shell__content">
           <router-outlet />
         </main>
+
+        <transaction-bottom-nav />
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,

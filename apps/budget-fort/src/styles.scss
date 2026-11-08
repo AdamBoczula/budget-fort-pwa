@@ -1,23 +1,18 @@
 @use '@angular/material' as mat;
 
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-
 :root {
   --app-space-2: 0.25rem;
   --app-space-4: 0.5rem;
   --app-space-6: 1rem;
-
   --app-color-outline: #e2e8f0;
   --app-color-surface-muted: #f8fafc;
   --app-color-primary: #3b82f6;
   --app-color-primary-contrast: #ffffff;
-
   --app-radius-md: 0.5rem;
-
+  --app-radius-lg: 0.875rem;
   --app-transition-base: 0.2s ease;
-
-  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --app-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --app-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  --app-shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
 }
 
 html {
@@ -48,31 +43,49 @@ app-root {
   overflow: hidden;
 }
 
+/* Mobile bottom-sheet dialog style */
+@media (width <= 599px) {
+  .cdk-overlay-pane.transaction-bottom-sheet-dialog {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin-top: auto !important;
+    margin-bottom: 0 !important;
+
+    .mat-mdc-dialog-surface {
+      border-radius: 1.5rem 1.5rem 0 0 !important;
+    }
+  }
+}
+
 html,
 html.theme-azure-blue {
   color-scheme: light;
 
-  @include mat.theme((
-    color: (
-      theme-type: light,
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      density: 0,
+    )
+  );
 }
 
 html.theme-rose-red {
   color-scheme: light;
 
-  @include mat.theme((
-    color: (
-      theme-type: light,
-      primary: mat.$rose-palette,
-      tertiary: mat.$red-palette,
-    ),
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$rose-palette,
+        tertiary: mat.$red-palette,
+      ),
+      density: 0,
+    )
+  );
 }
 
 html.theme-magenta-violet {
@@ -81,14 +94,16 @@ html.theme-magenta-violet {
   --app-color-outline: #334155;
   --app-color-surface-muted: #1e293b;
 
-  @include mat.theme((
-    color: (
-      theme-type: dark,
-      primary: mat.$magenta-palette,
-      tertiary: mat.$violet-palette,
-    ),
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$magenta-palette,
+        tertiary: mat.$violet-palette,
+      ),
+      density: 0,
+    )
+  );
 }
 
 html.theme-cyan-orange {
@@ -97,12 +112,14 @@ html.theme-cyan-orange {
   --app-color-outline: #334155;
   --app-color-surface-muted: #1e293b;
 
-  @include mat.theme((
-    color: (
-      theme-type: dark,
-      primary: mat.$cyan-palette,
-      tertiary: mat.$orange-palette,
-    ),
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      density: 0,
+    )
+  );
 }

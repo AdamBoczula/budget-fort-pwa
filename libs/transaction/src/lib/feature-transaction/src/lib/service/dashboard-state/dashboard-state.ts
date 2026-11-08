@@ -1,9 +1,5 @@
 import { computed, inject, Injectable, LOCALE_ID, resource, signal } from '@angular/core';
-import {
-  Category,
-  CategoryService,
-  Transaction,
-} from '@data-access-transaction';
+import { Category, CategoryService, Transaction } from '@data-access-transaction';
 import { TransactionState } from '../transaction-state/transaction-state';
 import {
   getCurrentLocalMonth,
@@ -57,9 +53,7 @@ export class DashboardState {
     ),
   );
 
-  readonly allTransactions = computed(() =>
-    this.transactionState.transactions(),
-  );
+  readonly allTransactions = computed(() => this.transactionState.transactions());
 
   readonly filteredTransactions = computed(() => {
     const txns = this.allTransactions();
@@ -80,7 +74,9 @@ export class DashboardState {
 
   readonly totalSpending = computed(() => {
     const expenses = this.expenseTransactions();
-    if (expenses.length === 0) {return 0;}
+    if (expenses.length === 0) {
+      return 0;
+    }
     return roundHalfUp(
       expenses.reduce((sum, tx) => sum + Math.abs(tx.amount), 0),
       2,
@@ -113,7 +109,9 @@ export class DashboardState {
         2,
       );
 
-      if (totalAmount === 0) {continue;}
+      if (totalAmount === 0) {
+        continue;
+      }
 
       result.push({
         categoryId: entry.cat.id,
@@ -130,13 +128,19 @@ export class DashboardState {
 
     return result.sort((a, b) => b.totalAmount - a.totalAmount);
   });
-readonly totalIncome = computed(() => {
+  readonly totalIncome = computed(() => {
     const incomes = this.filteredTransactions().filter((tx) => tx.amount > 0);
-    if (incomes.length === 0) {return 0;}
+    if (incomes.length === 0) {
+      return 0;
+    }
     return roundHalfUp(
       incomes.reduce((sum, tx) => sum + tx.amount, 0),
       2,
     );
+  });
+
+  readonly balance = computed(() => {
+    return roundHalfUp(this.totalIncome() - this.totalSpending(), 2) || 0;
   });
 
   readonly categoryWithSubcategories = computed<CategoryWithSubcategories[]>(() => {
@@ -176,10 +180,9 @@ readonly totalIncome = computed(() => {
     if (this.periodMode() === 'year') {
       return `${year}`;
     }
-    const monthName = new Date(year, this.selectedMonth()).toLocaleDateString(
-      this.localeId,
-      { month: 'long' },
-    );
+    const monthName = new Date(year, this.selectedMonth()).toLocaleDateString(this.localeId, {
+      month: 'long',
+    });
     return `${monthName} ${year}`;
   });
 

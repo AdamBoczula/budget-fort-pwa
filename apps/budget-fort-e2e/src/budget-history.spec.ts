@@ -31,8 +31,21 @@ test.describe('Budget History – period selector and read-only mode', () => {
     await expect(rightArrow).toBeVisible({ timeout: 3000 });
 
     // Verify mode toggle buttons exist (Miesiąc / Rok) — they render as radio buttons in mat-button-toggle-group
-    await expect(periodSelector.getByRole('radio', { name: /Miesiąc/i })).toBeVisible({ timeout: 3000 });
-    await expect(periodSelector.getByRole('radio', { name: /Rok/i })).toBeVisible({ timeout: 3000 });
+    await expect(periodSelector.getByRole('radio', { name: /Miesiąc/i })).toBeVisible({
+      timeout: 3000,
+    });
+    await expect(periodSelector.getByRole('radio', { name: /Rok/i })).toBeVisible({
+      timeout: 3000,
+    });
+
+    // Verify seeded previous month summary card and category history limits are rendered
+    await expect(page.locator('budget-previous-month-card')).toBeVisible({ timeout: 3000 });
+    const jedzenieCard = page
+      .locator('budget-category-card')
+      .filter({ hasText: 'Jedzenie' })
+      .first();
+    await expect(jedzenieCard.locator('.category-card__history-spent')).toContainText('1');
+    await expect(jedzenieCard.locator('.category-card__history-limit')).toContainText('1');
   });
 
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-2
@@ -43,7 +56,8 @@ test.describe('Budget History – period selector and read-only mode', () => {
     const saveButton = page.getByRole('button', { name: /Zapisz/i });
 
     // Navigate to previous month
-    const leftArrow = page.locator('.period-selector')
+    const leftArrow = page
+      .locator('.period-selector')
       .getByRole('button', { name: /poprzedni okres/i });
     await expect(leftArrow).toBeEnabled({ timeout: 3000 });
     await leftArrow.click();
@@ -54,9 +68,9 @@ test.describe('Budget History – period selector and read-only mode', () => {
     // In read-only mode: limits section and save button should be hidden
     await expect(page.getByText('Limity kategorii').first()).not.toBeVisible({ timeout: 3000 });
     await expect(saveButton).not.toBeVisible({ timeout: 3000 });
-    await expect(
-      page.getByText('Kopiuj limity z poprzedniego').first()
-    ).not.toBeVisible({ timeout: 3000 });
+    await expect(page.getByText('Kopiuj limity z poprzedniego').first()).not.toBeVisible({
+      timeout: 3000,
+    });
 
     // But the spending card should still be visible
     await expect(page.locator('budget-current-month-card')).toBeVisible({ timeout: 3000 });
@@ -65,13 +79,15 @@ test.describe('Budget History – period selector and read-only mode', () => {
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-3
   test('AC-3: Return to current month – edit mode restored', async ({ page }) => {
     // Navigate to previous month first
-    const leftArrow = page.locator('.period-selector')
+    const leftArrow = page
+      .locator('.period-selector')
       .getByRole('button', { name: /poprzedni okres/i });
     await leftArrow.click();
     await page.waitForLoadState('domcontentloaded');
 
     // Now navigate back to current month
-    const rightArrow = page.locator('.period-selector')
+    const rightArrow = page
+      .locator('.period-selector')
       .getByRole('button', { name: /następny okres/i });
     await expect(rightArrow).toBeVisible({ timeout: 3000 });
     await rightArrow.click();
@@ -85,11 +101,10 @@ test.describe('Budget History – period selector and read-only mode', () => {
   });
 
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-9
-  test('AC-9: Future months blocked (next arrow disabled on current month)', async ({
-    page,
-  }) => {
+  test('AC-9: Future months blocked (next arrow disabled on current month)', async ({ page }) => {
     // On current month, the "Następny okres" (▶) button should be disabled
-    const rightArrow = page.locator('.period-selector')
+    const rightArrow = page
+      .locator('.period-selector')
       .getByRole('button', { name: /następny okres/i });
 
     await expect(rightArrow).toBeVisible({ timeout: 3000 });
@@ -124,7 +139,8 @@ test.describe('Budget History – period selector and read-only mode', () => {
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-12
   test('AC-12: Refresh returns to current month (default state)', async ({ page }) => {
     // Navigate to a previous month
-    const leftArrow = page.locator('.period-selector')
+    const leftArrow = page
+      .locator('.period-selector')
       .getByRole('button', { name: /poprzedni okres/i });
     await leftArrow.click();
     await page.waitForLoadState('domcontentloaded');
@@ -139,7 +155,8 @@ test.describe('Budget History – period selector and read-only mode', () => {
     });
 
     // Verify we're on the current month (next arrow disabled)
-    const rightArrow = page.locator('.period-selector')
+    const rightArrow = page
+      .locator('.period-selector')
       .getByRole('button', { name: /następny okres/i });
     await expect(rightArrow).toBeDisabled({ timeout: 3000 });
 

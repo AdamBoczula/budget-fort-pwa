@@ -63,3 +63,5 @@ vitest.config.*.timestamp*
 # Temporary / test artifacts
 temp_ts.txt
 test-results/
+playwright-report/
+.firebase/

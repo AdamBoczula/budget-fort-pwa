@@ -19,6 +19,7 @@
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/budget-fort",
+        "deleteOutputPath": false,
         "browser": "apps/budget-fort/src/main.ts",
         "polyfills": ["@angular/localize/init"],
         "tsConfig": "apps/budget-fort/tsconfig.app.json",
@@ -31,11 +32,15 @@
         "styles": [
           "apps/budget-fort/src/styles.scss"
         ],
+        "optimization": {
+          "fonts": false
+        },
         "localize": ["pl"]
       },
       "configurations": {
         "production": {
           "localize": ["pl"],
+          "baseHref": "/",
           "budgets": [
             {
               "type": "initial",
@@ -52,6 +57,7 @@
         },
         "production-en": {
           "localize": ["en"],
+          "baseHref": "/",
           "budgets": [
             {
               "type": "initial",

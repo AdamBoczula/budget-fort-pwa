@@ -1,3 +1,4 @@
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 import {
   Component,
   computed,
@@ -28,25 +29,7 @@ Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
       }
     </div>
   `,
-  styles: [`
-    .pie-chart-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 300px;
-    }
-
-    .pie-chart-container {
-      position: relative;
-      width: 300px;
-      height: 300px;
-    }
-
-    .pie-chart-empty {
-      color: var(--mat-sys-on-surface-variant, #6B7280);
-      font-style: italic;
-    }
-  `],
+  styleUrl: './dashboard-pie-chart.scss',
 })
 export class DashboardPieChartComponent {
   private readonly dashboardState = inject(DashboardState);
@@ -55,9 +38,7 @@ export class DashboardPieChartComponent {
 
   private chartInstance: Chart<'doughnut'> | null = null;
 
-  protected readonly hasData = computed(() =>
-    this.dashboardState.categorySpending().length > 0,
-  );
+  protected readonly hasData = computed(() => this.dashboardState.categorySpending().length > 0);
 
   /** Plugin do wyświetlania tekstu w centrum wykresu kołowego. */
   private readonly centerTextPlugin = {
@@ -95,7 +76,9 @@ export class DashboardPieChartComponent {
 
   private setupChart(): void {
     const canvasEl = this.chartCanvas();
-    if (!canvasEl) {return;}
+    if (!canvasEl) {
+      return;
+    }
 
     // Zniszcz poprzedni wykres
     if (this.chartInstance) {
@@ -104,7 +87,9 @@ export class DashboardPieChartComponent {
     }
 
     const data = this.dashboardState.categorySpending();
-    if (data.length === 0) {return;}
+    if (data.length === 0) {
+      return;
+    }
 
     const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
@@ -115,22 +100,23 @@ export class DashboardPieChartComponent {
             data: data.map((d) => d.totalAmount),
             backgroundColor: data.map((d) => d.colorHex),
             borderWidth: 2,
-            borderColor: getComputedStyle(canvasEl.nativeElement)
-              .getPropertyValue('--mat-sys-surface')
-              .trim() || 'white',
+            borderColor:
+              getComputedStyle(canvasEl.nativeElement)
+                .getPropertyValue('--mat-sys-surface')
+                .trim() || 'white',
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        cutout: '55%',
+        cutout: '62%',
         plugins: {
           legend: {
             display: true,
             position: 'bottom',
             labels: {
-              padding: 16,
+              padding: 12,
               usePointStyle: true,
               pointStyle: 'circle',
             },

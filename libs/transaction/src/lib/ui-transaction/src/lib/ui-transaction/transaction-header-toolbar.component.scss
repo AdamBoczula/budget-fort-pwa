@@ -1,3 +1,5 @@
+// spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+
 :host {
   display: block;
   width: 100%;
@@ -7,52 +9,90 @@
 .transaction-header-toolbar {
   width: 100%;
   min-width: 0;
+  height: 3.5rem;
+  min-height: 3.5rem;
+  padding-inline: 0.5rem 0.875rem;
   box-sizing: border-box;
-  background: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+  background: var(--mat-sys-surface-container-low, var(--mat-sys-primary-container));
+  color: var(--mat-sys-on-surface, var(--mat-sys-on-primary-container));
+  border-bottom: 1px solid var(--app-color-outline, rgb(148 163 184 / 0.2));
+  gap: 0.5rem;
 }
 
 .transaction-header-toolbar__menu-icon {
-	color: var(--mat-sys-on-primary-container, #1a1a1a);
-	opacity: 0.87;
+  color: var(--mat-sys-on-surface, #1a1a1a);
+  opacity: 0.85;
 }
 
 .transaction-header-toolbar__month,
 .transaction-header-toolbar__balance {
-	margin: 0;
+  margin: 0;
 }
 
 .transaction-header-toolbar__month {
-	flex: 1;
-	padding-inline-start: 0.75rem;
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+  flex: 1;
+  padding-inline-start: 0.25rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: capitalize;
 }
 
 .transaction-header-toolbar__balance {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	font-weight: 700;
-	font-size: 1.1rem;
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
 
-	&--positive {
-		color: #16a34a; // green
-	}
+  &--positive {
+    color: #15803d;
+    background: rgb(22 163 74 / 0.12);
+    border-color: rgb(22 163 74 / 0.25);
+  }
 
-	&--negative {
-		color: var(--mat-sys-error, #f44336); // red
-	}
+  &--negative {
+    color: var(--mat-sys-error, #ef4444);
+    background: rgb(239 68 68 / 0.12);
+    border-color: rgb(239 68 68 / 0.25);
+  }
+
+  &--zero {
+    color: var(--mat-sys-outline, #6b7280);
+    background: rgb(107 114 128 / 0.1);
+    border-color: rgb(107 114 128 / 0.2);
+  }
+}
+
+:host-context(html.theme-magenta-violet),
+:host-context(html.theme-cyan-orange) {
+  .transaction-header-toolbar__balance--positive {
+    color: #4ade80;
+    background: rgb(34 197 94 / 0.15);
+    border-color: rgb(74 222 128 / 0.28);
+  }
+
+  .transaction-header-toolbar__balance--negative {
+    color: #fca5a5;
+    background: rgb(239 68 68 / 0.16);
+    border-color: rgb(248 113 113 / 0.3);
+  }
 }
 
 .transaction-header-toolbar__balance-icon {
-	font-size: 1.2rem;
-	width: 1.2rem;
-	height: 1.2rem;
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
 }
