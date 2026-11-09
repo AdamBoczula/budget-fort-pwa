@@ -34,7 +34,6 @@ import { DashboardState } from '../service/dashboard-state/dashboard-state';
         <header>
           <transaction-header
             [monthName]="dashboardState.periodLabel()"
-            [balance]="dashboardState.balance()"
             (menuClick)="toggleSidebar()"
           />
         </header>

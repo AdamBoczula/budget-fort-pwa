@@ -6,7 +6,9 @@
   --app-space-6: 1rem;
   --app-color-outline: #e2e8f0;
   --app-color-surface-muted: #f8fafc;
-  --app-color-primary: #3b82f6;
+  --app-color-primary: #059669;
+  --app-color-accent: #059669;
+  --app-color-accent-contrast: #ffffff;
   --app-color-primary-contrast: #ffffff;
   --app-radius-md: 0.5rem;
   --app-radius-lg: 0.875rem;
@@ -93,6 +95,8 @@ html.theme-magenta-violet {
 
   --app-color-outline: #334155;
   --app-color-surface-muted: #1e293b;
+  --app-color-accent: #34d399;
+  --app-color-accent-contrast: #022c22;
 
   @include mat.theme(
     (
@@ -111,6 +115,8 @@ html.theme-cyan-orange {
 
   --app-color-outline: #334155;
   --app-color-surface-muted: #1e293b;
+  --app-color-accent: #34d399;
+  --app-color-accent-contrast: #022c22;
 
   @include mat.theme(
     (

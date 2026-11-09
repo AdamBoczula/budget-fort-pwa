@@ -36,9 +36,24 @@ import { LastTransactionItemComponent } from './last-transaction-item/last-trans
       </div>
 
       @if (lastTransactions().length === 0) {
-        <p class="last-transactions__empty" i18n="@@lastTransactions.empty">
-          Brak transakcji. Dodaj pierwszą za pomocą przycisków powyżej.
-        </p>
+        <div class="last-transactions__empty" data-testid="transactions-empty">
+          <svg
+            class="last-transactions__empty-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" />
+            <path d="M9 8h6M9 12h6" />
+          </svg>
+          <p class="last-transactions__empty-text" i18n="@@lastTransactions.empty">
+            Brak transakcji. Dodaj pierwszą za pomocą przycisków powyżej.
+          </p>
+        </div>
       }
 
       @for (tx of lastTransactions(); track tx.id) {

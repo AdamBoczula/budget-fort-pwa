@@ -263,6 +263,14 @@
         <source> Ostatnie transakcje </source>
         <target> Recent transactions </target>
       </trans-unit>
+      <trans-unit id="homeHero.spent" datatype="html">
+        <source>Wydano w tym miesiącu</source>
+        <target>Spent this month</target>
+      </trans-unit>
+      <trans-unit id="homeHero.limitOf" datatype="html">
+        <source>z limitu</source>
+        <target>of limit</target>
+      </trans-unit>
       <trans-unit id="lastTransactions.empty" datatype="html">
         <source> Brak transakcji. Dodaj pierwszą za pomocą przycisków powyżej. </source>
         <target> No transactions yet. Add your first one using the buttons above. </target>

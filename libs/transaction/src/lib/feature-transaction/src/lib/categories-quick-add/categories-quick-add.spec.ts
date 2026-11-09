@@ -52,9 +52,7 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
       ],
-      componentProviders: [
-        { provide: MatSnackBar, useValue: mockSnackBar },
-      ],
+      componentProviders: [{ provide: MatSnackBar, useValue: mockSnackBar }],
     });
 
     const title = screen.getByText('Wybierz kategorię');
@@ -69,6 +67,24 @@ describe('CategoriesQuickAddComponent', () => {
     expect(zarobek).toBeInTheDocument();
   });
 
+  // covers: docs/specs/budget/redesign-home-minimalist.md#AC-3
+  it('should apply category color only through the icon custom property', async () => {
+    await render(CategoriesQuickAddComponent, {
+      providers: [
+        provideNativeDateAdapter(),
+        { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
+        { provide: TransactionState, useValue: mockTxState },
+      ],
+      componentProviders: [{ provide: MatSnackBar, useValue: mockSnackBar }],
+    });
+
+    const card = (await screen.findByText('Jedzenie')).closest('button') as HTMLElement;
+    expect(card.classList).toContain('category-card');
+    expect(card.style.getPropertyValue('--category-color')).toBe('#16A34A');
+    expect(card.querySelector('.category-card__icon')).not.toBeNull();
+  });
+
   it('should open MatDialog on category card click', async () => {
     const user = userEvent.setup();
 
@@ -79,9 +95,7 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
       ],
-      componentProviders: [
-        { provide: MatSnackBar, useValue: mockSnackBar },
-      ],
+      componentProviders: [{ provide: MatSnackBar, useValue: mockSnackBar }],
     });
 
     const foodButton = (await screen.findByText('Jedzenie')).closest('button');
@@ -99,9 +113,7 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
       ],
-      componentProviders: [
-        { provide: MatSnackBar, useValue: mockSnackBar },
-      ],
+      componentProviders: [{ provide: MatSnackBar, useValue: mockSnackBar }],
     });
 
     const zarobek = await screen.findByText('Zarobek');

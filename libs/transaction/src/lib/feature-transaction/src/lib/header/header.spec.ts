@@ -1,3 +1,4 @@
+// spec: docs/specs/budget/redesign-home-minimalist.md
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
@@ -31,60 +32,11 @@ describe('TransactionTopBarComponent', () => {
     expect(childToolbar.componentInstance.monthName()).toBe('Sierpień 2026');
   });
 
-  it('should pass balance input to child component', () => {
-    fixture.componentRef.setInput('balance', 1250.5);
-    fixture.detectChanges();
-
-    const childToolbar = fixture.debugElement.query(By.css('transaction-header-toolbar'));
-    expect(childToolbar.componentInstance.balance()).toBe(1250.5);
-  });
-
-  it('should render positive balance styling when balance > 0', () => {
-    fixture.componentRef.setInput('balance', 100);
+  it('should not render a balance pill in the toolbar', () => {
     fixture.detectChanges();
 
     const balanceEl = fixture.debugElement.query(By.css('.transaction-header-toolbar__balance'));
-    expect(balanceEl.nativeElement.classList).toContain(
-      'transaction-header-toolbar__balance--positive',
-    );
-    expect(balanceEl.nativeElement.classList).not.toContain(
-      'transaction-header-toolbar__balance--negative',
-    );
-    expect(balanceEl.nativeElement.classList).not.toContain(
-      'transaction-header-toolbar__balance--zero',
-    );
-  });
-
-  it('should render negative balance styling when balance < 0', () => {
-    fixture.componentRef.setInput('balance', -37);
-    fixture.detectChanges();
-
-    const balanceEl = fixture.debugElement.query(By.css('.transaction-header-toolbar__balance'));
-    expect(balanceEl.nativeElement.classList).toContain(
-      'transaction-header-toolbar__balance--negative',
-    );
-    expect(balanceEl.nativeElement.classList).not.toContain(
-      'transaction-header-toolbar__balance--positive',
-    );
-    expect(balanceEl.nativeElement.classList).not.toContain(
-      'transaction-header-toolbar__balance--zero',
-    );
-  });
-
-  it('should render zero balance styling when balance === 0', () => {
-    fixture.componentRef.setInput('balance', 0);
-    fixture.detectChanges();
-
-    const balanceEl = fixture.debugElement.query(By.css('.transaction-header-toolbar__balance'));
-    expect(balanceEl.nativeElement.classList).toContain(
-      'transaction-header-toolbar__balance--zero',
-    );
-    expect(balanceEl.nativeElement.classList).not.toContain(
-      'transaction-header-toolbar__balance--positive',
-    );
-    expect(balanceEl.nativeElement.classList).not.toContain(
-      'transaction-header-toolbar__balance--negative',
-    );
+    expect(balanceEl).toBeNull();
   });
 
   it('should emit menuClick when menu button is clicked', () => {

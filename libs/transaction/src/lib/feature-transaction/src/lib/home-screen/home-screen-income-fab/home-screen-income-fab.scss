@@ -1,9 +1,12 @@
 // spec: docs/qa/2026-10-21-ui-ux-audit.md
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+// spec: docs/specs/budget/redesign-home-minimalist.md
 
 :host {
   position: fixed;
-  bottom: 4.5rem;
+
+  /* bottom nav (3.75rem) + safe area + 1rem clearance to avoid touch-target conflicts */
+  bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px) + 1rem);
   right: 1rem;
   z-index: 100;
 
@@ -14,20 +17,20 @@
 }
 
 .fab-income {
-  background: linear-gradient(135deg, #059669, #10b981) !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 18px rgb(16 185 129 / 0.35);
+  background: var(--app-color-accent) !important;
+  color: var(--app-color-accent-contrast) !important;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--app-color-accent) 35%, transparent);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 
   &:hover {
-    box-shadow: 0 8px 22px rgb(16 185 129 / 0.45);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--app-color-accent) 45%, transparent);
     transform: translateY(-2px);
   }
 
   &:active {
-    box-shadow: 0 3px 10px rgb(16 185 129 / 0.28);
+    box-shadow: 0 3px 8px color-mix(in srgb, var(--app-color-accent) 30%, transparent);
     transform: scale(0.95);
   }
 }

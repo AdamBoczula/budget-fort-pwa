@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { HomePageScreen } from './home-screen';
 import { CategoryService, Category } from '@data-access-transaction';
+import { BudgetService, CategoryBudgetService } from '@data-access-budget';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 
 describe('HomePageScreen', () => {
@@ -10,14 +11,25 @@ describe('HomePageScreen', () => {
 
   const mockCategories: Category[] = [
     {
-      id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-      sortOrder: 10, isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'food',
+      name: 'Jedzenie',
+      colorHex: '#16A34A',
+      icon: 'restaurant',
+      sortOrder: 10,
+      isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
     {
-      id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
-      sortOrder: 5, isHidden: false, transactionType: 'income',
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'income',
+      name: 'Zarobek',
+      colorHex: '#10B981',
+      icon: 'savings',
+      sortOrder: 5,
+      isHidden: false,
+      transactionType: 'income',
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
   ];
 
@@ -28,11 +40,13 @@ describe('HomePageScreen', () => {
     getCategoriesAsync: () => Promise.resolve(mockCategories),
   };
 
-  function createTransactionState(overrides?: Partial<{
-    loading: boolean;
-    initialized: boolean;
-    error: string | null;
-  }>): ReturnType<typeof createTransactionState> {
+  function createTransactionState(
+    overrides?: Partial<{
+      loading: boolean;
+      initialized: boolean;
+      error: string | null;
+    }>,
+  ): ReturnType<typeof createTransactionState> {
     const { loading = false, initialized = true, error = null } = overrides ?? {};
     return {
       transactions: () => [],
@@ -59,7 +73,12 @@ describe('HomePageScreen', () => {
         imports: [HomePageScreen],
         providers: [
           { provide: CategoryService, useValue: mockCategoryService },
-          { provide: TransactionState, useValue: createTransactionState({ loading: true, initialized: false }) },
+          { provide: BudgetService, useValue: { getBudget: () => Promise.resolve(undefined) } },
+          { provide: CategoryBudgetService, useValue: { getAll: () => Promise.resolve([]) } },
+          {
+            provide: TransactionState,
+            useValue: createTransactionState({ loading: true, initialized: false }),
+          },
         ],
       }).compileComponents();
 
@@ -87,7 +106,12 @@ describe('HomePageScreen', () => {
         imports: [HomePageScreen],
         providers: [
           { provide: CategoryService, useValue: mockCategoryService },
-          { provide: TransactionState, useValue: createTransactionState({ loading: false, initialized: true }) },
+          { provide: BudgetService, useValue: { getBudget: () => Promise.resolve(undefined) } },
+          { provide: CategoryBudgetService, useValue: { getAll: () => Promise.resolve([]) } },
+          {
+            provide: TransactionState,
+            useValue: createTransactionState({ loading: false, initialized: true }),
+          },
         ],
       }).compileComponents();
 
@@ -106,6 +130,10 @@ describe('HomePageScreen', () => {
       expect(lastTx).toBeTruthy();
     });
 
+    it('should render hero in loaded state', () => {
+      expect(fixture.debugElement.query(By.css('transaction-home-screen-hero'))).toBeTruthy();
+    });
+
     it('should render income FAB in loaded state', () => {
       const fab = fixture.debugElement.query(By.css('transaction-home-screen-income-fab'));
       expect(fab).toBeTruthy();
@@ -118,6 +146,8 @@ describe('HomePageScreen', () => {
         imports: [HomePageScreen],
         providers: [
           { provide: CategoryService, useValue: mockCategoryService },
+          { provide: BudgetService, useValue: { getBudget: () => Promise.resolve(undefined) } },
+          { provide: CategoryBudgetService, useValue: { getAll: () => Promise.resolve([]) } },
           { provide: TransactionState, useValue: createTransactionState({ error: 'Load failed' }) },
         ],
       }).compileComponents();
@@ -128,7 +158,9 @@ describe('HomePageScreen', () => {
     });
 
     it('should render offline indicator when error is present', () => {
-      const indicatorText = fixture.debugElement.query(By.css('transaction-home-screen-offline-indicator .info'));
+      const indicatorText = fixture.debugElement.query(
+        By.css('transaction-home-screen-offline-indicator .info'),
+      );
       expect(indicatorText).toBeTruthy();
       expect(indicatorText.nativeElement.textContent).toContain('Tryb offline');
     });
@@ -140,6 +172,8 @@ describe('HomePageScreen', () => {
         imports: [HomePageScreen],
         providers: [
           { provide: CategoryService, useValue: mockCategoryService },
+          { provide: BudgetService, useValue: { getBudget: () => Promise.resolve(undefined) } },
+          { provide: CategoryBudgetService, useValue: { getAll: () => Promise.resolve([]) } },
           { provide: TransactionState, useValue: createTransactionState({}) },
         ],
       }).compileComponents();
@@ -150,7 +184,9 @@ describe('HomePageScreen', () => {
     });
 
     it('should not render offline indicator when error is null', () => {
-      const indicatorText = fixture.debugElement.query(By.css('transaction-home-screen-offline-indicator .info'));
+      const indicatorText = fixture.debugElement.query(
+        By.css('transaction-home-screen-offline-indicator .info'),
+      );
       expect(indicatorText).toBeFalsy();
     });
   });

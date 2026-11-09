@@ -1,0 +1,66 @@
+// spec: docs/specs/budget/redesign-home-minimalist.md
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.hero {
+  padding: 1.25rem;
+  border: 1px solid var(--app-color-outline);
+  border-radius: 1rem;
+  background: var(--mat-sys-surface-container-lowest, var(--mat-sys-surface));
+  box-shadow: var(--app-shadow-sm);
+
+  &__month {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__caption {
+    margin: 0.75rem 0 0;
+    font-size: 0.8rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__amount {
+    margin: 0.125rem 0 0;
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--mat-sys-on-surface);
+    overflow-wrap: anywhere;
+  }
+
+  &__progress {
+    margin-top: 1rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--app-color-surface-muted);
+    border: 1px solid var(--app-color-outline);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--app-color-accent);
+    transition: width 0.3s ease;
+
+    &--over {
+      background: var(--mat-sys-error, #dc2626);
+    }
+  }
+
+  &__limit {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    color: var(--mat-sys-on-surface-variant);
+    font-variant-numeric: tabular-nums;
+  }
+}

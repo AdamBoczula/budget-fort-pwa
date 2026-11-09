@@ -44,12 +44,12 @@
     }
 
     &--active {
-      color: var(--mat-sys-primary, #3b82f6);
+      color: var(--app-color-accent, #059669);
       font-weight: 600;
 
       .bottom-nav__pill {
-        background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 16%, transparent);
-        color: var(--mat-sys-primary, #3b82f6);
+        background: color-mix(in srgb, var(--app-color-accent, #059669) 16%, transparent);
+        color: var(--app-color-accent, #059669);
       }
     }
   }

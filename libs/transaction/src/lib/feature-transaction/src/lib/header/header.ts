@@ -5,17 +5,12 @@ import { TransactionHeaderToolbarComponent } from '@ui-transaction';
   selector: 'transaction-header',
   imports: [TransactionHeaderToolbarComponent],
   template: `
-    <transaction-header-toolbar
-      [monthName]="monthName()"
-      [balance]="balance()"
-      (menuClick)="requestMenuOpen()"
-    />
+    <transaction-header-toolbar [monthName]="monthName()" (menuClick)="requestMenuOpen()" />
   `,
   styleUrl: './header.scss',
 })
 export class TransactionTopBarComponent {
   public readonly monthName = input('');
-  public readonly balance = input(0);
   public readonly menuClick = output<void>();
 
   protected requestMenuOpen(): void {

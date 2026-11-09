@@ -2,6 +2,7 @@
 
 import { Component, computed, inject } from '@angular/core';
 import { CategoriesQuickAddComponent } from '../categories-quick-add/categories-quick-add';
+import { HomeScreenHeroComponent } from './home-screen-hero/home-screen-hero';
 import { HomeScreenOfflineIndicatorComponent } from './home-screen-offline-indicator/home-screen-offline-indicator';
 import { HomeScreenIncomeFabComponent } from './home-screen-income-fab/home-screen-income-fab';
 import { HomeScreenSkeletonComponent } from './home-screen-skeleton/home-screen-skeleton';
@@ -12,6 +13,7 @@ import { TransactionState } from '../service/transaction-state/transaction-state
   selector: 'transaction-home-page-screen',
   imports: [
     CategoriesQuickAddComponent,
+    HomeScreenHeroComponent,
     HomeScreenOfflineIndicatorComponent,
     HomeScreenIncomeFabComponent,
     HomeScreenSkeletonComponent,
@@ -21,6 +23,7 @@ import { TransactionState } from '../service/transaction-state/transaction-state
     @if (isInitialLoading()) {
       <transaction-home-screen-skeleton />
     } @else {
+      <transaction-home-screen-hero />
       <transaction-categories-quick-add />
       <transaction-last-transaction />
     }
