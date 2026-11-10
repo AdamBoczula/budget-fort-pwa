@@ -50,15 +50,18 @@ This is monorepo of PWA application - for home budget app.
 This project uses **Spec-Driven Development** for new features and significant changes.
 The full workflow is defined in `docs/specs/01-spec-workflow.md`.
 
-### Quick SDD overview
+### SDLC & Dynamic Agent Workflows
 
-1. **Analysis** — invoke the Business Analyst skill (`.opencode/skills/business-analyst.md`) to gather requirements
-2. **Architecture** — design module structure and ADRs (if needed), update the spec
-3. **Implementation (parallel)** — Dev (TDD + code + "Implemented in" updates) || Tester (E2E tests)
-4. **Quality Gate** — `npm exec nx affected -t lint test build e2e`
-5. **Done** — code ready, reviewed locally by user
+The primary entry point for tasks is the **SDLC Orchestrator (Flash)**, which classifies the incoming request and dynamically routes it to the optimal minimal chain of agents:
 
-For bug fixes and small refactors, skip to the regular workflow below.
+| Task Type | Use Case | Agent Chain |
+|-----------|----------|-------------|
+| **New Feature** | New screens, new domains | Orchestrator $\rightarrow$ BA $\rightarrow$ UI/UX Designer *(Argon)* $\rightarrow$ Architect *(Argon)* $\rightarrow$ Automation Tester $\rightarrow$ Senior Dev (TDD) $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
+| **Bugfix** | Bug fixes, regressions | Orchestrator $\rightarrow$ BA (reproduction) $\rightarrow$ Senior Dev (regression TDD + fix) $\rightarrow$ Reviewer $\rightarrow$ QA |
+| **Improvement** | UI polish, UX enhancements | Orchestrator $\rightarrow$ UI/UX Designer *(Argon)* $\rightarrow$ Senior Dev $\rightarrow$ Reviewer $\rightarrow$ QA (screenshots) |
+| **Technical Task** | Refactoring, Dexie DB migrations, CI/CD | Orchestrator $\rightarrow$ Architect *(Argon, if arch)* $\rightarrow$ Senior Dev $\rightarrow$ Security Guard $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
+
+Models: **Argon (Pro)** for Architect and UI/UX Designer; **Flash** for all other roles (Orchestrator, BA, Tester, Dev, Reviewer, QA, DevOps, Security).
 
 ### SDD traceability
 
@@ -185,7 +188,7 @@ This invokes the **QA Coordinator**, which spawns 4 subagents in parallel:
 - **Responsive Checker** — viewport breakpoints, touch targets, overflow
 
 The review is **optional** — it does NOT block the pipeline. Results are saved to
-`docs/qa/YYYY-MM-DD-qa-report.md`. See `.opencode/agents/qa-coordinator.md` for details.
+`docs/qa/YYYY-MM-DD-qa-report.md`. See `docs/ai/agents/qa-coordinator.md` for details.
 
 ### MCP servers used by QA subagents
 
@@ -195,12 +198,12 @@ The review is **optional** — it does NOT block the pipeline. Results are saved
 | Chrome DevTools MCP | Axe-core audits, ARIA tree inspection, contrast checks |
 | GitHub MCP | Optional: create GitHub Issues from QA reports |
 
-### Agent models
+### Agent roles
 
-| Agent | Model | Why |
-|-------|-------|-----|
-| QA Coordinator | DeepSeek-V4-Pro | Orchestration, report merging, decision-making |
-| UI Reviewer | DeepSeek-V4-Flash | Visual analysis — doesn't need deep reasoning |
-| UX Analyzer | DeepSeek-V4-Flash | Heuristic evaluation — procedural task |
-| A11y Auditor | DeepSeek-V4-Flash | Audits are tool-driven, not reasoning-heavy |
-| Responsive Checker | DeepSeek-V4-Flash | Viewport testing is procedural |
+| Agent | Target Model Profile | Why |
+|-------|----------------------|-----|
+| QA Coordinator | Pro / Complex reasoning | Orchestration, report merging, decision-making |
+| UI Reviewer | Flash / Fast multimodal | Visual analysis — doesn't need deep reasoning |
+| UX Analyzer | Flash / Fast | Heuristic evaluation — procedural task |
+| A11y Auditor | Flash / Fast | Audits are tool-driven, not reasoning-heavy |
+| Responsive Checker | Flash / Fast | Viewport testing is procedural |

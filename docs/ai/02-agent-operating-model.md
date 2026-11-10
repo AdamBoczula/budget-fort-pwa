@@ -2,48 +2,39 @@
 
 Last updated: 2026-10-16
 
-## Preferred Agent Roles
+## Preferred Agent Roles & Models
 
-The team wants these AI roles available:
-- **Business Analyst (BA)** — gathers requirements via drill-down, produces specs
-- **Architect** — designs module structure, creates ADRs
-- **Feature builder (Dev)** — implements code (TDD), updates "Implemented in" continuously
-- **Refactoring assistant** — improves existing code safely
-- **Test generator (Tester/QA)** — creates unit, component, and E2E tests; runs quality gate
-- **Release/CI monitor** — monitors CI pipeline and reports status
-- **Architecture guard** — enforces module boundaries and Nx tags
-- **Docs maintainer** — keeps documentation in sync with code
-- **QA Coordinator** — orchestrates UI/UX/A11y/Responsive review, generates unified QA report (phase [4b])
-- **UI Reviewer** — analyzes visual consistency, layout, typography, component states
-- **UX Analyzer** — evaluates user experience, Nielsen's heuristics, click efficiency
-- **A11y Auditor** — audits WCAG 2.1 AA compliance, Axe-core, ARIA, keyboard navigation
-- **Responsive Checker** — tests viewport breakpoints, touch targets, layout integrity
+Model split: **2 roles on Gemini Argon (Pro)** for tasks with high conceptual and architectural complexity; **remaining roles on Gemini Flash** for speed, low latency, and token efficiency:
 
-## Spec-Driven Development (SDD)
+| Role | Model | Core Responsibility | Allowed Skills |
+|------|-------|---------------------|----------------|
+| **SDLC Orchestrator** | Gemini Flash | Task classification, dynamic workflow selection, agent dispatcher | `nx-workspace` |
+| **Architect** | **Gemini Argon (Pro)** | Nx architecture, IndexedDB/Dexie schemas, service contracts, ADRs | `nx-workspace`, `nx-generate` |
+| **UI/UX Designer** | **Gemini Argon (Pro)** | Screen state wireframes, ergonomics, Anti-UI-Slop, Angular Material | `anti-ui-slop` |
+| **Business Analyst (BA)** | Gemini Flash | Requirements drill-down, structured specs in `docs/specs/` | *(none / purely analytical)* |
+| **Automation Tester** | Gemini Flash | E2E Playwright tests (`apps/budget-fort-e2e/`) | `nx-run-tasks`, `nx-workspace` |
+| **Senior Developer** | Gemini Flash | TDD implementation, Vitest tests, clean Angular 22 code | `anti-ui-slop`, `conventional-commit`, `nx-generate`, `nx-run-tasks`, `nx-workspace` |
+| **Code Reviewer** | Gemini Flash | Static code analysis, Architect/Designer consultations, Dev feedback | `anti-ui-slop`, `nx-workspace` |
+| **Security & Data Guard** | Gemini Flash | Secrets scanning (`scan-secrets.sh`), IndexedDB privacy integrity | `nx-workspace` |
+| **QA Gatekeeper** | Gemini Flash | Runs quality gate, Antigravity internal browser verification & screenshot evidences | `nx-run-tasks`, `nx-workspace` |
+| **DevOps & Release Monitor** | Gemini Flash | GitHub Actions CI/CD, PWA production build, Firebase deployment | `conventional-commit`, `nx-run-tasks`, `nx-workspace` |
 
-For **new features** and **significant changes**, the agent MUST follow the SDD workflow
-defined in `docs/specs/01-spec-workflow.md`. The flow is:
+## Dynamic SDLC Workflows (Orchestrated by SDLC Orchestrator)
 
-1. **Analysis** (Business Analyst) → user confirms spec (Bramka 1)
-2. **Architecture** (Architect) → creates ADRs, designs architecture → user confirms (Bramka 2)
-3. **Implementation (parallel)**
-   - **3A: Dev (TDD)** — unit + component tests, implementation, "Implemented in" updates
-   - **3B: Tester (E2E)** — reads spec, creates/updates E2E tests
-   - Both start simultaneously after Bramka 2
-4. **Quality Gate** (QA/Tester) → `nx affected -t lint test build e2e` (Bramka 3)
-4b. **UI/UX Review** (QA Coordinator, optional) → user runs `/qa-review` → spawns 4 subagents → generates `docs/qa/YYYY-MM-DD-qa-report.md`
-5. **Done** → code is ready, deployed locally
+The Orchestrator automatically selects the minimal, optimal agent chain based on request type:
 
-Key optimizations:
-- Dev and Tester work **in parallel** after architecture approval (saves time)
-- User reviews code **locally and continuously** during implementation — no formal Code Review phase needed (solo project)
-- Dev updates the spec's "Implemented in" table **continuously**, not at the end
-- **Manual QA is optional and outside the formal workflow** — it does not block the pipeline
-- **UI/UX Review (phase [4b])** is triggered manually by `/qa-review` — QA Coordinator spawns 4 specialized subagents in parallel (UI, UX, A11y, Responsive) and generates a unified report. **Does not block the pipeline.**
+1. **New Feature / Major Redesign:**
+   `Orchestrator` $\rightarrow$ `BA` $\rightarrow$ `UI/UX Designer (Argon)` $\rightarrow$ `Architect (Argon)` $\rightarrow$ `Automation Tester` $\rightarrow$ `Senior Dev (TDD)` $\rightarrow$ `Code Reviewer` $\rightarrow$ `QA Gatekeeper` $\rightarrow$ `DevOps`
+2. **Bugfix (Fast-track regression fix):**
+   `Orchestrator` $\rightarrow$ `BA (reproduction and criteria)` $\rightarrow$ `Senior Dev (regression Vitest test + fix)` $\rightarrow$ `Code Reviewer` $\rightarrow$ `QA Gatekeeper`
+3. **Improvement / UI Polish:**
+   `Orchestrator` $\rightarrow$ `UI/UX Designer (Argon)` $\rightarrow$ `Senior Dev (BEM/Material)` $\rightarrow$ `Code Reviewer` $\rightarrow$ `QA Gatekeeper (screenshots)`
+4. **Technical Task / Refactoring / Database Migration:**
+   `Orchestrator` $\rightarrow$ `Architect (Argon, if touching data models/Nx)` $\rightarrow$ `Senior Dev` $\rightarrow$ `Security Guard` $\rightarrow$ `Code Reviewer` $\rightarrow$ `QA Gatekeeper` $\rightarrow$ `DevOps`
 
 For **bug fixes** and **small refactors**, use the simpler workflow below (Mandatory Agent Workflow).
 
-To activate the Business Analyst skill, invoke `.opencode/skills/business-analyst.md`.
+To activate the Business Analyst role, invoke `docs/ai/agents/business-analyst.md`.
 
 ### SDD Traceability Rules
 
@@ -312,14 +303,14 @@ It does **not** block the pipeline. The manual QA checklist is in `docs/ai/03-te
 In addition to manual QA, an automated UI/UX/A11y/Responsive review can be triggered by running
 `/qa-review` in OpenCode. The **QA Coordinator** subagent orchestrates four specialized subagents:
 
-| Subagent | Focus | Tools | Model |
-|----------|-------|-------|-------|
-| `ui-reviewer` | Visual consistency, layout, typography, component states | Playwright MCP | DeepSeek-V4-Flash |
-| `ux-analyzer` | User experience, Nielsen's heuristics, click efficiency | Playwright MCP | DeepSeek-V4-Flash |
-| `a11y-auditor` | WCAG 2.1 AA, Axe-core, ARIA, keyboard navigation | Chrome DevTools MCP + Playwright MCP | DeepSeek-V4-Flash |
-| `responsive-checker` | Viewport testing, touch targets, layout integrity | Playwright MCP | DeepSeek-V4-Flash |
+| Subagent | Focus | Tools | Target Profile |
+|----------|-------|-------|----------------|
+| `ui-reviewer` | Visual consistency, layout, typography, component states | Playwright MCP | Flash / Fast multimodal |
+| `ux-analyzer` | User experience, Nielsen's heuristics, click efficiency | Playwright MCP | Flash / Fast |
+| `a11y-auditor` | WCAG 2.1 AA, Axe-core, ARIA, keyboard navigation | Chrome DevTools MCP + Playwright MCP | Flash / Fast |
+| `responsive-checker` | Viewport testing, touch targets, layout integrity | Playwright MCP | Flash / Fast |
 
 Results are compiled into a unified report at `docs/qa/YYYY-MM-DD-qa-report.md`. The review
 does **not** block the pipeline — it is an informational aid for the developer.
 
-See `.opencode/agents/qa-coordinator.md` for the full workflow.
+See `docs/ai/agents/qa-coordinator.md` for the full workflow.
