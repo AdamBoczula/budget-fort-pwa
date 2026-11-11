@@ -1,6 +1,7 @@
 # Spec: Autentykacja Firebase, Ekrany Logowania/Rejestracji, Guard i Resolver
 
 ## Metadata
+
 - **Author:** Adam & Antigravity
 - **Date:** 2026-11-11
 - **Status:** implemented
@@ -17,6 +18,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 ## Zakres (Scope)
 
 ### W scope
+
 1. **Integracja z Firebase Authentication**:
    - Logowanie email + hasło (`signInWithEmailAndPassword`).
    - Rejestracja email + hasło (`createUserWithEmailAndPassword`) z automatyczną wysyłką linku weryfikacyjnego (`sendEmailVerification`).
@@ -47,6 +49,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
    - Wsparcie dla i18n (PL/EN) przez znaczniki `i18n="@@..."`.
 
 ### Out of scope
+
 - Chmurowa synchronizacja bazy danych (Firestore sync) – dane transakcji pozostają w lokalnym IndexedDB (krok przygotowawczy pod przyszłą synchronizację).
 - Passwordless / Magic Link login (wybrano tradycyjne hasło + link weryfikacyjny).
 - Dwuskładnikowe uwierzytelnianie (MFA / 2FA).
@@ -57,6 +60,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 ## Use Cases (UC)
 
 ### UC-1: Logowanie adresem email i hasłem
+
 - **Aktor:** Użytkownik posiadający konto z potwierdzonym adresem email.
 - **Precondition:** Użytkownik znajduje się na trasie `/login`.
 - **Main flow:**
@@ -68,6 +72,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 - **Postcondition:** Użytkownik ma aktywną sesję autentykacji, ekran główny jest widoczny.
 
 ### UC-2: Rejestracja adresem email i hasłem z weryfikacją email
+
 - **Aktor:** Nowy użytkownik.
 - **Precondition:** Użytkownik znajduje się na trasie `/register`.
 - **Main flow:**
@@ -80,6 +85,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 - **Postcondition:** Konto jest utworzone, oczekuje na kliknięcie w link aktywacyjny w skrzynce pocztowej użytkownika.
 
 ### UC-3: Logowanie przez konto Google
+
 - **Aktor:** Użytkownik posiadający konto Google.
 - **Precondition:** Użytkownik znajduje się na `/login` lub `/register`.
 - **Main flow:**
@@ -91,6 +97,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 - **Postcondition:** Użytkownik jest zalogowany tożsamością Google, ekran główny wyświetla dane.
 
 ### UC-4: Użycie aplikacji bez logowania (Tryb lokalny / Gość)
+
 - **Aktor:** Użytkownik preferujący prywatność lub brak konta w chmurze.
 - **Precondition:** Użytkownik znajduje się na ekranie `/login`.
 - **Main flow:**
@@ -101,6 +108,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 - **Postcondition:** Użytkownik ma pełny dostęp do funkcjonalności aplikacji działającej na lokalnym IndexedDB bez monitów o logowanie.
 
 ### UC-5: Ochrona tras (Route Guard)
+
 - **Aktor:** Niezalogowany użytkownik lub użytkownik z niezweryfikowanym emailem.
 - **Precondition:** Użytkownik próbuje bezpośrednio otworzyć trasę chronioną (np. `/`, `/settings`, `/budget`).
 - **Main flow:**
@@ -115,6 +123,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 - **Postcondition:** Trasy chronione są niedostępne dla osób nieuprawnionych.
 
 ### UC-6: Pobranie danych przez Data Resolver
+
 - **Aktor:** Użytkownik wchodzący na ekran główny.
 - **Precondition:** Użytkownik przeszedł weryfikację `authGuard`.
 - **Main flow:**
@@ -125,6 +134,7 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 - **Postcondition:** Ekran główny pojawia się natychmiast z kompletem danych.
 
 ### UC-7: Wylogowanie
+
 - **Aktor:** Zalogowany użytkownik lub gość.
 - **Precondition:** Użytkownik jest w aplikacji.
 - **Main flow:**
@@ -139,60 +149,68 @@ Użytkownik może bezpiecznie logować się do aplikacji Budget Fort za pomocą 
 ## Edge Cases
 
 - **EC-1: Błędne poświadczenia logowania (`auth/invalid-credential`, `auth/wrong-password`)**:
-  - *Zachowanie:* Formularz logowania nie przeładowuje się, wyświetla czytelny komunikat błędu Material (`Nieprawidłowy adres email lub hasło`) pod formularzem.
+  - _Zachowanie:_ Formularz logowania nie przeładowuje się, wyświetla czytelny komunikat błędu Material (`Nieprawidłowy adres email lub hasło`) pod formularzem.
 - **EC-2: Próba rejestracji na zajęty email (`auth/email-already-in-use`)**:
-  - *Zachowanie:* Komunikat błędu: `Konto z tym adresem email już istnieje. Zaloguj się lub zresetuj hasło.` z linkiem do logowania.
+  - _Zachowanie:_ Komunikat błędu: `Konto z tym adresem email już istnieje. Zaloguj się lub zresetuj hasło.` z linkiem do logowania.
 - **EC-3: Użytkownik nie kliknął linku weryfikacyjnego i próbuje się zalogować**:
-  - *Zachowanie:* Firebase pozwala na `signIn`, lecz aplikacja sprawdza `user.emailVerified`. W przypadku `false` aplikacja natychmiast wylogowuje użytkownika, wyświetla komunikat informacyjny i przekierowuje na `/verify-email` z możliwością ponownego wysłania maila aktywacyjnego.
+  - _Zachowanie:_ Firebase pozwala na `signIn`, lecz aplikacja sprawdza `user.emailVerified`. W przypadku `false` aplikacja natychmiast wylogowuje użytkownika, wyświetla komunikat informacyjny i przekierowuje na `/verify-email` z możliwością ponownego wysłania maila aktywacyjnego.
 - **EC-4: Anulowanie okna Google Sign-In (`auth/popup-closed-by-user`)**:
-  - *Zachowanie:* Brak crashu aplikacji, spinner ładowania znika, użytkownik pozostaje na ekranie logowania w stanie gotowości do ponownej akcji.
+  - _Zachowanie:_ Brak crashu aplikacji, spinner ładowania znika, użytkownik pozostaje na ekranie logowania w stanie gotowości do ponownej akcji.
 - **EC-5: Brak połączenia z internetem podczas próby logowania online**:
-  - *Zachowanie:* Komunikat: `Brak połączenia z siecią. Sprawdź internet lub skorzystaj z trybu lokalnego (bez logowania)`.
+  - _Zachowanie:_ Komunikat: `Brak połączenia z siecią. Sprawdź internet lub skorzystaj z trybu lokalnego (bez logowania)`.
 - **EC-6: Uruchomienie aplikacji offline przez wcześniej zalogowanego użytkownika**:
-  - *Zachowanie:* Firebase SDK korzysta z IndexedDB cache sesji (`browserLocalPersistence`). Sesja zostaje odtworzona bez konieczności połączenia z serwerami Firebase, `authGuard` zezwala na wejście, a resolver ładuje lokalne dane z Dexie.
+  - _Zachowanie:_ Firebase SDK korzysta z IndexedDB cache sesji (`browserLocalPersistence`). Sesja zostaje odtworzona bez konieczności połączenia z serwerami Firebase, `authGuard` zezwala na wejście, a resolver ładuje lokalne dane z Dexie.
 - **EC-7: Błąd IndexedDB podczas działania Data Resolvera**:
-  - *Zachowanie:* Resolver loguje błąd i zwraca stan awaryjny (puste kolekcje), nie blokując całkowicie przejścia do ekranu głównego.
+  - _Zachowanie:_ Resolver loguje błąd i zwraca stan awaryjny (puste kolekcje), nie blokując całkowicie przejścia do ekranu głównego.
 
 ---
 
 ## Acceptance Criteria (AC)
 
 ### AC-1: Logowanie poprawnymi poświadczeniami email/hasło
+
 - **Given:** Użytkownik zarejestrowany z potwierdzonym adresem email.
 - **When:** Użytkownik wprowadza poprawny email i hasło na `/login` i klika "Zaloguj się".
 - **Then:** System autoryzuje użytkownika, ustawia sygnał `currentUser` i przekierowuje na `/`.
 
 ### AC-2: Blokada logowania dla niezweryfikowanego adresu email
+
 - **Given:** Użytkownik posiada konto, ale nie potwierdził adresu email (`emailVerified === false`).
 - **When:** Użytkownik wprowadza dane i klika "Zaloguj się".
 - **Then:** System nie wpuszcza do aplikacji, wyświetla ostrzeżenie o wymogu weryfikacji i kieruje na `/verify-email`.
 
 ### AC-3: Rejestracja nowego konta i wysłanie maila aktywacyjnego
+
 - **Given:** Nowy użytkownik na ekranie `/register`.
 - **When:** Użytkownik wpisuje poprawny nieużywany email oraz hasło spełniające wymogi (min. 8 znaków) i zatwierdza formularz.
 - **Then:** Konto jest tworzone w Firebase, wywoływane jest `sendEmailVerification`, a użytkownik widzi ekran z potwierdzeniem wysłania wiadomości aktywacyjnej.
 
 ### AC-4: Logowanie przez Google
+
 - **Given:** Użytkownik na `/login`.
 - **When:** Użytkownik klika "Zaloguj przez Google" i pomyślnie uwierzytelnia się w oknie Google.
 - **Then:** System odczytuje tożsamość Google i przekierowuje użytkownika na ekran `/`.
 
 ### AC-5: Wybór trybu lokalnego (Gość)
+
 - **Given:** Niezalogowany użytkownik na `/login`.
 - **When:** Użytkownik klika "Używaj lokalnie (bez logowania)".
 - **Then:** Flaga `bf_guest_mode` jest ustawiana na `true`, stan sesji staje się aktywny w trybie gościa, a użytkownik jest przekierowywany na `/`.
 
 ### AC-6: Blokada nieautoryzowanego dostępu przez authGuard
+
 - **Given:** Użytkownik niezalogowany i bez aktywnego trybu gościa.
 - **When:** Użytkownik próbuje otworzyć w przeglądarce trasę chronioną (np. `/` lub `/settings/budget`).
 - **Then:** Nawigacja jest wstrzymywana, następuje przekierowanie na `/login` z parametrem `returnUrl`.
 
 ### AC-7: Płynne ładowanie danych przez dashboardDataResolver
+
 - **Given:** Użytkownik przechodzi pomyślnie `authGuard` na trasę `/`.
 - **When:** Trasa `/` jest aktywowana.
 - **Then:** `dashboardDataResolver` wczytuje z IndexedDB kategorie i transakcje przed wyrenderowaniem widoku głównego.
 
 ### AC-8: Wylogowanie
+
 - **Given:** Użytkownik zalogowany lub w trybie gościa na dowolnym ekranie aplikacji.
 - **When:** Użytkownik klika przycisk "Wyloguj".
 - **Then:** Sesja Firebase i flaga gościa są usuwane, a użytkownik trafia na `/login`. Ponowna próba wejścia na `/` jest blokowana przez guard.
@@ -290,6 +308,7 @@ export const appRoutes: Route[] = [
 ## UI / UX (Zgodność z Anti-UI-Slop & Material)
 
 ### Formularze i Ekrany
+
 - **Ekran Logowania (`/auth/login`)**:
   - `mat-card` o stałej maksymalnej szerokości (`max-width: 420px`), wycentrowana na ekranie.
   - Wyraziste logo Budget Fort oraz nagłówek.
@@ -303,35 +322,35 @@ export const appRoutes: Route[] = [
   - Spójna karta Material, pola: Email, Hasło, Powtórz hasło.
   - Przycisk "Zarejestruj się", link powrotu do logowania.
 - **Stany ekranów**:
-  - *Loading:* `mat-progress-bar` u góry karty lub `mat-spinner` wewnątrz przycisku z blokadą ponownych kliknięć (`disabled`).
-  - *Error:* komunikaty walidacji pod polami (`mat-error`) oraz baner błędu z góry formularza.
+  - _Loading:_ `mat-progress-bar` u góry karty lub `mat-spinner` wewnątrz przycisku z blokadą ponownych kliknięć (`disabled`).
+  - _Error:_ komunikaty walidacji pod polami (`mat-error`) oraz baner błędu z góry formularza.
 
 ---
 
 ## Implemented in
 
-| File | Date | AC Covered |
-|------|------|------------|
-| `libs/auth/data-access-auth/src/lib/services/auth.service.ts` | 2026-11-11 | AC-1, AC-2, AC-3, AC-4, AC-5, AC-8 |
-| `libs/auth/data-access-auth/src/lib/services/auth.service.spec.ts` | 2026-11-11 | AC-1, AC-2, AC-3, AC-4, AC-5, AC-8 |
-| `libs/auth/ui-auth/src/lib/google-sign-in-button/google-sign-in-button.component.ts` | 2026-11-11 | AC-4 |
-| `libs/auth/ui-auth/src/lib/google-sign-in-button/google-sign-in-button.component.spec.ts` | 2026-11-11 | AC-4 |
-| `libs/auth/feature-auth/src/lib/guards/auth.guard.ts` | 2026-11-11 | AC-2, AC-6 |
-| `libs/auth/feature-auth/src/lib/guards/auth.guard.spec.ts` | 2026-11-11 | AC-2, AC-6 |
-| `libs/auth/feature-auth/src/lib/resolvers/dashboard-data.resolver.ts` | 2026-11-11 | AC-7 |
-| `libs/auth/feature-auth/src/lib/resolvers/dashboard-data.resolver.spec.ts` | 2026-11-11 | AC-7 |
-| `libs/auth/feature-auth/src/lib/services/auth-screen-state.service.ts` | 2026-11-11 | AC-1, AC-3, AC-4, AC-5 |
-| `libs/auth/feature-auth/src/lib/container/auth-container.component.ts` | 2026-11-11 | AC-1, AC-3, AC-4, AC-5 |
-| `libs/auth/feature-auth/src/lib/container/auth-container.component.spec.ts` | 2026-11-11 | AC-1, AC-3, AC-4, AC-5 |
-| `libs/auth/feature-auth/src/lib/create-account/create-account.component.ts` | 2026-11-11 | AC-3 |
-| `libs/auth/feature-auth/src/lib/create-account/create-account.component.spec.ts` | 2026-11-11 | AC-3 |
-| `libs/auth/feature-auth/src/lib/login/login.component.ts` | 2026-11-11 | AC-1, AC-4, AC-5 |
-| `libs/auth/feature-auth/src/lib/login/login.component.spec.ts` | 2026-11-11 | AC-1, AC-4, AC-5 |
-| `libs/auth/feature-auth/src/lib/register/register.component.ts` | 2026-11-11 | AC-3 |
-| `libs/auth/feature-auth/src/lib/register/register.component.spec.ts` | 2026-11-11 | AC-3 |
-| `libs/auth/feature-auth/src/lib/verify-email/verify-email.component.ts` | 2026-11-11 | AC-3 |
-| `libs/auth/feature-auth/src/lib/verify-email/verify-email.component.spec.ts` | 2026-11-11 | AC-3 |
-| `apps/budget-fort/src/app/app.routes.ts` | 2026-11-11 | AC-6, AC-7 |
-| `libs/transaction/src/lib/ui-transaction/src/lib/ui-transaction/transaction-navigation-drawer.component.ts` | 2026-11-11 | AC-8 |
-| `libs/transaction/src/lib/ui-transaction/src/lib/ui-transaction/transaction-header-toolbar.component.ts` | 2026-11-11 | AC-8 |
-| `apps/budget-fort-e2e/src/auth.spec.ts` | 2026-11-11 | AC-3, AC-5, AC-6, AC-8 |
+| File                                                                                                        | Date       | AC Covered                         |
+| ----------------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------- |
+| `libs/auth/data-access-auth/src/lib/services/auth.service.ts`                                               | 2026-11-11 | AC-1, AC-2, AC-3, AC-4, AC-5, AC-8 |
+| `libs/auth/data-access-auth/src/lib/services/auth.service.spec.ts`                                          | 2026-11-11 | AC-1, AC-2, AC-3, AC-4, AC-5, AC-8 |
+| `libs/auth/ui-auth/src/lib/google-sign-in-button/google-sign-in-button.component.ts`                        | 2026-11-11 | AC-4                               |
+| `libs/auth/ui-auth/src/lib/google-sign-in-button/google-sign-in-button.component.spec.ts`                   | 2026-11-11 | AC-4                               |
+| `libs/auth/feature-auth/src/lib/guards/auth.guard.ts`                                                       | 2026-11-11 | AC-2, AC-6                         |
+| `libs/auth/feature-auth/src/lib/guards/auth.guard.spec.ts`                                                  | 2026-11-11 | AC-2, AC-6                         |
+| `libs/auth/feature-auth/src/lib/resolvers/dashboard-data.resolver.ts`                                       | 2026-11-11 | AC-7                               |
+| `libs/auth/feature-auth/src/lib/resolvers/dashboard-data.resolver.spec.ts`                                  | 2026-11-11 | AC-7                               |
+| `libs/auth/feature-auth/src/lib/services/auth-screen-state.service.ts`                                      | 2026-11-11 | AC-1, AC-3, AC-4, AC-5             |
+| `libs/auth/feature-auth/src/lib/container/auth-container.component.ts`                                      | 2026-11-11 | AC-1, AC-3, AC-4, AC-5             |
+| `libs/auth/feature-auth/src/lib/container/auth-container.component.spec.ts`                                 | 2026-11-11 | AC-1, AC-3, AC-4, AC-5             |
+| `libs/auth/feature-auth/src/lib/create-account/create-account.component.ts`                                 | 2026-11-11 | AC-3                               |
+| `libs/auth/feature-auth/src/lib/create-account/create-account.component.spec.ts`                            | 2026-11-11 | AC-3                               |
+| `libs/auth/feature-auth/src/lib/login/login.component.ts`                                                   | 2026-11-11 | AC-1, AC-4, AC-5                   |
+| `libs/auth/feature-auth/src/lib/login/login.component.spec.ts`                                              | 2026-11-11 | AC-1, AC-4, AC-5                   |
+| `libs/auth/feature-auth/src/lib/register/register.component.ts`                                             | 2026-11-11 | AC-3                               |
+| `libs/auth/feature-auth/src/lib/register/register.component.spec.ts`                                        | 2026-11-11 | AC-3                               |
+| `libs/auth/feature-auth/src/lib/verify-email/verify-email.component.ts`                                     | 2026-11-11 | AC-3                               |
+| `libs/auth/feature-auth/src/lib/verify-email/verify-email.component.spec.ts`                                | 2026-11-11 | AC-3                               |
+| `apps/budget-fort/src/app/app.routes.ts`                                                                    | 2026-11-11 | AC-6, AC-7                         |
+| `libs/transaction/src/lib/ui-transaction/src/lib/ui-transaction/transaction-navigation-drawer.component.ts` | 2026-11-11 | AC-8                               |
+| `libs/transaction/src/lib/ui-transaction/src/lib/ui-transaction/transaction-header-toolbar.component.ts`    | 2026-11-11 | AC-8                               |
+| `apps/budget-fort-e2e/src/auth.spec.ts`                                                                     | 2026-11-11 | AC-3, AC-5, AC-6, AC-8             |

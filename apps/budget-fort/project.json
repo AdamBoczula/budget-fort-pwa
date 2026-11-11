@@ -29,9 +29,7 @@
             "input": "apps/budget-fort/public"
           }
         ],
-        "styles": [
-          "apps/budget-fort/src/styles.scss"
-        ],
+        "styles": ["apps/budget-fort/src/styles.scss"],
         "optimization": {
           "fonts": false
         },
@@ -114,9 +112,9 @@
       "continuous": true,
       "executor": "@angular/build:dev-server",
       "defaultConfiguration": "development",
-        "options": {
-          "buildTarget": "budget-fort:build"
-        },
+      "options": {
+        "buildTarget": "budget-fort:build"
+      },
       "configurations": {
         "production": {
           "buildTarget": "budget-fort:build:production"

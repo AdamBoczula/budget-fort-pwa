@@ -1,3 +1,4 @@
+import '@angular/localize/init';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SplashComponent } from './splash.component';
 import { describe, expect, it } from 'vitest';
