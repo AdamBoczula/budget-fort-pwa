@@ -47,4 +47,10 @@ describe('TransactionTopBarComponent', () => {
 
     expect(menuSpy).toHaveBeenCalledOnce();
   });
+
+  it('should render logout button in toolbar', () => {
+    fixture.detectChanges();
+    const logoutBtn = fixture.debugElement.query(By.css('.transaction-header-toolbar__logout-btn'));
+    expect(logoutBtn).toBeTruthy();
+  });
 });

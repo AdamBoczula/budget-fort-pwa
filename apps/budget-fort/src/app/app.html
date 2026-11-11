@@ -1,5 +1,9 @@
 <div class="app-shell mat-bg-surface mat-text-on-surface">
-	<main class="app-content">
-		<router-outlet />
-	</main>
+  @if (isInitialLoading()) {
+    <app-splash />
+  }
+
+  <main class="app-content">
+    <router-outlet />
+  </main>
 </div>

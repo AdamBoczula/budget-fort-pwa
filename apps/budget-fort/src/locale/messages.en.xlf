@@ -2,9 +2,17 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="pl" target-language="en" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="app.loadingData" datatype="html">
+        <source>Wczytywanie danych...</source>
+        <target>Loading data...</target>
+      </trans-unit>
       <trans-unit id="toolbar.openNavigationAria" datatype="html">
         <source>Otworz nawigacje</source>
         <target>Open navigation</target>
+      </trans-unit>
+      <trans-unit id="toolbar.logoutAria" datatype="html">
+        <source>Wyloguj sie</source>
+        <target>Sign out</target>
       </trans-unit>
       <trans-unit id="navigation.title" datatype="html">
         <source>Nawigacja</source>

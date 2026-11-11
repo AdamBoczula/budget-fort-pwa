@@ -55,6 +55,9 @@ vitest.config.*.timestamp*
 .env
 .env.local
 .env.*.local
+.env-local
+.env-local.*
+
 
 # Temporary / test artifacts
 temp_ts.txt

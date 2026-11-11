@@ -320,6 +320,11 @@ export const appRoutes: Route[] = [
 | `libs/auth/feature-auth/src/lib/guards/auth.guard.spec.ts` | 2026-11-11 | AC-2, AC-6 |
 | `libs/auth/feature-auth/src/lib/resolvers/dashboard-data.resolver.ts` | 2026-11-11 | AC-7 |
 | `libs/auth/feature-auth/src/lib/resolvers/dashboard-data.resolver.spec.ts` | 2026-11-11 | AC-7 |
+| `libs/auth/feature-auth/src/lib/services/auth-screen-state.service.ts` | 2026-11-11 | AC-1, AC-3, AC-4, AC-5 |
+| `libs/auth/feature-auth/src/lib/container/auth-container.component.ts` | 2026-11-11 | AC-1, AC-3, AC-4, AC-5 |
+| `libs/auth/feature-auth/src/lib/container/auth-container.component.spec.ts` | 2026-11-11 | AC-1, AC-3, AC-4, AC-5 |
+| `libs/auth/feature-auth/src/lib/create-account/create-account.component.ts` | 2026-11-11 | AC-3 |
+| `libs/auth/feature-auth/src/lib/create-account/create-account.component.spec.ts` | 2026-11-11 | AC-3 |
 | `libs/auth/feature-auth/src/lib/login/login.component.ts` | 2026-11-11 | AC-1, AC-4, AC-5 |
 | `libs/auth/feature-auth/src/lib/login/login.component.spec.ts` | 2026-11-11 | AC-1, AC-4, AC-5 |
 | `libs/auth/feature-auth/src/lib/register/register.component.ts` | 2026-11-11 | AC-3 |
@@ -328,4 +333,5 @@ export const appRoutes: Route[] = [
 | `libs/auth/feature-auth/src/lib/verify-email/verify-email.component.spec.ts` | 2026-11-11 | AC-3 |
 | `apps/budget-fort/src/app/app.routes.ts` | 2026-11-11 | AC-6, AC-7 |
 | `libs/transaction/src/lib/ui-transaction/src/lib/ui-transaction/transaction-navigation-drawer.component.ts` | 2026-11-11 | AC-8 |
+| `libs/transaction/src/lib/ui-transaction/src/lib/ui-transaction/transaction-header-toolbar.component.ts` | 2026-11-11 | AC-8 |
 | `apps/budget-fort-e2e/src/auth.spec.ts` | 2026-11-11 | AC-3, AC-5, AC-6, AC-8 |

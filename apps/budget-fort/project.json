@@ -39,6 +39,12 @@
       },
       "configurations": {
         "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/budget-fort/src/environments/environment.ts",
+              "with": "apps/budget-fort/src/environments/environment.prod.ts"
+            }
+          ],
           "localize": ["pl"],
           "baseHref": "/",
           "budgets": [
@@ -56,6 +62,12 @@
           "outputHashing": "all"
         },
         "production-en": {
+          "fileReplacements": [
+            {
+              "replace": "apps/budget-fort/src/environments/environment.ts",
+              "with": "apps/budget-fort/src/environments/environment.prod.ts"
+            }
+          ],
           "localize": ["en"],
           "baseHref": "/",
           "budgets": [
@@ -73,12 +85,24 @@
           "outputHashing": "all"
         },
         "development": {
+          "fileReplacements": [
+            {
+              "replace": "apps/budget-fort/src/environments/environment.ts",
+              "with": "apps/budget-fort/src/environments/environment.dev.ts"
+            }
+          ],
           "localize": ["pl"],
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
         },
         "development-en": {
+          "fileReplacements": [
+            {
+              "replace": "apps/budget-fort/src/environments/environment.ts",
+              "with": "apps/budget-fort/src/environments/environment.dev.ts"
+            }
+          ],
           "localize": ["en"],
           "optimization": false,
           "extractLicenses": false,

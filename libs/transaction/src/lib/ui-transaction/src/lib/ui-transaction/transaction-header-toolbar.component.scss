@@ -37,3 +37,12 @@
   letter-spacing: -0.01em;
   text-transform: capitalize;
 }
+
+.transaction-header-toolbar__logout-btn {
+  flex-shrink: 0;
+}
+
+.transaction-header-toolbar__logout-icon {
+  color: var(--mat-sys-on-surface, #1a1a1a);
+  opacity: 0.85;
+}

@@ -1,7 +1,7 @@
 // spec: docs/specs/auth/01-firebase-authentication.md
 
 import { inject, Injectable, InjectionToken } from '@angular/core';
-import { getApps, initializeApp, getApp } from 'firebase/app';
+import { getApps } from 'firebase/app';
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -24,23 +24,16 @@ export const FIREBASE_AUTH = new InjectionToken<Auth>('FIREBASE_AUTH', {
       return undefined as unknown as Auth;
     }
     const apps = getApps();
-    const app =
-      apps.length > 0
-        ? getApp()
-        : initializeApp({
-            apiKey: 'AIzaSyCf4ha6NwoZsba0XZqaiycvRmNCDRdv0OE',
-            authDomain: 'budget-fort-pwa.firebaseapp.com',
-            projectId: 'budget-fort-pwa',
-            storageBucket: 'budget-fort-pwa.firebasestorage.app',
-            messagingSenderId: '490159735458',
-            appId: '1:490159735458:web:51eb5955831739c8974dfb',
-            measurementId: 'G-JK30Z36SB3',
-          });
-    return getAuth(app);
+    if (apps.length > 0) {
+      return getAuth(apps[0]);
+    }
+    return undefined as unknown as Auth;
   },
 });
 
 export const GUEST_MODE_STORAGE_KEY = 'bf_guest_mode';
+
+const AUTH_UNAVAILABLE_ERROR = 'Usługa uwierzytelniania jest obecnie niedostępna.';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -83,7 +76,7 @@ export class AuthService {
     }
 
     if (!this.auth) {
-      // Jeśli brak instancji Firebase Auth (np. w środowisku testowym bez providera)
+      // If Firebase Auth instance is not available (e.g. test environment without provider)
       this.authState.setUnauthenticated();
       this._authReadyResolve();
       return;
@@ -94,15 +87,15 @@ export class AuthService {
       (user: User | null) => {
         if (user) {
           const isGoogleUser = user.providerData.some((p) => p.providerId === 'google.com');
-          // Konto Google lub zweryfikowany email
+          // Google account or verified email
           if (user.emailVerified || isGoogleUser) {
             this.authState.setAuthenticated(this.mapFirebaseUser(user));
           } else {
-            // Email nie został jeszcze potwierdzony
+            // Email address is not verified yet
             this.authState.setUnauthenticated('Wymagana weryfikacja adresu email.');
           }
         } else {
-          // Sprawdź czy użytkownik nie wybrał w międzyczasie trybu gościa
+          // Check if guest mode was selected in the meantime
           const isGuest =
             typeof window !== 'undefined' &&
             localStorage.getItem(GUEST_MODE_STORAGE_KEY) === 'true';
@@ -123,7 +116,8 @@ export class AuthService {
 
   async loginWithEmail(credentials: LoginCredentials): Promise<void> {
     if (!this.auth) {
-      throw new Error('Firebase Auth is not available');
+      this.authState.setError(AUTH_UNAVAILABLE_ERROR);
+      throw new Error(AUTH_UNAVAILABLE_ERROR);
     }
     this.authState.setLoading(true);
     this.authState.clearError();
@@ -155,7 +149,8 @@ export class AuthService {
 
   async registerWithEmail(credentials: RegisterCredentials): Promise<void> {
     if (!this.auth) {
-      throw new Error('Firebase Auth is not available');
+      this.authState.setError(AUTH_UNAVAILABLE_ERROR);
+      throw new Error(AUTH_UNAVAILABLE_ERROR);
     }
     this.authState.setLoading(true);
     this.authState.clearError();
@@ -167,10 +162,10 @@ export class AuthService {
         credentials.password,
       );
 
-      // Wyślij link weryfikacyjny natychmiast po rejestracji
+      // Send verification link immediately after registration
       await sendEmailVerification(userCredential.user);
 
-      // Wyloguj tymczasową sesję do czasu potwierdzenia maila
+      // Sign out temporary session until email is verified
       await signOut(this.auth);
       this.clearGuestFlag();
       this.authState.setUnauthenticated();
@@ -184,7 +179,8 @@ export class AuthService {
 
   async loginWithGoogle(): Promise<void> {
     if (!this.auth) {
-      throw new Error('Firebase Auth is not available');
+      this.authState.setError(AUTH_UNAVAILABLE_ERROR);
+      throw new Error(AUTH_UNAVAILABLE_ERROR);
     }
     this.authState.setLoading(true);
     this.authState.clearError();
@@ -222,7 +218,7 @@ export class AuthService {
       try {
         await signOut(this.auth);
       } catch {
-        // Ignoruj ewentualne błędy wylogowania Firebase
+        // Ignore potential Firebase sign-out errors
       }
     }
     this.authState.setUnauthenticated();

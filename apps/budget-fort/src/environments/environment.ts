@@ -1,14 +1,11 @@
 // spec: (Firebase SDK integration for deployment & backend services)
 
 /**
- * Production Firebase configuration.
- *
- * UWAGA: apiKey Firebase NIE jest sekretem — identyfikuje projekt w Google Cloud,
- * nie służy do autoryzacji. Bezpieczeństwo zapewniają Firebase Security Rules.
- * @see https://firebase.google.com/docs/projects/api-keys
+ * Local / default Firebase configuration.
+ * For local development overrides, use .env-local or update these values.
  */
 export const environment = {
-  production: true,
+  production: false,
   firebase: {
     apiKey: 'AIzaSyCf4ha6NwoZsba0XZqaiycvRmNCDRdv0OE',
     authDomain: 'budget-fort-pwa.firebaseapp.com',

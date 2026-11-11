@@ -1,0 +1,127 @@
+// spec: docs/specs/auth/01-firebase-authentication.md
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.bf-auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  background-color: var(--mat-app-background-color, #f8fafc);
+  box-sizing: border-box;
+
+  &--has-bg {
+    background-image:
+      radial-gradient(circle at 50% 20%, rgb(255 255 255 / 0.94) 0%, rgb(241 245 249 / 0.96) 100%),
+      url('/images/login-screen-logo.png');
+    background-repeat: no-repeat;
+    background-position: center 15%;
+    background-size: 200px auto;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px 16px;
+    border-radius: 16px;
+    background-color: var(--mat-sys-surface, #ffffff);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.08);
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 24px;
+    width: 100%;
+  }
+
+  &__logo-img-box {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__logo-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    border-radius: 16px;
+    filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.1));
+  }
+
+  &__logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 8px;
+    width: 100%;
+    text-align: center;
+  }
+
+  &__logo-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__logo-title {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--mat-sys-primary, #1e40af);
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+    color: var(--mat-sys-on-surface-variant, #64748b);
+    width: 100%;
+  }
+
+  &__content {
+    padding: 0;
+  }
+
+  &__progress {
+    margin-bottom: 16px;
+    border-radius: 4px;
+  }
+
+  &__error-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background-color: var(--mat-sys-error-container, #fee2e2);
+    color: var(--mat-sys-on-error-container, #991b1b);
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+
+  &__error-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}

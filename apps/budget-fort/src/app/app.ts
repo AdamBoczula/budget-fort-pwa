@@ -1,16 +1,55 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+  RouterModule,
+} from '@angular/router';
+import { SplashComponent } from './splash/splash.component';
 
 type ThemeMode = 'light' | 'dark';
 
 @Component({
-  imports: [RouterModule],
+  imports: [RouterModule, SplashComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App implements OnInit {
+  private readonly router = inject(Router, { optional: true });
+  protected readonly isInitialLoading = signal<boolean>(false);
+  private initialDataLoaded = false;
   protected currentTheme = signal<ThemeMode>('light');
+
+  constructor() {
+    this.router?.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        const isAuthRoute = event.url.startsWith('/auth');
+        if (isAuthRoute) {
+          // If navigating to /auth (e.g. logout), reset the initialDataLoaded flag
+          this.initialDataLoaded = false;
+          this.isInitialLoading.set(false);
+        } else if (!this.initialDataLoaded) {
+          // First entry / post-login data loading: show the landing splash screen
+          this.isInitialLoading.set(true);
+        }
+      } else if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        if (event instanceof NavigationEnd) {
+          const isAuthRoute = event.urlAfterRedirects.startsWith('/auth');
+          if (!isAuthRoute) {
+            this.initialDataLoaded = true;
+          }
+        }
+        this.isInitialLoading.set(false);
+      }
+    });
+  }
 
   ngOnInit(): void {
     const preferredTheme = this.getInitialTheme();
@@ -18,8 +57,7 @@ export class App implements OnInit {
   }
 
   protected toggleTheme(): void {
-    const nextTheme: ThemeMode =
-      this.currentTheme() === 'light' ? 'dark' : 'light';
+    const nextTheme: ThemeMode = this.currentTheme() === 'light' ? 'dark' : 'light';
     this.setTheme(nextTheme);
   }
 
@@ -33,9 +71,7 @@ export class App implements OnInit {
       return storedTheme;
     }
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 
   private setTheme(theme: ThemeMode): void {

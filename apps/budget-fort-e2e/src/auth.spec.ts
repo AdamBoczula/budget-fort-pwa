@@ -78,4 +78,21 @@ test.describe('Authentication & Route Guard Flow', () => {
     // Should redirect back to /auth/login
     await expect(page).toHaveURL(/\/auth\/login/);
   });
+
+  test('Header toolbar logout button redirects back to /auth/login', async ({ page }) => {
+    await page.goto('/auth/login');
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+
+    await page.locator('.bf-auth-page__guest-btn').click();
+    await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 10000 });
+
+    // Click header logout button
+    const headerLogoutBtn = page.locator('.transaction-header-toolbar__logout-btn');
+    await expect(headerLogoutBtn).toBeVisible();
+    await headerLogoutBtn.click();
+
+    // Should redirect back to /auth/login
+    await expect(page).toHaveURL(/\/auth\/login/);
+  });
 });

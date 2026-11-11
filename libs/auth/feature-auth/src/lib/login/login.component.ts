@@ -2,155 +2,125 @@
 
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AuthService } from '@data-access-auth';
 import { GoogleSignInButtonComponent } from '@ui-auth';
+import { AuthContainerComponent } from '../container/auth-container.component';
+import { AuthScreenStateService } from '../services/auth-screen-state.service';
 
 @Component({
   selector: 'auth-login',
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
     GoogleSignInButtonComponent,
+    AuthContainerComponent,
   ],
   template: `
-    <div class="bf-auth-page">
-      <mat-card class="bf-auth-page__card">
-        <mat-card-header class="bf-auth-page__header">
-          <mat-card-title class="bf-auth-page__logo">
-            <mat-icon color="primary">account_balance_wallet</mat-icon>
-            Budget Fort
-          </mat-card-title>
-          <mat-card-subtitle class="bf-auth-page__subtitle" i18n="@@auth.loginSubtitle">
-            Zaloguj się, aby zarządzać swoim budżetem
-          </mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          @if (authService.isLoading()) {
-            <mat-progress-bar
-              mode="indeterminate"
-              class="bf-auth-page__progress"
-            ></mat-progress-bar>
+    <auth-container
+      title="Budget Fort"
+      subtitle="Zaloguj się, aby zarządzać swoim budżetem"
+      i18n-subtitle="@@auth.loginSubtitle"
+      logoImage="images/login-screen-logo.png"
+      backgroundImage="images/login-screen-logo.png"
+      [loading]="screenState.isLoading()"
+      [errorMessage]="screenState.errorMessage()"
+    >
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="bf-login-form">
+        <mat-form-field appearance="outline" class="bf-login-form__field">
+          <mat-label i18n="@@auth.emailLabel">Adres email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="twoj@email.com"
+            autocomplete="email"
+          />
+          @if (loginForm.controls.email.hasError('required') && loginForm.controls.email.touched) {
+            <mat-error i18n="@@auth.emailRequired">Adres email jest wymagany</mat-error>
           }
-
-          @if (authService.errorMessage()) {
-            <div class="bf-auth-page__error-alert" role="alert">
-              <mat-icon>error_outline</mat-icon>
-              <span>{{ authService.errorMessage() }}</span>
-            </div>
+          @if (loginForm.controls.email.hasError('email') && loginForm.controls.email.touched) {
+            <mat-error i18n="@@auth.emailInvalid">Wprowadź poprawny adres email</mat-error>
           }
+        </mat-form-field>
 
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="bf-auth-page__form">
-            <mat-form-field appearance="outline" class="bf-auth-page__field">
-              <mat-label i18n="@@auth.emailLabel">Adres email</mat-label>
-              <input
-                matInput
-                type="email"
-                formControlName="email"
-                placeholder="twoj@email.com"
-                autocomplete="email"
-              />
-              @if (
-                loginForm.controls.email.hasError('required') && loginForm.controls.email.touched
-              ) {
-                <mat-error i18n="@@auth.emailRequired">Adres email jest wymagany</mat-error>
-              }
-              @if (loginForm.controls.email.hasError('email') && loginForm.controls.email.touched) {
-                <mat-error i18n="@@auth.emailInvalid">Wprowadź poprawny adres email</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="bf-auth-page__field">
-              <mat-label i18n="@@auth.passwordLabel">Hasło</mat-label>
-              <input
-                matInput
-                [type]="hidePassword ? 'password' : 'text'"
-                formControlName="password"
-                autocomplete="current-password"
-              />
-              <button
-                mat-icon-button
-                matSuffix
-                type="button"
-                (click)="hidePassword = !hidePassword"
-                [attr.aria-label]="'Przełącz widoczność hasła'"
-              >
-                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-              @if (
-                loginForm.controls.password.hasError('required') &&
-                loginForm.controls.password.touched
-              ) {
-                <mat-error i18n="@@auth.passwordRequired">Hasło jest wymagane</mat-error>
-              }
-            </mat-form-field>
-
-            <button
-              mat-flat-button
-              color="primary"
-              type="submit"
-              class="bf-auth-page__submit"
-              [disabled]="loginForm.invalid || authService.isLoading()"
-              i18n="@@auth.signInButton"
-            >
-              Zaloguj się
-            </button>
-          </form>
-
-          <div class="bf-auth-page__divider">
-            <span i18n="@@auth.orDivider">lub</span>
-          </div>
-
-          <auth-google-sign-in-button
-            [loading]="authService.isLoading()"
-            (clicked)="onGoogleSignIn()"
-          ></auth-google-sign-in-button>
-
-          <div class="bf-auth-page__divider">
-            <span i18n="@@auth.orDivider">lub</span>
-          </div>
-
+        <mat-form-field appearance="outline" class="bf-login-form__field">
+          <mat-label i18n="@@auth.passwordLabel">Hasło</mat-label>
+          <input
+            matInput
+            [type]="screenState.hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
           <button
-            mat-stroked-button
+            mat-icon-button
+            matSuffix
             type="button"
-            class="bf-auth-page__guest-btn"
-            [disabled]="authService.isLoading()"
-            (click)="onGuestMode()"
-            i18n="@@auth.guestButton"
+            (click)="screenState.togglePasswordVisibility()"
+            [attr.aria-label]="'Przełącz widoczność hasła'"
           >
-            Używaj lokalnie (bez logowania)
+            <mat-icon>{{ screenState.hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
+          @if (
+            loginForm.controls.password.hasError('required') && loginForm.controls.password.touched
+          ) {
+            <mat-error i18n="@@auth.passwordRequired">Hasło jest wymagane</mat-error>
+          }
+        </mat-form-field>
 
-          <div class="bf-auth-page__footer">
-            <span i18n="@@auth.noAccountPrompt">Nie masz konta? </span>
-            <a routerLink="/auth/register" i18n="@@auth.registerLink">Zarejestruj się</a>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="bf-login-form__submit"
+          [disabled]="loginForm.invalid || screenState.isLoading()"
+          i18n="@@auth.loginButton"
+        >
+          Zaloguj się
+        </button>
+      </form>
+
+      <div class="bf-login-form__divider">
+        <span i18n="@@auth.orDivider">lub</span>
+      </div>
+
+      <auth-google-sign-in-button
+        [loading]="screenState.isLoading()"
+        (clicked)="onGoogleSignIn()"
+      ></auth-google-sign-in-button>
+
+      <div class="bf-login-form__divider">
+        <span i18n="@@auth.orDivider">lub</span>
+      </div>
+
+      <button
+        mat-stroked-button
+        type="button"
+        class="bf-login-form__guest-btn bf-auth-page__guest-btn"
+        (click)="onContinueAsGuest()"
+        i18n="@@auth.continueAsGuest"
+      >
+        Używaj lokalnie (bez logowania)
+      </button>
+
+      <div class="bf-login-form__footer">
+        <span i18n="@@auth.dontHaveAccount">Nie masz konta?</span>
+        <a routerLink="/auth/register" i18n="@@auth.goToRegister"> Zarejestruj się</a>
+      </div>
+    </auth-container>
   `,
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
-  readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  hidePassword = true;
+  readonly screenState = inject(AuthScreenStateService);
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -162,31 +132,19 @@ export class LoginComponent {
       this.loginForm.markAllAsTouched();
       return;
     }
-
-    try {
-      await this.authService.loginWithEmail(this.loginForm.getRawValue());
-      this.navigateAfterLogin();
-    } catch {
-      // Błąd jest już obsłużony i widoczny w authService.errorMessage()
-    }
+    const { email, password } = this.loginForm.getRawValue();
+    await this.screenState.loginWithEmail(email, password);
   }
 
   async onGoogleSignIn(): Promise<void> {
-    try {
-      await this.authService.loginWithGoogle();
-      this.navigateAfterLogin();
-    } catch {
-      // Błąd obsłużony w serwisie
-    }
+    await this.screenState.loginWithGoogle();
+  }
+
+  onContinueAsGuest(): void {
+    this.screenState.continueAsGuest();
   }
 
   onGuestMode(): void {
-    this.authService.continueAsGuest();
-    this.navigateAfterLogin();
-  }
-
-  private navigateAfterLogin(): void {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
-    this.router.navigateByUrl(returnUrl);
+    this.onContinueAsGuest();
   }
 }
