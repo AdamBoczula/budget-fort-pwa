@@ -2,6 +2,7 @@
 // Tests for flat sidebar navigation menu
 
 import { test, expect, Page } from '@playwright/test';
+import { setGuestMode } from './utils/auth-e2e-utils';
 
 /**
  * Open the navigation drawer by clicking the hamburger menu button in the toolbar.
@@ -16,6 +17,7 @@ async function openNavigationDrawer(page: Page): Promise<void> {
 
 test.describe('Navigation Menu – flat sidebar', () => {
   test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({
       timeout: 5000,

@@ -1,0 +1,93 @@
+// spec: docs/specs/auth/01-firebase-authentication.md
+
+.bf-auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  background-color: var(--mat-app-background-color, #f8fafc);
+  box-sizing: border-box;
+
+  &__card {
+    width: 100%;
+    max-width: 420px;
+    padding: 16px 8px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.08);
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--mat-sys-primary, #1e40af);
+    margin-bottom: 8px;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--mat-sys-on-surface-variant, #64748b);
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  &__submit {
+    height: 44px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  &__footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--mat-sys-on-surface-variant, #64748b);
+
+    a {
+      color: var(--mat-sys-primary, #2563eb);
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__error-alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    background-color: var(--mat-sys-error-container, #fee2e2);
+    color: var(--mat-sys-on-error-container, #991b1b);
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__progress {
+    margin-bottom: 16px;
+    border-radius: 4px;
+  }
+}

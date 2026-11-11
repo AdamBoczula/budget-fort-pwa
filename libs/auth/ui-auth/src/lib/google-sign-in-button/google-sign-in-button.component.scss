@@ -1,0 +1,26 @@
+// spec: docs/specs/auth/01-firebase-authentication.md
+
+.bf-google-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 44px;
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+
+  &__icon {
+    flex-shrink: 0;
+    display: block;
+  }
+
+  &__spinner {
+    display: inline-block;
+  }
+
+  &__text {
+    font-size: 14px;
+  }
+}

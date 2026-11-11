@@ -1,0 +1,71 @@
+// spec: docs/specs/auth/01-firebase-authentication.md
+
+.bf-auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  background-color: var(--mat-app-background-color, #f8fafc);
+  box-sizing: border-box;
+
+  &__card {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px 12px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.08);
+    text-align: center;
+  }
+
+  &__icon-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  &__icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: var(--mat-sys-primary, #2563eb);
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--mat-sys-on-surface, #1e293b);
+  }
+
+  &__description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--mat-sys-on-surface-variant, #64748b);
+    margin-bottom: 24px;
+
+    strong {
+      color: var(--mat-sys-on-surface, #1e293b);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__btn {
+    height: 44px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__status-msg {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--mat-sys-primary, #16a34a);
+    font-weight: 500;
+  }
+}

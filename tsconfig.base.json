@@ -25,7 +25,10 @@
       "@currency": ["./libs/shared/currency/src/index.ts"],
       "@data-access-budget": ["./libs/budget/data-access-budget/src/index.ts"],
       "@ui-budget": ["./libs/budget/ui-budget/src/index.ts"],
-      "@feature-budget": ["./libs/budget/feature-budget/src/index.ts"]
+      "@feature-budget": ["./libs/budget/feature-budget/src/index.ts"],
+      "@data-access-auth": ["./libs/auth/data-access-auth/src/index.ts"],
+      "@ui-auth": ["./libs/auth/ui-auth/src/index.ts"],
+      "@feature-auth": ["./libs/auth/feature-auth/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

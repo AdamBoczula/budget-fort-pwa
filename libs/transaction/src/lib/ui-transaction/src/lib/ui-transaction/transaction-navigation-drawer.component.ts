@@ -4,7 +4,8 @@ import { Component, inject, LOCALE_ID, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '@data-access-auth';
 
 export type TransactionThemeId = 'azure-blue' | 'rose-red' | 'magenta-violet' | 'cyan-orange';
 
@@ -51,11 +52,20 @@ type MenuItem = {
         </a>
       }
     </mat-nav-list>
+
+    <div class="drawer-footer">
+      <button type="button" mat-button class="logout-btn" (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span i18n="@@navigation.logout">Wyloguj</span>
+      </button>
+    </div>
   `,
   styleUrl: './transaction-navigation-drawer.component.scss',
 })
 export class TransactionNavigationDrawerComponent {
   private readonly localeId = inject(LOCALE_ID);
+  private readonly authService = inject(AuthService, { optional: true });
+  private readonly router = inject(Router, { optional: true });
 
   protected readonly menuItems: ReadonlyArray<MenuItem> = this.createMenuItems();
 
@@ -63,6 +73,14 @@ export class TransactionNavigationDrawerComponent {
 
   protected requestClose(): void {
     this.drawerClose.emit();
+  }
+
+  protected async onLogout(): Promise<void> {
+    this.requestClose();
+    if (this.authService) {
+      await this.authService.logout();
+    }
+    this.router?.navigate(['/auth/login']);
   }
 
   private createMenuItems(): ReadonlyArray<MenuItem> {

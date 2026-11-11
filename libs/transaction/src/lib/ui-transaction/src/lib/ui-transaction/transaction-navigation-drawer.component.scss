@@ -40,3 +40,18 @@
     gap: 8px;
   }
 }
+
+.drawer-footer {
+  margin-top: auto;
+  padding: 1rem;
+  border-top: 1px solid var(--app-color-outline, rgb(148 163 184 / 0.2));
+
+  .logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    color: var(--mat-sys-error, #dc2626);
+  }
+}

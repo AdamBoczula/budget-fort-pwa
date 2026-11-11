@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { setGuestMode } from './utils/auth-e2e-utils';
 import { seedCurrentMonthTransactions } from './utils/seed-transactions';
 
 type StoredCategory = {
@@ -45,6 +46,10 @@ async function getStoredCategories(page: Page): Promise<StoredCategory[]> {
 }
 
 test.describe('Categories initialization', () => {
+  test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
+  });
+
   test('should seed categories into IndexedDB on app startup', async ({ page }) => {
     await page.goto('/feature-transaction');
 

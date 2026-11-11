@@ -2,11 +2,13 @@
 // Updated for new budget UI (category limits drive overall budget)
 
 import { test, expect } from '@playwright/test';
+import { setGuestMode } from './utils/auth-e2e-utils';
 import { seedCategoryBudget, clearBudgetData, clearTransactions } from './utils/seed-budget';
 import { seedCurrentMonthTransactions } from './utils/seed-transactions';
 
 test.describe('Budget – set overall budget', () => {
   test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({
       timeout: 5000,
@@ -143,6 +145,7 @@ test.describe('Budget – set overall budget', () => {
 
 test.describe('Budget – category limits', () => {
   test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({
       timeout: 5000,
@@ -307,6 +310,7 @@ test.describe('Budget – category limits', () => {
 
 test.describe('Budget – progress colors', () => {
   test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({
       timeout: 5000,
@@ -456,6 +460,7 @@ test.describe('Budget – progress colors', () => {
 
 test.describe('Budget – income excluded', () => {
   test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({
       timeout: 5000,

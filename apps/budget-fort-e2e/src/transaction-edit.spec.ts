@@ -1,7 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { setGuestMode } from './utils/auth-e2e-utils';
 import { seedCurrentMonthTransactions } from './utils/seed-transactions';
 
 test.describe('Transaction edit dirty check', () => {
+  test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
+  });
+
   test('should disable save button until a change is made', async ({ page }) => {
     await page.goto('/feature-transaction');
     await expect(page.locator('.categories-quick-add__grid')).toBeVisible({ timeout: 5000 });

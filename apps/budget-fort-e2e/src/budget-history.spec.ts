@@ -2,9 +2,11 @@
 // Tests for budget history browsing (DashboardPeriodSelector, read-only mode for past periods)
 
 import { test, expect } from '@playwright/test';
+import { setGuestMode } from './utils/auth-e2e-utils';
 
 test.describe('Budget History – period selector and read-only mode', () => {
   test.beforeEach(async ({ page }) => {
+    await setGuestMode(page);
     await page.goto('/budget');
     // Wait for either the budget page or a redirect
     await page.waitForLoadState('domcontentloaded');

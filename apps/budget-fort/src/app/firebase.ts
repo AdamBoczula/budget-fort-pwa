@@ -2,10 +2,12 @@
 
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAnalytics, type Analytics } from 'firebase/analytics';
+import { getAuth, type Auth } from 'firebase/auth';
 import { environment } from '../environments/environment';
 
 let _app: FirebaseApp | undefined;
 let _analytics: Analytics | undefined;
+let _auth: Auth | undefined;
 
 /** Lazy-initialize Firebase. Wywołaj przed użyciem jakiejkolwiek usługi Firebase. */
 export function firebaseApp(): FirebaseApp {
@@ -24,4 +26,12 @@ export function firebaseAnalytics(): Analytics | undefined {
     _analytics = getAnalytics(firebaseApp());
   }
   return _analytics;
+}
+
+/** Firebase Auth — inicjalizowane leniwie. */
+export function firebaseAuth(): Auth {
+  if (!_auth) {
+    _auth = getAuth(firebaseApp());
+  }
+  return _auth;
 }
