@@ -102,3 +102,31 @@ jobs:
 
       - name: Run E2E tests
         run: npx nx run-many -t e2e
+
+  deploy:
+    name: Deploy to Firebase Hosting
+    needs: [lint, unit-tests, build, e2e]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for Firebase
+        run: npm run build:firebase
+
+      - name: Deploy to Firebase Hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: npx --yes firebase-tools deploy --only hosting --token "${FIREBASE_TOKEN}"
