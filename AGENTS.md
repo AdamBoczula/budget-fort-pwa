@@ -163,6 +163,7 @@ npm exec nx e2e budget-fort-e2e --skip-nx-cache             # 5 e2e tests
 
 ## Critical Guardrails
 
+- **File naming:** All file names, directory names, spec documents, and documentation files across the entire repository MUST be in English only (e.g. `data-export-import.md`, not `eksport-import-danych.md`).
 - **Money logic** must live in dedicated pure utility functions (no external money library for MVP). Round half-up to 2 decimals for display; keep raw values for intermediate calculations.
 - **Timezone:** canonical reporting timezone is `Europe/Warsaw`. Centralize all month/year boundary calculations in one utility layer.
 - **Offline/PWA:** transaction create/edit must work offline-first via IndexedDB. Protect these flows with tests.

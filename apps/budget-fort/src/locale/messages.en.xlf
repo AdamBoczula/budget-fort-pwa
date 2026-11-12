@@ -435,6 +435,86 @@
         <source> Zapisz </source>
         <target> Save </target>
       </trans-unit>
+      <trans-unit id="settings.backupSectionTitle" datatype="html">
+        <source>Kopia zapasowa i dane</source>
+        <target>Backup and Data</target>
+      </trans-unit>
+      <trans-unit id="settings.backupSectionDescription" datatype="html">
+        <source>Eksportuj swoje dane do pliku JSON, aby przenieść je na inne urządzenie lub przeglądarkę, albo przywróć dane z wcześniej utworzonej kopii zapasowej.</source>
+        <target>Export your data to a JSON file to transfer them to another device or browser, or restore data from a previous backup.</target>
+      </trans-unit>
+      <trans-unit id="settings.exportDataBtn" datatype="html">
+        <source>Eksportuj dane</source>
+        <target>Export data</target>
+      </trans-unit>
+      <trans-unit id="settings.importDataBtn" datatype="html">
+        <source>Importuj dane</source>
+        <target>Import data</target>
+      </trans-unit>
+      <trans-unit id="settings.exportSuccess" datatype="html">
+        <source>Kopia zapasowa została wyeksportowana</source>
+        <target>Backup has been exported</target>
+      </trans-unit>
+      <trans-unit id="settings.exportError" datatype="html">
+        <source>Wystąpił błąd podczas eksportowania danych</source>
+        <target>Error exporting data</target>
+      </trans-unit>
+      <trans-unit id="settings.invalidFile" datatype="html">
+        <source>Twój plik jest nieprawidłowy</source>
+        <target>Your file is invalid</target>
+      </trans-unit>
+      <trans-unit id="settings.invalidData" datatype="html">
+        <source>Błędne dane w pliku: <x id="PH" equiv-text="details"/></source>
+        <target>Invalid data in file: <x id="PH" equiv-text="details"/></target>
+      </trans-unit>
+      <trans-unit id="settings.restoreDialogTitle" datatype="html">
+        <source>Przywracanie kopii zapasowej</source>
+        <target>Restore backup</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreWarningText" datatype="html">
+        <source>Uwaga! Wszystkie obecne transakcje, kategorie i budżety zostaną bezpowrotnie usunięte i zastąpione zawartością pliku.</source>
+        <target>Warning! All current transactions, categories, and budgets will be permanently deleted and replaced with the file content.</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreSummaryTitle" datatype="html">
+        <source>Zawartość pliku do zaimportowania:</source>
+        <target>Content of file to import:</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreTransactionsCount" datatype="html">
+        <source>Transakcje:</source>
+        <target>Transactions:</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreCategoriesCount" datatype="html">
+        <source>Kategorie i podkategorie:</source>
+        <target>Categories and subcategories:</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreBudgetsCount" datatype="html">
+        <source>Budżety i limity:</source>
+        <target>Budgets and limits:</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreInstruction" datatype="html">
+        <source>Aby potwierdzić operację, wpisz poniżej:</source>
+        <target>To confirm the operation, type below:</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreInputLabel" datatype="html">
+        <source>Wpisz frazę potwierdzającą</source>
+        <target>Enter confirmation phrase</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreCancelBtn" datatype="html">
+        <source>Anuluj</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreSubmitBtn" datatype="html">
+        <source>Potwierdź i przywróć</source>
+        <target>Confirm and restore</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreSuccess" datatype="html">
+        <source>Dane zostały pomyślnie przywrócone</source>
+        <target>Data has been successfully restored</target>
+      </trans-unit>
+      <trans-unit id="settings.restoreError" datatype="html">
+        <source>Wystąpił błąd podczas przywracania danych</source>
+        <target>Error restoring data</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

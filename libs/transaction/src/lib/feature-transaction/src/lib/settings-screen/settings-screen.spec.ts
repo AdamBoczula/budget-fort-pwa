@@ -7,7 +7,7 @@ import {
   Category,
   Subcategory,
 } from '@data-access-transaction';
-import { LocalStorageService } from 'local-db';
+import { LocalStorageService, BackupRestoreService } from 'local-db';
 import { SettingsPageScreen } from './settings-screen';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -79,6 +79,13 @@ describe('SettingsPageScreen (integration)', () => {
     setItem: vi.fn(),
   };
 
+  const backupRestoreServiceMock = {
+    exportBackup: vi.fn(),
+    downloadBackupFile: vi.fn(),
+    validateBackupFile: vi.fn(),
+    restoreBackup: vi.fn(),
+  };
+
   beforeEach(async () => {
     vi.clearAllMocks();
     localStorageMock.getItem.mockReturnValue(null);
@@ -91,15 +98,17 @@ describe('SettingsPageScreen (integration)', () => {
         { provide: CategoryService, useValue: categoryServiceMock },
         { provide: SubcategoryService, useValue: subcategoryServiceMock },
         { provide: LocalStorageService, useValue: localStorageMock },
+        { provide: BackupRestoreService, useValue: backupRestoreServiceMock },
       ],
     }).compileComponents();
   });
 
-  it('should render all three section titles', async () => {
+  it('should render all section titles including backup', async () => {
     await render(SettingsPageScreen);
     expect(screen.getByText('Kategorie i podkategorie')).toBeDefined();
     expect(screen.getByText('Motyw kolorystyczny')).toBeDefined();
     expect(screen.getByText('Waluta')).toBeDefined();
+    expect(screen.getByText('Kopia zapasowa i dane')).toBeDefined();
   });
 
   it('should display visible categories (excluding hidden)', async () => {

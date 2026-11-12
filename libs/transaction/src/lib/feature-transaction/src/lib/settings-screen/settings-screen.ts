@@ -5,6 +5,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { SettingsCategoriesSectionComponent } from './settings-categories-section/settings-categories-section';
 import { SettingsThemeSelectorComponent } from './settings-theme-selector/settings-theme-selector';
 import { SettingsCurrencySelectorComponent } from './settings-currency-selector/settings-currency-selector';
+import { SettingsBackupSectionComponent } from './settings-backup-section/settings-backup-section.component';
 
 @Component({
   selector: 'transaction-settings-screen',
@@ -13,6 +14,7 @@ import { SettingsCurrencySelectorComponent } from './settings-currency-selector/
     SettingsCategoriesSectionComponent,
     SettingsThemeSelectorComponent,
     SettingsCurrencySelectorComponent,
+    SettingsBackupSectionComponent,
   ],
   template: `
     <div class="settings-page">
@@ -21,6 +23,8 @@ import { SettingsCurrencySelectorComponent } from './settings-currency-selector/
       <transaction-settings-theme-selector />
       <mat-divider />
       <transaction-settings-currency-selector />
+      <mat-divider />
+      <transaction-settings-backup-section />
     </div>
   `,
   styleUrl: './settings-screen.scss',
