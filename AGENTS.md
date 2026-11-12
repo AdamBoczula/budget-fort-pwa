@@ -31,17 +31,17 @@ This is monorepo of PWA application - for home budget app.
 
 ### Active Projects
 
-| Project | Purpose |
-| ------- | ------- |
-| `apps/budget-fort` | Angular home-budget PWA (main application) |
-| `apps/budget-fort-e2e` | Playwright e2e tests |
-| `libs/transaction/feature-transaction` (`@feature-transaction`) | Transaction feature (Home screen, quick add, last transactions) |
-| `libs/transaction/data-access-transaction` (`@data-access-transaction`) | Transaction data access (IndexedDB CRUD) |
-| `libs/transaction/ui-transaction` (`@ui-transaction`) | Transaction UI components |
-| `libs/budget/feature-budget` (`@feature-budget`) | Budget feature (settings, planning, aggregation) |
-| `libs/budget/data-access-budget` (`@data-access-budget`) | Budget data access (CRUD) |
-| `libs/budget/ui-budget` (`@ui-budget`) | Budget UI components (progress bar, period utils) |
-| `libs/shared/local-db` (`local-db`) | Shared local persistence (Dexie/IndexedDB) |
+| Project                                                                 | Purpose                                                         |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `apps/budget-fort`                                                      | Angular home-budget PWA (main application)                      |
+| `apps/budget-fort-e2e`                                                  | Playwright e2e tests                                            |
+| `libs/transaction/feature-transaction` (`@feature-transaction`)         | Transaction feature (Home screen, quick add, last transactions) |
+| `libs/transaction/data-access-transaction` (`@data-access-transaction`) | Transaction data access (IndexedDB CRUD)                        |
+| `libs/transaction/ui-transaction` (`@ui-transaction`)                   | Transaction UI components                                       |
+| `libs/budget/feature-budget` (`@feature-budget`)                        | Budget feature (settings, planning, aggregation)                |
+| `libs/budget/data-access-budget` (`@data-access-budget`)                | Budget data access (CRUD)                                       |
+| `libs/budget/ui-budget` (`@ui-budget`)                                  | Budget UI components (progress bar, period utils)               |
+| `libs/shared/local-db` (`local-db`)                                     | Shared local persistence (Dexie/IndexedDB)                      |
 
 > **Legacy:** `packages/**` (shop, api, models) is demo/template code and is **not** part of the active application. Do not build new features there.
 
@@ -54,12 +54,12 @@ The full workflow is defined in `docs/specs/01-spec-workflow.md`.
 
 The primary entry point for tasks is the **SDLC Orchestrator (Flash)**, which classifies the incoming request and dynamically routes it to the optimal minimal chain of agents:
 
-| Task Type | Use Case | Agent Chain |
-|-----------|----------|-------------|
-| **New Feature** | New screens, new domains | Orchestrator $\rightarrow$ BA $\rightarrow$ UI/UX Designer *(Argon)* $\rightarrow$ Architect *(Argon)* $\rightarrow$ Automation Tester $\rightarrow$ Senior Dev (TDD) $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
-| **Bugfix** | Bug fixes, regressions | Orchestrator $\rightarrow$ BA (reproduction) $\rightarrow$ Senior Dev (regression TDD + fix) $\rightarrow$ Reviewer $\rightarrow$ QA |
-| **Improvement** | UI polish, UX enhancements | Orchestrator $\rightarrow$ UI/UX Designer *(Argon)* $\rightarrow$ Senior Dev $\rightarrow$ Reviewer $\rightarrow$ QA (screenshots) |
-| **Technical Task** | Refactoring, Dexie DB migrations, CI/CD | Orchestrator $\rightarrow$ Architect *(Argon, if arch)* $\rightarrow$ Senior Dev $\rightarrow$ Security Guard $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
+| Task Type          | Use Case                                | Agent Chain                                                                                                                                                                                                                        |
+| ------------------ | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **New Feature**    | New screens, new domains                | Orchestrator $\rightarrow$ BA $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Architect _(Argon)_ $\rightarrow$ Automation Tester $\rightarrow$ Senior Dev (TDD) $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
+| **Bugfix**         | Bug fixes, regressions                  | Orchestrator $\rightarrow$ BA (reproduction) $\rightarrow$ Senior Dev (regression TDD + fix) $\rightarrow$ Reviewer $\rightarrow$ QA                                                                                               |
+| **Improvement**    | UI polish, UX enhancements              | Orchestrator $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Senior Dev $\rightarrow$ Reviewer $\rightarrow$ QA (screenshots)                                                                                                 |
+| **Technical Task** | Refactoring, Dexie DB migrations, CI/CD | Orchestrator $\rightarrow$ Architect _(Argon, if arch)_ $\rightarrow$ Senior Dev $\rightarrow$ Security Guard $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps                                                         |
 
 Models: **Argon (Pro)** for Architect and UI/UX Designer; **Flash** for all other roles (Orchestrator, BA, Tester, Dev, Reviewer, QA, DevOps, Security).
 
@@ -97,6 +97,7 @@ npm exec nx affected -t lint test build e2e
 
 - Agents may update documentation without approval.
 - Agents must request approval before changing code or tests (unit/component/e2e).
+
 ## Mandatory Testing Workflow
 
 For **any** code change (new feature, refactor, bug fix), the agent MUST create or update tests **at the same time as the code change**, without waiting for user reminders. This applies to:
@@ -117,14 +118,14 @@ For **any** code change (new feature, refactor, bug fix), the agent MUST create 
 
 ### When to write each layer
 
-| Change type | Unit tests | Component tests | E2E tests |
-|-------------|-----------|-----------------|-----------|
-| New service / utility | ✅ Required | — | — |
-| New component | ✅ (class logic) | ✅ Required | — |
-| New feature / screen | ✅ | ✅ Required | ✅ (critical path) |
-| Bug fix | ✅ (regression) | ✅ (if component) | ✅ (if critical path) |
-| Refactor (no behavior change) | ✅ (existing must pass) | ✅ (existing must pass) | — |
-| Refactor (behavior changes) | ✅ Updated | ✅ Updated | ✅ Updated |
+| Change type                   | Unit tests              | Component tests         | E2E tests             |
+| ----------------------------- | ----------------------- | ----------------------- | --------------------- |
+| New service / utility         | ✅ Required             | —                       | —                     |
+| New component                 | ✅ (class logic)        | ✅ Required             | —                     |
+| New feature / screen          | ✅                      | ✅ Required             | ✅ (critical path)    |
+| Bug fix                       | ✅ (regression)         | ✅ (if component)       | ✅ (if critical path) |
+| Refactor (no behavior change) | ✅ (existing must pass) | ✅ (existing must pass) | —                     |
+| Refactor (behavior changes)   | ✅ Updated              | ✅ Updated              | ✅ Updated            |
 
 ### Testing patterns used in this project
 
@@ -144,6 +145,7 @@ npm exec nx affected -t lint test build e2e
 ```
 
 If the full suite is too slow for iteration, run project-specific tests first:
+
 ```bash
 npm exec nx test <project-name> --skip-nx-cache
 npm exec nx build <project-name> --skip-nx-cache
@@ -183,6 +185,7 @@ After the quality gate passes, you can trigger an automated UI/UX/Accessibility/
 ```
 
 This invokes the **QA Coordinator**, which spawns 4 subagents in parallel:
+
 - **UI Reviewer** — visual consistency, layout, typography, component states
 - **UX Analyzer** — user experience, Nielsen's heuristics, click efficiency
 - **A11y Auditor** — WCAG 2.1 AA, Axe-core, keyboard, ARIA, contrast
@@ -193,18 +196,18 @@ The review is **optional** — it does NOT block the pipeline. Results are saved
 
 ### MCP servers used by QA subagents
 
-| MCP Server | Purpose |
-|------------|---------|
-| Playwright MCP | Browser automation, navigation, screenshots, viewport resizing |
-| Chrome DevTools MCP | Axe-core audits, ARIA tree inspection, contrast checks |
-| GitHub MCP | Optional: create GitHub Issues from QA reports |
+| MCP Server          | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| Playwright MCP      | Browser automation, navigation, screenshots, viewport resizing |
+| Chrome DevTools MCP | Axe-core audits, ARIA tree inspection, contrast checks         |
+| GitHub MCP          | Optional: create GitHub Issues from QA reports                 |
 
 ### Agent roles
 
-| Agent | Target Model Profile | Why |
-|-------|----------------------|-----|
-| QA Coordinator | Pro / Complex reasoning | Orchestration, report merging, decision-making |
-| UI Reviewer | Flash / Fast multimodal | Visual analysis — doesn't need deep reasoning |
-| UX Analyzer | Flash / Fast | Heuristic evaluation — procedural task |
-| A11y Auditor | Flash / Fast | Audits are tool-driven, not reasoning-heavy |
-| Responsive Checker | Flash / Fast | Viewport testing is procedural |
+| Agent              | Target Model Profile    | Why                                            |
+| ------------------ | ----------------------- | ---------------------------------------------- |
+| QA Coordinator     | Pro / Complex reasoning | Orchestration, report merging, decision-making |
+| UI Reviewer        | Flash / Fast multimodal | Visual analysis — doesn't need deep reasoning  |
+| UX Analyzer        | Flash / Fast            | Heuristic evaluation — procedural task         |
+| A11y Auditor       | Flash / Fast            | Audits are tool-driven, not reasoning-heavy    |
+| Responsive Checker | Flash / Fast            | Viewport testing is procedural                 |

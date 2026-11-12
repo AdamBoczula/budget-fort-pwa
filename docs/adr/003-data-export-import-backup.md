@@ -15,8 +15,8 @@ Użytkownicy aplikacji Budget Fort (offline-first PWA opartej o IndexedDB i Loca
    - `local-db` jest centralną biblioteką danych, która posiada dostęp do tokenów wszystkich tabel Dexie (`transaction`, `category`, `subcategory`, `budget`, `categoryBudget`) oraz serwisu `LocalStorageService`.
    - Wykonywanie operacji odtworzenia w atomowej transakcji Dexie (`db.transaction('rw', ...)`).
 3. **Dwuetapowa walidacja:**
-   - Etap 1: Sprawdzenie poprawności parsowania JSON oraz obecności pól głównych koperty. Błąd: komunikat *„Twój plik jest nieprawidłowy”*.
-   - Etap 2: Sprawdzenie poprawności i kompletności rekordów encji. Błąd: komunikat *„Błędne dane w pliku: [szczegóły]”*.
+   - Etap 1: Sprawdzenie poprawności parsowania JSON oraz obecności pól głównych koperty. Błąd: komunikat _„Twój plik jest nieprawidłowy”_.
+   - Etap 2: Sprawdzenie poprawności i kompletności rekordów encji. Błąd: komunikat _„Błędne dane w pliku: [szczegóły]”_.
 4. **Bezpieczeństwo i potwierdzenie zastąpienia:**
    - Wyświetlenie modalu potwierdzenia z podsumowaniem importowanych rekordów.
    - Wymóg wpisania frazy (e-mail użytkownika lub `"użytkownik gość"` / `"guest user"`).
