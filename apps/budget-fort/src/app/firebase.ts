@@ -3,11 +3,13 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAnalytics, type Analytics } from 'firebase/analytics';
 import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 import { environment } from '../environments/environment';
 
 let _app: FirebaseApp | undefined;
 let _analytics: Analytics | undefined;
 let _auth: Auth | undefined;
+let _firestore: Firestore | undefined;
 
 /** Lazy-initialize Firebase. Wywołaj przed użyciem jakiejkolwiek usługi Firebase. */
 export function firebaseApp(): FirebaseApp {
@@ -34,4 +36,15 @@ export function firebaseAuth(): Auth {
     _auth = getAuth(firebaseApp());
   }
   return _auth;
+}
+
+/** Cloud Firestore — inicjalizowane leniwie. */
+export function firebaseFirestore(): Firestore | undefined {
+  if (typeof window === 'undefined') {
+    return undefined; // SSR-safe
+  }
+  if (!_firestore) {
+    _firestore = getFirestore(firebaseApp());
+  }
+  return _firestore;
 }

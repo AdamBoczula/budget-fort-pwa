@@ -515,6 +515,26 @@
         <source>Wystąpił błąd podczas przywracania danych</source>
         <target>Error restoring data</target>
       </trans-unit>
+      <trans-unit id="sync.synced" datatype="html">
+        <source>Wszystkie dane są zsynchronizowane z chmurą.</source>
+        <target>All data is synced with the cloud.</target>
+      </trans-unit>
+      <trans-unit id="sync.syncing" datatype="html">
+        <source>Trwa synchronizacja danych z chmurą...</source>
+        <target>Syncing data with the cloud...</target>
+      </trans-unit>
+      <trans-unit id="sync.offline" datatype="html">
+        <source>Jesteś offline. Dane są zapisywane lokalnie.</source>
+        <target>You are offline. Data is saved locally.</target>
+      </trans-unit>
+      <trans-unit id="sync.error" datatype="html">
+        <source>Błąd synchronizacji. Kliknij, aby ponowić próbę.</source>
+        <target>Sync error. Click to retry.</target>
+      </trans-unit>
+      <trans-unit id="sync.guest" datatype="html">
+        <source>Tryb gościa. Dane są bezpiecznie zapisywane wyłącznie na tym urządzeniu.</source>
+        <target>Guest mode. Data is stored locally on this device.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

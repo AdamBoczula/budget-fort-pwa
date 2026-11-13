@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { SyncQueueService } from '@data-access-sync';
 import { CATEGORY_DB_TOKEN, LocalDbService } from 'local-db';
 import { defer, Observable } from 'rxjs';
 import { Category } from '../model/category.type';
@@ -6,6 +7,7 @@ import { Category } from '../model/category.type';
 @Injectable({ providedIn: 'root' })
 export class CategoryStore {
   private readonly localDbService = inject(LocalDbService);
+  private readonly syncQueue = inject(SyncQueueService, { optional: true });
 
   private get categoriesTable() {
     return this.localDbService.getTable<Category, string>(CATEGORY_DB_TOKEN);
@@ -35,17 +37,32 @@ export class CategoryStore {
 
   /** Upsert a single category (create or full update). */
   public async updateCategoryAsync(category: Category): Promise<void> {
+    category.updatedAt = category.updatedAt || new Date().toISOString();
     await this.categoriesTable.put(category);
+    await this.syncQueue?.enqueue(
+      'category',
+      category.id,
+      'upsert',
+      category as unknown as Record<string, unknown>,
+    );
   }
 
   /** Delete a category by its primary key. */
   public async deleteCategoryAsync(id: string): Promise<void> {
     await this.categoriesTable.delete(id);
+    await this.syncQueue?.enqueue('category', id, 'delete', null);
   }
 
   /** Add a new category. */
   public async createCategoryAsync(category: Category): Promise<void> {
+    category.updatedAt = category.updatedAt || new Date().toISOString();
     await this.categoriesTable.put(category);
+    await this.syncQueue?.enqueue(
+      'category',
+      category.id,
+      'upsert',
+      category as unknown as Record<string, unknown>,
+    );
   }
 
   /**

@@ -1,14 +1,6 @@
 // spec: docs/specs/settings/data-export-import.md
 
-import {
-  computed,
-  inject,
-  Injectable,
-  InjectionToken,
-  LOCALE_ID,
-  Optional,
-  Signal,
-} from '@angular/core';
+import { computed, inject, Injectable, InjectionToken, LOCALE_ID, Signal } from '@angular/core';
 
 export const APP_CUSTOM_LOCALE = new InjectionToken<string>('APP_CUSTOM_LOCALE');
 
@@ -20,17 +12,13 @@ export const APP_CUSTOM_LOCALE = new InjectionToken<string>('APP_CUSTOM_LOCALE')
 export class AppLanguageService {
   private readonly _localeId: string;
 
-  constructor(@Optional() customLocale?: string) {
+  constructor(customLocale?: string) {
     if (customLocale) {
       this._localeId = customLocale;
     } else {
-      let resolved = 'en';
-      try {
-        resolved = inject(LOCALE_ID, { optional: true }) ?? 'en';
-      } catch {
-        resolved = 'en';
-      }
-      this._localeId = resolved;
+      const injectedCustom = inject(APP_CUSTOM_LOCALE, { optional: true });
+      const injectedLocaleId = inject(LOCALE_ID, { optional: true });
+      this._localeId = injectedCustom ?? injectedLocaleId ?? 'en';
     }
   }
 

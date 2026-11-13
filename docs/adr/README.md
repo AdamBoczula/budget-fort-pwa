@@ -11,11 +11,10 @@ Szablon: [`adr-template.md`](./adr-template.md)
 
 | ADR | Tytuł | Status | Data |
 |-----|-------|--------|------|
-
-<!--
-  Nowe ADR-y dodawaj według wzoru:
-  | [ADR-001](./001-<title>.md) | <Tytuł> | proposed | YYYY-MM-DD |
--->
+| [ADR-001](./001-budget-separate-domain.md) | Osobna domena `budget` w `libs/budget/` | accepted | 2026-10-17 |
+| [ADR-002](./002-auth-domain-and-firebase-integration.md) | Domena Auth, integracja z Firebase Authentication i hybrydowy tryb offline | accepted | 2026-11-11 |
+| [ADR-003](./003-data-export-import-backup.md) | Eksport i import danych (Kopia zapasowa w formacie JSON) | accepted | 2026-11-11 |
+| [ADR-004](./004-firestore-hybrid-sync-and-offline-first.md) | Hybrydowa synchronizacja IndexedDB (Dexie) z Cloud Firestore (Offline-First) | proposed | 2026-11-13 |
 
 ## Statusy
 

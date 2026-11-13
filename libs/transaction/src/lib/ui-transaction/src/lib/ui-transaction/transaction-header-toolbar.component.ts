@@ -6,10 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
 import { AuthService } from '@data-access-auth';
+import { SyncStatusComponent } from '@ui-sync';
 
 @Component({
   selector: 'transaction-header-toolbar',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, SyncStatusComponent],
   template: `
     <mat-toolbar class="transaction-header-toolbar">
       <button
@@ -24,16 +25,20 @@ import { AuthService } from '@data-access-auth';
 
       <p class="transaction-header-toolbar__month">{{ monthName() }}</p>
 
-      <button
-        type="button"
-        matIconButton
-        class="transaction-header-toolbar__logout-btn"
-        i18n-aria-label="@@toolbar.logoutAria"
-        aria-label="Wyloguj sie"
-        (click)="onLogoutClick()"
-      >
-        <mat-icon class="transaction-header-toolbar__logout-icon">logout</mat-icon>
-      </button>
+      <div class="transaction-header-toolbar__actions">
+        <sync-status />
+
+        <button
+          type="button"
+          matIconButton
+          class="transaction-header-toolbar__logout-btn"
+          i18n-aria-label="@@toolbar.logoutAria"
+          aria-label="Wyloguj sie"
+          (click)="onLogoutClick()"
+        >
+          <mat-icon class="transaction-header-toolbar__logout-icon">logout</mat-icon>
+        </button>
+      </div>
     </mat-toolbar>
   `,
   styleUrl: './transaction-header-toolbar.component.scss',

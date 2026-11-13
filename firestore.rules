@@ -1,0 +1,301 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // All user application data is strictly partitioned by user:
+    // /users/{userId}
+    //   - transactions / transaction: financial transactions (amount, date, categoryId, accountId, etc.)
+    //   - categories / category: budget categories (name, colorHex, icon, sortOrder, etc.)
+    //   - subcategories / subcategory: subcategories under a parent category
+    //   - budget / budgets: overall monthly budget limit
+    //   - categoryBudget / categoryBudgets: category-specific budget limits
+    //
+    // Collection: /users/{userId}
+    // Document ID: userId (Firebase Auth UID)
+    // Fields:
+    //   - uid: string (optional, 1..128) - must match userId
+    //   - email: string (optional, <= 256)
+    //   - displayName: string (optional, <= 100)
+    //   - photoURL: string (optional, <= 500)
+    //   - createdAt: string (optional, <= 50)
+    //   - updatedAt: string (required, 10..50)
+    //   - isDeleted: bool (optional)
+    //   - deletedAt: string (optional, <= 50)
+    //
+    // Subcollections:
+    //
+    // 1. /users/{userId}/transactions/{transactionId} (and /users/{userId}/transaction/{transactionId})
+    //    Document ID: UUID or string ID
+    //    Fields:
+    //      - id: string (required, 1..128)
+    //      - amount: number (required if !isDeleted, -1e9..1e9)
+    //      - date: string (required if !isDeleted, 8..50)
+    //      - categoryId: string (required if !isDeleted, 1..128)
+    //      - accountId: string (required if !isDeleted, 1..128)
+    //      - comment: string (optional, <= 1000)
+    //      - subcategory: string (optional, <= 128)
+    //      - updatedAt: string (required, 10..50)
+    //      - isDeleted: bool (optional)
+    //      - deletedAt: string (optional, <= 50)
+    //
+    // 2. /users/{userId}/categories/{categoryId} (and /users/{userId}/category/{categoryId})
+    //    Document ID: UUID or string ID
+    //    Fields:
+    //      - id: string (required, 1..128)
+    //      - name: string (required if !isDeleted, 1..100)
+    //      - colorHex: string (required if !isDeleted, 1..25)
+    //      - icon: string (required if !isDeleted, 1..50)
+    //      - sortOrder: number (required if !isDeleted)
+    //      - isHidden: bool (required if !isDeleted)
+    //      - createdAt: string (required if !isDeleted, 10..50)
+    //      - updatedAt: string (required, 10..50)
+    //      - translationKey: string (optional, <= 100)
+    //      - transactionType: string (optional, 'expense' | 'income')
+    //      - isDeleted: bool (optional)
+    //      - deletedAt: string (optional, <= 50)
+    //
+    // 3. /users/{userId}/subcategories/{subcategoryId} (and /users/{userId}/subcategory/{subcategoryId})
+    //    Document ID: UUID or string ID
+    //    Fields:
+    //      - id: string (required, 1..128)
+    //      - categoryId: string (required if !isDeleted, 1..128)
+    //      - name: string (required if !isDeleted, 1..100)
+    //      - updatedAt: string (required, 10..50)
+    //      - isDeleted: bool (optional)
+    //      - deletedAt: string (optional, <= 50)
+    //
+    // 4. /users/{userId}/budget/{budgetId} (and /users/{userId}/budgets/{budgetId})
+    //    Document ID: 'default', '1', or string/number ID
+    //    Fields:
+    //      - id: string or number (required)
+    //      - amount: number (required if !isDeleted, >= 0)
+    //      - updatedAt: string (required, 10..50)
+    //      - isDeleted: bool (optional)
+    //      - deletedAt: string (optional, <= 50)
+    //
+    // 5. /users/{userId}/categoryBudget/{categoryBudgetId} (and /users/{userId}/categoryBudgets/{categoryBudgetId})
+    //    Document ID: UUID or string/number ID
+    //    Fields:
+    //      - id: string or number (optional, <= 128)
+    //      - categoryId: string (required if !isDeleted, 1..128)
+    //      - categoryName: string (required if !isDeleted, 1..100)
+    //      - amount: number (required if !isDeleted, >= 0)
+    //      - updatedAt: string (required, 10..50)
+    //      - isDeleted: bool (optional)
+    //      - deletedAt: string (optional, <= 50)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) ||
+             (data[field] is string && data[field].size() >= minLen && data[field].size() <= maxLen);
+    }
+
+    function isValidUpdatedAt(data) {
+      return ('updatedAt' in data) &&
+             data.updatedAt is string &&
+             data.updatedAt.size() >= 10 &&
+             data.updatedAt.size() <= 50;
+    }
+
+    function isValidSoftDelete(data) {
+      return (!('isDeleted' in data) || data.isDeleted is bool) &&
+             (!('deletedAt' in data) || (data.deletedAt is string && data.deletedAt.size() >= 10 && data.deletedAt.size() <= 50));
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUserDoc(data, userId) {
+      return data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'createdAt', 'updatedAt', 'isDeleted', 'deletedAt']) &&
+             isValidUpdatedAt(data) &&
+             isValidSoftDelete(data) &&
+             (!('uid' in data) || data.uid == userId) &&
+             isValidOptionalString(data, 'email', 3, 256) &&
+             isValidOptionalString(data, 'displayName', 1, 100) &&
+             isValidOptionalString(data, 'photoURL', 1, 500) &&
+             isValidOptionalString(data, 'createdAt', 10, 50);
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasOnly(['id', 'amount', 'date', 'categoryId', 'accountId', 'comment', 'subcategory', 'updatedAt', 'isDeleted', 'deletedAt']) &&
+             isValidUpdatedAt(data) &&
+             isValidSoftDelete(data) &&
+             (data.id is string && data.id.size() > 0 && data.id.size() <= 128) &&
+             (!('amount' in data) || (data.amount is number && data.amount >= -1000000000 && data.amount <= 1000000000)) &&
+             (!('date' in data) || (data.date is string && data.date.size() >= 8 && data.date.size() <= 50)) &&
+             (!('categoryId' in data) || (data.categoryId is string && data.categoryId.size() > 0 && data.categoryId.size() <= 128)) &&
+             (!('accountId' in data) || (data.accountId is string && data.accountId.size() > 0 && data.accountId.size() <= 128)) &&
+             isValidOptionalString(data, 'comment', 0, 1000) &&
+             isValidOptionalString(data, 'subcategory', 0, 128) &&
+             (data.get('isDeleted', false) == true || data.keys().hasAll(['id', 'amount', 'date', 'categoryId', 'accountId', 'updatedAt']));
+    }
+
+    function isValidCategory(data) {
+      return data.keys().hasOnly(['id', 'name', 'colorHex', 'icon', 'sortOrder', 'isHidden', 'createdAt', 'updatedAt', 'translationKey', 'transactionType', 'isDeleted', 'deletedAt']) &&
+             isValidUpdatedAt(data) &&
+             isValidSoftDelete(data) &&
+             (data.id is string && data.id.size() > 0 && data.id.size() <= 128) &&
+             (!('name' in data) || (data.name is string && data.name.size() > 0 && data.name.size() <= 100)) &&
+             (!('colorHex' in data) || (data.colorHex is string && data.colorHex.size() > 0 && data.colorHex.size() <= 25)) &&
+             (!('icon' in data) || (data.icon is string && data.icon.size() > 0 && data.icon.size() <= 50)) &&
+             (!('sortOrder' in data) || data.sortOrder is number) &&
+             (!('isHidden' in data) || data.isHidden is bool) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() >= 10 && data.createdAt.size() <= 50)) &&
+             isValidOptionalString(data, 'translationKey', 0, 100) &&
+             (!('transactionType' in data) || data.transactionType in ['expense', 'income']) &&
+             (data.get('isDeleted', false) == true || data.keys().hasAll(['id', 'name', 'colorHex', 'icon', 'sortOrder', 'isHidden', 'createdAt', 'updatedAt']));
+    }
+
+    function isValidSubcategory(data) {
+      return data.keys().hasOnly(['id', 'categoryId', 'name', 'updatedAt', 'isDeleted', 'deletedAt']) &&
+             isValidUpdatedAt(data) &&
+             isValidSoftDelete(data) &&
+             (data.id is string && data.id.size() > 0 && data.id.size() <= 128) &&
+             (!('categoryId' in data) || (data.categoryId is string && data.categoryId.size() > 0 && data.categoryId.size() <= 128)) &&
+             (!('name' in data) || (data.name is string && data.name.size() > 0 && data.name.size() <= 100)) &&
+             (data.get('isDeleted', false) == true || data.keys().hasAll(['id', 'categoryId', 'name', 'updatedAt']));
+    }
+
+    function isValidBudget(data) {
+      return data.keys().hasOnly(['id', 'amount', 'updatedAt', 'isDeleted', 'deletedAt']) &&
+             isValidUpdatedAt(data) &&
+             isValidSoftDelete(data) &&
+             ((data.id is string && data.id.size() > 0 && data.id.size() <= 128) || data.id is number) &&
+             (!('amount' in data) || (data.amount is number && data.amount >= 0 && data.amount <= 1000000000)) &&
+             (data.get('isDeleted', false) == true || data.keys().hasAll(['id', 'amount', 'updatedAt']));
+    }
+
+    function isValidCategoryBudget(data) {
+      return data.keys().hasOnly(['id', 'categoryId', 'categoryName', 'amount', 'updatedAt', 'isDeleted', 'deletedAt']) &&
+             isValidUpdatedAt(data) &&
+             isValidSoftDelete(data) &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 128) || data.id is number) &&
+             (!('categoryId' in data) || (data.categoryId is string && data.categoryId.size() > 0 && data.categoryId.size() <= 128)) &&
+             (!('categoryName' in data) || (data.categoryName is string && data.categoryName.size() > 0 && data.categoryName.size() <= 100)) &&
+             (!('amount' in data) || (data.amount is number && data.amount >= 0 && data.amount <= 1000000000)) &&
+             (data.get('isDeleted', false) == true || data.keys().hasAll(['categoryId', 'categoryName', 'amount', 'updatedAt']));
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // User document tree
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserDoc(request.resource.data, userId);
+      allow update: if isOwner(userId) && isValidUserDoc(request.resource.data, userId)
+                    && (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt);
+      allow delete: if isOwner(userId);
+
+      // Transactions subcollection (singular & plural)
+      match /transactions/{transactionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidTransaction(request.resource.data);
+        allow update: if isOwner(userId) && isValidTransaction(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+      match /transaction/{transactionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidTransaction(request.resource.data);
+        allow update: if isOwner(userId) && isValidTransaction(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+
+      // Categories subcollection (singular & plural)
+      match /categories/{categoryId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCategory(request.resource.data);
+        allow update: if isOwner(userId) && isValidCategory(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id)
+                      && (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt);
+        allow delete: if isOwner(userId);
+      }
+      match /category/{categoryId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCategory(request.resource.data);
+        allow update: if isOwner(userId) && isValidCategory(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id)
+                      && (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt);
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcategories subcollection (singular & plural)
+      match /subcategories/{subcategoryId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSubcategory(request.resource.data);
+        allow update: if isOwner(userId) && isValidSubcategory(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+      match /subcategory/{subcategoryId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSubcategory(request.resource.data);
+        allow update: if isOwner(userId) && isValidSubcategory(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+
+      // Budget subcollection (singular & plural)
+      match /budget/{budgetId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidBudget(request.resource.data);
+        allow update: if isOwner(userId) && isValidBudget(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+      match /budgets/{budgetId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidBudget(request.resource.data);
+        allow update: if isOwner(userId) && isValidBudget(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+
+      // CategoryBudget subcollection (singular & plural)
+      match /categoryBudget/{categoryBudgetId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCategoryBudget(request.resource.data);
+        allow update: if isOwner(userId) && isValidCategoryBudget(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+      match /categoryBudgets/{categoryBudgetId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCategoryBudget(request.resource.data);
+        allow update: if isOwner(userId) && isValidCategoryBudget(request.resource.data)
+                      && (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // ===============================================================
+    // Default Deny Rule
+    // ===============================================================
+    // Deny all reads and writes for any collection or path not explicitly permitted above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

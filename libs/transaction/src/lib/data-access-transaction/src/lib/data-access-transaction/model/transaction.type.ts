@@ -1,3 +1,5 @@
+// spec: docs/specs/sync/01-firestore-sync.md
+
 export type Transaction = {
   id: string;
   amount: number;
@@ -6,4 +8,7 @@ export type Transaction = {
   accountId: string;
   comment?: string;
   subcategory?: string;
+  updatedAt?: string;
+  isDeleted?: boolean;
+  deletedAt?: string;
 };

@@ -28,7 +28,11 @@
       "@feature-budget": ["./libs/budget/feature-budget/src/index.ts"],
       "@data-access-auth": ["./libs/auth/data-access-auth/src/index.ts"],
       "@ui-auth": ["./libs/auth/ui-auth/src/index.ts"],
-      "@feature-auth": ["./libs/auth/feature-auth/src/index.ts"]
+      "@feature-auth": ["./libs/auth/feature-auth/src/index.ts"],
+      "@data-access-sync": ["./libs/sync/data-access-sync/src/index.ts"],
+      "data-access-sync": ["./libs/sync/data-access-sync/src/index.ts"],
+      "@ui-sync": ["./libs/sync/ui-sync/src/index.ts"],
+      "ui-sync": ["./libs/sync/ui-sync/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

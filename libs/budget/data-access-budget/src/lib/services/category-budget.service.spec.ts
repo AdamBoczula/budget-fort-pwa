@@ -1,7 +1,7 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
 
 import { TestBed } from '@angular/core/testing';
-import { LocalDbService } from 'local-db';
+import { LocalDbService, CATEGORY_BUDGET_DB_TOKEN } from 'local-db';
 import { CategoryBudgetService } from './category-budget.service';
 import type { CategoryBudget } from '../model/category-budget.type';
 
@@ -61,7 +61,10 @@ describe('CategoryBudgetService', () => {
         CategoryBudgetService,
         {
           provide: LocalDbService,
-          useValue: { getTable: () => mockTable },
+          useValue: {
+            getTable: (token: unknown) =>
+              token === CATEGORY_BUDGET_DB_TOKEN ? mockTable : createMockTable(),
+          },
         },
       ],
     });

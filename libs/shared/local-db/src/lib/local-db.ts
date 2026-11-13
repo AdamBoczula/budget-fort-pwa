@@ -1,21 +1,31 @@
-// spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/sync/01-firestore-sync.md
 import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
 
 export const BUDGET_FORT_DB_NAME = 'budget-fort-db';
-export const BUDGET_FORT_DB_VERSION = 4;
+export const BUDGET_FORT_DB_VERSION = 5;
 export const TRANSACTION_DB_TOKEN = 'transaction';
 export const CATEGORY_DB_TOKEN = 'category';
 export const SUBCATEGORY_DB_TOKEN = 'subcategory';
 export const BUDGET_DB_TOKEN = 'budget';
 export const CATEGORY_BUDGET_DB_TOKEN = 'categoryBudget';
+export const SYNC_QUEUE_DB_TOKEN = 'syncQueue';
 
-export const BUDGET_FORT_DB_STORES = {
+export const BUDGET_FORT_DB_STORES_V4 = {
   [TRANSACTION_DB_TOKEN]: 'id,date,categoryId,accountId,subcategory',
   [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name',
   [SUBCATEGORY_DB_TOKEN]: 'id,categoryId,name',
   [BUDGET_DB_TOKEN]: 'id',
   [CATEGORY_BUDGET_DB_TOKEN]: 'id,categoryId',
+} as const;
+
+export const BUDGET_FORT_DB_STORES = {
+  [TRANSACTION_DB_TOKEN]: 'id,date,categoryId,accountId,subcategory,updatedAt,isDeleted',
+  [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name,updatedAt,isDeleted',
+  [SUBCATEGORY_DB_TOKEN]: 'id,categoryId,name,updatedAt,isDeleted',
+  [BUDGET_DB_TOKEN]: 'id,updatedAt,isDeleted',
+  [CATEGORY_BUDGET_DB_TOKEN]: 'id,categoryId,updatedAt,isDeleted',
+  [SYNC_QUEUE_DB_TOKEN]: 'id,store,entityId,createdAt,retryCount',
 } as const;
 
 export type BudgetFortStoreName = keyof typeof BUDGET_FORT_DB_STORES;
@@ -37,7 +47,54 @@ export class LocalDbService {
   private createDatabase(): Dexie {
     const database = new Dexie(BUDGET_FORT_DB_NAME);
 
-    database.version(BUDGET_FORT_DB_VERSION).stores(BUDGET_FORT_DB_STORES);
+    database.version(4).stores(BUDGET_FORT_DB_STORES_V4);
+
+    database
+      .version(BUDGET_FORT_DB_VERSION)
+      .stores(BUDGET_FORT_DB_STORES)
+      .upgrade(async (tx) => {
+        const now = new Date().toISOString();
+
+        await tx
+          .table(BUDGET_DB_TOKEN)
+          .toCollection()
+          .modify((budget: Record<string, unknown>) => {
+            budget['updatedAt'] = budget['updatedAt'] ?? now;
+            budget['isDeleted'] = budget['isDeleted'] ?? false;
+          });
+
+        await tx
+          .table(CATEGORY_BUDGET_DB_TOKEN)
+          .toCollection()
+          .modify((cb: Record<string, unknown>) => {
+            cb['updatedAt'] = cb['updatedAt'] ?? now;
+            cb['isDeleted'] = cb['isDeleted'] ?? false;
+          });
+
+        await tx
+          .table(TRANSACTION_DB_TOKEN)
+          .toCollection()
+          .modify((t: Record<string, unknown>) => {
+            t['updatedAt'] = t['updatedAt'] ?? now;
+            t['isDeleted'] = t['isDeleted'] ?? false;
+          });
+
+        await tx
+          .table(CATEGORY_DB_TOKEN)
+          .toCollection()
+          .modify((c: Record<string, unknown>) => {
+            c['updatedAt'] = c['updatedAt'] ?? now;
+            c['isDeleted'] = c['isDeleted'] ?? false;
+          });
+
+        await tx
+          .table(SUBCATEGORY_DB_TOKEN)
+          .toCollection()
+          .modify((s: Record<string, unknown>) => {
+            s['updatedAt'] = s['updatedAt'] ?? now;
+            s['isDeleted'] = s['isDeleted'] ?? false;
+          });
+      });
 
     return database;
   }

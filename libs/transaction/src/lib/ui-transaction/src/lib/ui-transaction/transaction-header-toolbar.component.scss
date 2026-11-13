@@ -38,6 +38,13 @@
   text-transform: capitalize;
 }
 
+.transaction-header-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
 .transaction-header-toolbar__logout-btn {
   flex-shrink: 0;
 }

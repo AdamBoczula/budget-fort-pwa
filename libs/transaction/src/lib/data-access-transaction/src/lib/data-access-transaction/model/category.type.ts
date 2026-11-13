@@ -1,3 +1,5 @@
+// spec: docs/specs/sync/01-firestore-sync.md
+
 export type TransactionType = 'expense' | 'income';
 
 export type Category = {
@@ -11,4 +13,6 @@ export type Category = {
   updatedAt: string;
   translationKey?: string;
   transactionType?: TransactionType;
+  isDeleted?: boolean;
+  deletedAt?: string;
 };
