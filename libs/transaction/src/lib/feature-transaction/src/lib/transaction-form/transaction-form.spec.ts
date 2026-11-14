@@ -418,4 +418,44 @@ describe('TransactionFormComponent', () => {
       expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
     });
   });
+
+  // covers: docs/specs/transaction/recurring-transactions.md#AC-1
+  it('should include recurring data in dialog close when toggle is checked', async () => {
+    const user = userEvent.setup();
+    const closeSpy = vi.fn();
+    await render(TransactionFormComponent, {
+      providers: [
+        { provide: MatDialogRef, useValue: { close: closeSpy, afterOpened: () => of(undefined) } },
+        { provide: MAT_DIALOG_DATA, useValue: { category: expenseCategory } },
+        { provide: CategoryService, useValue: mockService },
+        {
+          provide: SubcategoryService,
+          useValue: {
+            getSubcategoriesAsync: () => Promise.resolve([]),
+            upsertSubcategoryAsync: () => Promise.resolve(),
+          },
+        },
+        provideNativeDateAdapter(),
+      ],
+    });
+
+    await user.type(screen.getByLabelText('Kwota'), '120');
+    const toggle = screen.getByRole('switch', { name: /Ustaw jako wydatek cykliczny/i });
+    await user.click(toggle);
+
+    const dayInput = screen.getByLabelText('Dzień miesiąca');
+    expect(dayInput).toHaveValue(1);
+    await user.clear(dayInput);
+    await user.type(dayInput, '5');
+
+    await user.click(screen.getByRole('button', { name: /Zapisz/i }));
+
+    expect(closeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: -120,
+        isRecurring: true,
+        recurringDayOfMonth: 5,
+      }),
+    );
+  });
 });

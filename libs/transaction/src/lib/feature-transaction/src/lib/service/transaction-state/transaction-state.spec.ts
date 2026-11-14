@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { TransactionService } from '@data-access-transaction';
+import { RecurringRuleService, TransactionService } from '@data-access-transaction';
 import { of } from 'rxjs';
 
 import { TransactionState } from './transaction-state';
@@ -146,9 +146,7 @@ describe('TransactionState', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        { provide: TransactionService, useValue: failingService },
-      ],
+      providers: [{ provide: TransactionService, useValue: failingService }],
     });
 
     const serviceWithError = TestBed.inject(TransactionState);
@@ -163,5 +161,42 @@ describe('TransactionState', () => {
     });
 
     expect(serviceWithError.mutationError()).not.toBeNull();
+  });
+
+  // covers: docs/specs/transaction/recurring-transactions.md#AC-1
+  it('should create recurring rule and assign recurringRuleId when recurringOptions is enabled', async () => {
+    const mockRecurringService = {
+      addRuleAsync: vi.fn().mockImplementation(async (rule) => rule),
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TransactionService, useValue: transactionServiceMock },
+        { provide: RecurringRuleService, useValue: mockRecurringService },
+      ],
+    });
+
+    const stateWithRecurring = TestBed.inject(TransactionState);
+    const tx = {
+      id: 'tx-new',
+      amount: -150,
+      date: '2026-11-14T10:00:00.000Z',
+      categoryId: 'bills',
+      accountId: 'default',
+    };
+
+    await stateWithRecurring.addTransaction(tx, { isRecurring: true, dayOfMonth: 5 });
+
+    expect(mockRecurringService.addRuleAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 150,
+        categoryId: 'bills',
+        dayOfMonth: 5,
+        lastGeneratedMonth: '2026-11',
+      }),
+    );
+    expect(tx.recurringRuleId).toBeDefined();
+    expect(transactionServiceMock.addTransactionAsync).toHaveBeenCalledWith(tx);
   });
 });

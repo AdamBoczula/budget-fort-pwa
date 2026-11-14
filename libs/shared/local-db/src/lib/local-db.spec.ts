@@ -1,4 +1,5 @@
 // spec: docs/specs/sync/01-firestore-sync.md
+// spec: docs/specs/transaction/recurring-transactions.md
 import {
   BUDGET_FORT_DB_STORES,
   CATEGORY_DB_TOKEN,
@@ -7,23 +8,33 @@ import {
   BUDGET_DB_TOKEN,
   CATEGORY_BUDGET_DB_TOKEN,
   SYNC_QUEUE_DB_TOKEN,
+  RECURRING_RULE_DB_TOKEN,
   BUDGET_FORT_DB_VERSION,
 } from './local-db';
 
 describe('LocalDbService', () => {
   // covers: docs/specs/sync/01-firestore-sync.md#AC-6
-  it('should be configured with version 5', () => {
-    expect(BUDGET_FORT_DB_VERSION).toBe(5);
+  // covers: docs/specs/transaction/recurring-transactions.md#AC-2
+  it('should be configured with version 6', () => {
+    expect(BUDGET_FORT_DB_VERSION).toBe(6);
   });
 
   // covers: docs/specs/sync/01-firestore-sync.md#AC-6
+  // covers: docs/specs/transaction/recurring-transactions.md#AC-2
   it('should expose the shared store schema with audit fields', () => {
     expect(BUDGET_FORT_DB_STORES[TRANSACTION_DB_TOKEN]).toEqual(
-      'id,date,categoryId,accountId,subcategory,updatedAt,isDeleted',
+      'id,date,categoryId,accountId,subcategory,recurringRuleId,updatedAt,isDeleted',
     );
 
     expect(BUDGET_FORT_DB_STORES[CATEGORY_DB_TOKEN]).toEqual(
       'id,sortOrder,isHidden,name,updatedAt,isDeleted',
+    );
+  });
+
+  // covers: docs/specs/transaction/recurring-transactions.md#AC-2
+  it('should include recurringRule store with appropriate indexes', () => {
+    expect(BUDGET_FORT_DB_STORES[RECURRING_RULE_DB_TOKEN]).toEqual(
+      'id,categoryId,dayOfMonth,isActive,lastGeneratedMonth,updatedAt,isDeleted',
     );
   });
 

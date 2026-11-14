@@ -8,6 +8,7 @@ import {
   CATEGORY_BUDGET_DB_TOKEN,
   CATEGORY_DB_TOKEN,
   LocalDbService,
+  RECURRING_RULE_DB_TOKEN,
   SUBCATEGORY_DB_TOKEN,
   SyncableStoreName,
   TRANSACTION_DB_TOKEN,
@@ -25,6 +26,7 @@ const SYNCABLE_STORES: SyncableStoreName[] = [
   'transaction',
   'budget',
   'categoryBudget',
+  'recurringRule',
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -208,6 +210,7 @@ export class SyncEngineService {
       { store: 'transaction', token: TRANSACTION_DB_TOKEN },
       { store: 'budget', token: BUDGET_DB_TOKEN },
       { store: 'categoryBudget', token: CATEGORY_BUDGET_DB_TOKEN },
+      { store: 'recurringRule', token: RECURRING_RULE_DB_TOKEN },
     ];
 
     for (const { store, token } of stores) {

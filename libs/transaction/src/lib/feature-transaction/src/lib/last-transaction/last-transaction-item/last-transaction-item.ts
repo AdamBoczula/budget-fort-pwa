@@ -37,6 +37,15 @@ import { CurrencyService } from '@currency';
             @if (transaction().subcategory) {
               <span class="subcategory">· {{ transaction().subcategory }}</span>
             }
+            @if (transaction().recurringRuleId) {
+              <mat-icon
+                class="recurring-icon"
+                matTooltip="Wydatek cykliczny"
+                i18n-matTooltip="@@lastTransactions.recurringTooltip"
+                data-testid="last-transaction-item__recurring-icon"
+                >repeat</mat-icon
+              >
+            }
           </span>
           <div class="meta">
             @if (transaction().comment) {

@@ -4,6 +4,7 @@ import { HomePageScreen } from './home-screen/home-screen';
 import { DashboardPageScreen } from './dashboard-screen/dashboard-screen';
 import { categoryInitializerResolver } from './initializers/category-initializer';
 import { SettingsPageScreen } from './settings-screen/settings-screen';
+import { SettingsRecurringSectionComponent } from './settings-screen/settings-recurring-section/settings-recurring-section';
 import { TransactionShellComponent } from './transaction-shell/transaction-shell';
 
 export const featureTransactionRoutes: Route[] = [
@@ -16,10 +17,10 @@ export const featureTransactionRoutes: Route[] = [
       { path: 'home', component: HomePageScreen },
       { path: 'dashboard', component: DashboardPageScreen },
       { path: 'settings', component: SettingsPageScreen },
+      { path: 'settings/recurring', component: SettingsRecurringSectionComponent },
       {
         path: 'budget',
-        loadComponent: () =>
-          import('@feature-budget').then((m) => m.SettingsBudgetScreenComponent),
+        loadComponent: () => import('@feature-budget').then((m) => m.SettingsBudgetScreenComponent),
       },
     ],
   },

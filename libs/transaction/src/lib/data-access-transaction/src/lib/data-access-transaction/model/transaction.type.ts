@@ -8,6 +8,7 @@ export type Transaction = {
   accountId: string;
   comment?: string;
   subcategory?: string;
+  recurringRuleId?: string;
   updatedAt?: string;
   isDeleted?: boolean;
   deletedAt?: string;

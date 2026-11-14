@@ -1,34 +1,31 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
+// spec: docs/specs/transaction/recurring-transactions.md
 import { inject } from '@angular/core';
 import { ResolveFn } from '@angular/router';
 import {
   CategoryStore,
-  DEFAULT_SUBCATEGORIES,
   MOCK_PL_CATEGORIES,
-  SubcategoryStore,
+  RecurringTransactionGeneratorService,
 } from '@data-access-transaction';
-import { LocalDbService } from 'local-db';
 import { firstValueFrom } from 'rxjs';
-import { seedPreviousMonthBudgetIfNeeded } from './previous-month-budget-seed';
 
 /**
- * Seeds the categories, subcategories, and temporary previous-month budget preview data
- * in IndexedDB on startup. A persistence failure must not prevent the application from starting.
+ * Seeds default categories in IndexedDB on startup if empty,
+ * and generates pending recurring transactions.
+ * A persistence failure must not prevent the application from starting.
  */
 export function initializeCategoriesFactory(
   categoryStore: CategoryStore,
-  subcategoryStore: SubcategoryStore,
-  localDbService?: LocalDbService,
+  recurringGenerator?: RecurringTransactionGeneratorService,
 ): () => Promise<void> {
   return async () => {
     try {
       await firstValueFrom(categoryStore.seedCategoriesIfEmpty(MOCK_PL_CATEGORIES));
-      await firstValueFrom(subcategoryStore.seedSubcategoriesIfEmpty(DEFAULT_SUBCATEGORIES));
-      if (localDbService) {
-        await seedPreviousMonthBudgetIfNeeded(localDbService);
+      if (recurringGenerator) {
+        await recurringGenerator.generatePendingTransactions();
       }
     } catch (error) {
-      console.warn('Failed to seed categories:', error);
+      console.warn('Failed to seed categories or generate recurring transactions:', error);
     }
   };
 }
@@ -36,6 +33,5 @@ export function initializeCategoriesFactory(
 export const categoryInitializerResolver: ResolveFn<void> = () =>
   initializeCategoriesFactory(
     inject(CategoryStore),
-    inject(SubcategoryStore),
-    inject(LocalDbService),
+    inject(RecurringTransactionGeneratorService),
   )();

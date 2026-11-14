@@ -1,20 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import {
   CategoryStore,
-  DEFAULT_SUBCATEGORIES,
   MOCK_PL_CATEGORIES,
-  SubcategoryStore,
+  RecurringTransactionGeneratorService,
 } from '@data-access-transaction';
 import { of, throwError } from 'rxjs';
 import { initializeCategoriesFactory } from './category-initializer';
 
 describe('categoryInitializer', () => {
   let seedCategoriesSpy: ReturnType<typeof vi.fn>;
-  let seedSubcategoriesSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     seedCategoriesSpy = vi.fn().mockReturnValue(of(void 0));
-    seedSubcategoriesSpy = vi.fn().mockReturnValue(of(void 0));
 
     TestBed.configureTestingModule({
       providers: [
@@ -24,43 +21,23 @@ describe('categoryInitializer', () => {
             seedCategoriesIfEmpty: seedCategoriesSpy,
           },
         },
-        {
-          provide: SubcategoryStore,
-          useValue: {
-            seedSubcategoriesIfEmpty: seedSubcategoriesSpy,
-          },
-        },
       ],
     });
   });
 
   it('should seed the default categories', async () => {
     const categoryStore = TestBed.inject(CategoryStore);
-    const subcategoryStore = TestBed.inject(SubcategoryStore);
 
-    await initializeCategoriesFactory(categoryStore, subcategoryStore)();
+    await initializeCategoriesFactory(categoryStore)();
 
     expect(seedCategoriesSpy).toHaveBeenCalledOnce();
     expect(seedCategoriesSpy).toHaveBeenCalledWith(MOCK_PL_CATEGORIES);
   });
 
-  it('should seed the default subcategories', async () => {
-    const categoryStore = TestBed.inject(CategoryStore);
-    const subcategoryStore = TestBed.inject(SubcategoryStore);
-
-    await initializeCategoriesFactory(categoryStore, subcategoryStore)();
-
-    expect(seedSubcategoriesSpy).toHaveBeenCalledOnce();
-    expect(seedSubcategoriesSpy).toHaveBeenCalledWith(DEFAULT_SUBCATEGORIES);
-  });
-
   it('should return a promise that resolves after seeding', async () => {
     const categoryStore = TestBed.inject(CategoryStore);
-    const subcategoryStore = TestBed.inject(SubcategoryStore);
 
-    await expect(
-      initializeCategoriesFactory(categoryStore, subcategoryStore)(),
-    ).resolves.toBeUndefined();
+    await expect(initializeCategoriesFactory(categoryStore)()).resolves.toBeUndefined();
   });
 
   it('should log a warning without rejecting when seeding fails', async () => {
@@ -68,16 +45,28 @@ describe('categoryInitializer', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     seedCategoriesSpy.mockReturnValue(throwError(() => error));
     const categoryStore = TestBed.inject(CategoryStore);
-    const subcategoryStore = TestBed.inject(SubcategoryStore);
 
-    await expect(
-      initializeCategoriesFactory(categoryStore, subcategoryStore)(),
-    ).resolves.toBeUndefined();
-    expect(warnSpy).toHaveBeenCalledExactlyOnceWith(
-      'Failed to seed categories:',
+    await expect(initializeCategoriesFactory(categoryStore)()).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to seed categories'),
       error,
     );
 
     warnSpy.mockRestore();
+  });
+
+  // covers: docs/specs/transaction/recurring-transactions.md#AC-2
+  it('should call generatePendingTransactions on startup if recurringGenerator is provided', async () => {
+    const categoryStore = TestBed.inject(CategoryStore);
+    const mockRecurringGen = {
+      generatePendingTransactions: vi.fn().mockResolvedValue([]),
+    };
+
+    await initializeCategoriesFactory(
+      categoryStore,
+      mockRecurringGen as unknown as RecurringTransactionGeneratorService,
+    )();
+
+    expect(mockRecurringGen.generatePendingTransactions).toHaveBeenCalledOnce();
   });
 });

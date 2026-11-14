@@ -1,8 +1,10 @@
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
+// spec: docs/specs/transaction/recurring-transactions.md
 
 import { Component } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { SettingsCategoriesSectionComponent } from './settings-categories-section/settings-categories-section';
+import { SettingsRecurringSectionComponent } from './settings-recurring-section/settings-recurring-section';
 import { SettingsThemeSelectorComponent } from './settings-theme-selector/settings-theme-selector';
 import { SettingsCurrencySelectorComponent } from './settings-currency-selector/settings-currency-selector';
 import { SettingsBackupSectionComponent } from './settings-backup-section/settings-backup-section.component';
@@ -12,6 +14,7 @@ import { SettingsBackupSectionComponent } from './settings-backup-section/settin
   imports: [
     MatDividerModule,
     SettingsCategoriesSectionComponent,
+    SettingsRecurringSectionComponent,
     SettingsThemeSelectorComponent,
     SettingsCurrencySelectorComponent,
     SettingsBackupSectionComponent,
@@ -19,6 +22,8 @@ import { SettingsBackupSectionComponent } from './settings-backup-section/settin
   template: `
     <div class="settings-page">
       <transaction-settings-categories-section />
+      <mat-divider />
+      <transaction-settings-recurring-section />
       <mat-divider />
       <transaction-settings-theme-selector />
       <mat-divider />

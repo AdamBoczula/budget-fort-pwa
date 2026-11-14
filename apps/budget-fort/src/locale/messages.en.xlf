@@ -535,6 +535,66 @@
         <source>Tryb gościa. Dane są bezpiecznie zapisywane wyłącznie na tym urządzeniu.</source>
         <target>Guest mode. Data is stored locally on this device.</target>
       </trans-unit>
+      <trans-unit id="transactionForm.recurringToggle" datatype="html">
+        <source>Ustaw jako wydatek cykliczny</source>
+        <target>Set as recurring expense</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.recurringDayLabel" datatype="html">
+        <source>Dzień miesiąca</source>
+        <target>Day of month</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.daySuffix" datatype="html">
+        <source>. dzień</source>
+        <target>th day</target>
+      </trans-unit>
+      <trans-unit id="lastTransactions.recurringTooltip" datatype="html">
+        <source>Wydatek cykliczny</source>
+        <target>Recurring expense</target>
+      </trans-unit>
+      <trans-unit id="settingsRecurring.title" datatype="html">
+        <source>Opłaty cykliczne</source>
+        <target>Recurring expenses</target>
+      </trans-unit>
+      <trans-unit id="settingsRecurring.subtitle" datatype="html">
+        <source>Zarządzaj stałymi comiesięcznymi wydatkami generowanymi automatycznie.</source>
+        <target>Manage fixed monthly expenses generated automatically.</target>
+      </trans-unit>
+      <trans-unit id="settingsRecurring.addBtn" datatype="html">
+        <source>Dodaj opłatę</source>
+        <target>Add expense</target>
+      </trans-unit>
+      <trans-unit id="settingsRecurring.summaryLabel" datatype="html">
+        <source>Suma comiesięcznych opłat:</source>
+        <target>Total monthly expenses:</target>
+      </trans-unit>
+      <trans-unit id="settingsRecurring.empty" datatype="html">
+        <source>Brak zdefiniowanych opłat stałych. Możesz dodać nową opłatę powyżej lub zaznaczyć opcję „Ustaw jako wydatek cykliczny” podczas wpisywania transakcji.</source>
+        <target>No fixed expenses defined. You can add a new expense above or enable 'Set as recurring expense' when creating a transaction.</target>
+      </trans-unit>
+      <trans-unit id="recurringDialog.categoryLabel" datatype="html">
+        <source>Kategoria</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="recurringDialog.amountLabel" datatype="html">
+        <source>Kwota (zł)</source>
+        <target>Amount</target>
+      </trans-unit>
+      <trans-unit id="recurringDialog.dayLabel" datatype="html">
+        <source>Dzień miesiąca (1-31)</source>
+        <target>Day of month (1-31)</target>
+      </trans-unit>
+      <trans-unit id="recurringDialog.commentLabel" datatype="html">
+        <source>Nazwa / Opis (opcjonalny)</source>
+        <target>Name / Description (optional)</target>
+      </trans-unit>
+      <trans-unit id="recurringDialog.cancel" datatype="html">
+        <source>Anuluj</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="recurringDialog.save" datatype="html">
+        <source>Zapisz</source>
+        <target>Save</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
