@@ -595,6 +595,46 @@
         <source>Zapisz</source>
         <target>Save</target>
       </trans-unit>
+      <trans-unit id="settingsHousehold.title" datatype="html">
+        <source>Gospodarstwo domowe</source>
+        <target>Household</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.subtitle" datatype="html">
+        <source>Współdziel wydatki i budżet z partnerem lub domownikami.</source>
+        <target>Share expenses and budget with partner or family members.</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.guestMsg" datatype="html">
+        <source>Współdzielenie budżetu z domownikami wymaga zalogowania na konto.</source>
+        <target>Sharing budget with family requires signing in.</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.nameLabel" datatype="html">
+        <source>Nazwa gospodarstwa</source>
+        <target>Household name</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.membersLabel" datatype="html">
+        <source>Liczba domowników</source>
+        <target>Members count</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.inviteCodeLabel" datatype="html">
+        <source>Twój kod zaproszenia</source>
+        <target>Your invite code</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.copyBtn" datatype="html">
+        <source>Kopiuj</source>
+        <target>Copy</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.joinTitle" datatype="html">
+        <source>Dołącz do gospodarstwa partnera</source>
+        <target>Join partner's household</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.inputPlaceholder" datatype="html">
+        <source>Wpisz kod (np. BF89X2)</source>
+        <target>Enter code (e.g. BF89X2)</target>
+      </trans-unit>
+      <trans-unit id="settingsHousehold.joinBtn" datatype="html">
+        <source>Dołącz</source>
+        <target>Join</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

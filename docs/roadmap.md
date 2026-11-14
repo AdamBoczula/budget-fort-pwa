@@ -82,10 +82,10 @@ Data sporządzenia: 2026-11-14
 
 ## Tabela Priorytetów
 
-| Faza           | Zadanie                                 | Status                                                     | Opis                                                                                                                                     |
-| :------------- | :-------------------------------------- | :--------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------- |
-| **P1**         | **Transakcje rekurencyjne**             | ✅ Zrealizowano (2026-11-14)                               | Definicja reguł, deterministyczne generowanie instancji (`rec_${ruleId}_${YYYY-MM}`) w IndexedDB przy starcie aplikacji (offline-first). |
-| **P2**         | **Multi-user (`householdId`)**          | ⏳ Kolejny krok                                            | Podział danych na gospodarstwa, synchronizacja Firebase, algorytm LWW na polach.                                                         |
+| Faza           | Zadanie                                 | Status                                                     | Opis                                                                                                                                                                                                           |
+| :------------- | :-------------------------------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P1**         | **Transakcje rekurencyjne**             | ✅ Zrealizowano (2026-11-14)                               | Definicja reguł, deterministyczne generowanie instancji (`rec_${ruleId}_${YYYY-MM}`) w IndexedDB przy starcie aplikacji (offline-first).                                                                       |
+| **P2**         | **Multi-user (`householdId`)**          | ✅ Zrealizowano (2026-11-14)                               | Podział danych na gospodarstwa domowe, synchronizacja Firebase `/households/{householdId}`, LWW. Zobacz [Spec](specs/sync/02-multi-user-household.md) i [ADR-005](adr/005-multi-user-household-data-model.md). |
 | **P3**         | **Zarządzanie aktualizacjami & Banner** | PWA `SwUpdate`, banner informacyjny o planowanych pracach. |
 | **P4**         | **Regulamin & Polityka prywatności**    | Ekrany informacyjne dla trybu offline vs online.           |
 | **P5**         | **Privacy-first Analytics**             | Anonimowe zdarzenia bez danych kwotowych.                  |

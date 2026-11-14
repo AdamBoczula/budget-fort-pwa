@@ -1,4 +1,6 @@
 import { computed, inject, Injectable, LOCALE_ID, resource, signal } from '@angular/core';
+import { AuthService } from '@data-access-auth';
+import { SyncState } from '@data-access-sync';
 import {
   RecurringRuleService,
   RecurringTransactionRule,
@@ -15,6 +17,8 @@ type TransactionGroup = {
 export class TransactionState {
   private readonly transactionService = inject(TransactionService);
   private readonly recurringRuleService = inject(RecurringRuleService, { optional: true });
+  private readonly auth = inject(AuthService, { optional: true });
+  private readonly syncState = inject(SyncState, { optional: true });
   private readonly localeId = inject(LOCALE_ID);
 
   /**
@@ -110,6 +114,19 @@ export class TransactionState {
   ): Promise<void> {
     try {
       this.mutationError.set(null);
+
+      const user = this.auth?.currentUser();
+      if (user) {
+        transaction.authorId = transaction.authorId ?? user.uid;
+        transaction.authorName =
+          transaction.authorName ?? (user.displayName || user.email || 'Domownik');
+      }
+
+      const householdId = this.syncState?.householdId();
+      if (householdId) {
+        transaction.householdId = transaction.householdId ?? householdId;
+      }
+
       if (recurringOptions?.isRecurring && this.recurringRuleService) {
         const ruleId = crypto.randomUUID();
         const day = recurringOptions.dayOfMonth ?? 1;

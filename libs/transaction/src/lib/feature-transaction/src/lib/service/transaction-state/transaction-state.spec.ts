@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { AuthService } from '@data-access-auth';
+import { SyncState } from '@data-access-sync';
 import { RecurringRuleService, TransactionService } from '@data-access-transaction';
 import { of } from 'rxjs';
 
@@ -198,5 +200,48 @@ describe('TransactionState', () => {
     );
     expect(tx.recurringRuleId).toBeDefined();
     expect(transactionServiceMock.addTransactionAsync).toHaveBeenCalledWith(tx);
+  });
+
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-2
+  it('should automatically attach authorId, authorName and householdId when adding transaction', async () => {
+    const mockAuth = {
+      currentUser: vi.fn().mockReturnValue({
+        uid: 'user-adam',
+        displayName: 'Adam',
+        email: 'adam@example.com',
+      }),
+    };
+    const mockSyncState = {
+      householdId: vi.fn().mockReturnValue('hh-dom-1'),
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TransactionService, useValue: transactionServiceMock },
+        { provide: AuthService, useValue: mockAuth },
+        { provide: SyncState, useValue: mockSyncState },
+      ],
+    });
+
+    const state = TestBed.inject(TransactionState);
+    const tx = {
+      id: 'tx-household',
+      amount: -45,
+      date: '2026-11-14T10:00:00.000Z',
+      categoryId: 'groceries',
+      accountId: 'default',
+    };
+
+    await state.addTransaction(tx);
+
+    expect(transactionServiceMock.addTransactionAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'tx-household',
+        authorId: 'user-adam',
+        authorName: 'Adam',
+        householdId: 'hh-dom-1',
+      }),
+    );
   });
 });

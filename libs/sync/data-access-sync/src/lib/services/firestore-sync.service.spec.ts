@@ -1,4 +1,5 @@
 // spec: docs/specs/sync/01-firestore-sync.md
+// spec: docs/specs/sync/02-multi-user-household.md
 
 import { TestBed } from '@angular/core/testing';
 import { FIREBASE_FIRESTORE, FirestoreSyncService } from './firestore-sync.service';
@@ -30,8 +31,9 @@ describe('FirestoreSyncService', () => {
   });
 
   // covers: docs/specs/sync/01-firestore-sync.md#AC-2
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-3
   it('should return empty array if items is empty', async () => {
-    const result = await service.pushBatch('user-1', []);
+    const result = await service.pushBatch('household-1', []);
     expect(result).toEqual([]);
   });
 
@@ -50,5 +52,12 @@ describe('FirestoreSyncService', () => {
 
     const fallbackService = TestBed.inject(FirestoreSyncService);
     expect(fallbackService.isAvailable()).toBe(false);
+  });
+
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-4
+  it('should throw error when joining household with empty invite code', async () => {
+    await expect(service.joinHouseholdByInviteCode('   ', { uid: 'user-1' })).rejects.toThrow(
+      'Kod zaproszenia nie może być pusty.',
+    );
   });
 });

@@ -9,6 +9,8 @@ import {
   RecurringRuleService,
 } from '@data-access-transaction';
 import { signal } from '@angular/core';
+import { AuthService } from '@data-access-auth';
+import { SyncEngineService, SyncState } from '@data-access-sync';
 import { LocalStorageService, BackupRestoreService } from 'local-db';
 import { SettingsPageScreen } from './settings-screen';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -98,6 +100,26 @@ describe('SettingsPageScreen (integration)', () => {
     toggleRuleActiveAsync: vi.fn(),
   };
 
+  const authServiceMock = {
+    isGuest: signal(false),
+  };
+
+  const syncStateMock = {
+    currentHousehold: signal({
+      id: 'hh-mock',
+      name: 'Domowy Budżet',
+      ownerUid: 'uid-1',
+      members: ['uid-1'],
+      inviteCode: 'BF1234',
+      createdAt: '2026-11-14T10:00:00Z',
+      updatedAt: '2026-11-14T10:00:00Z',
+    }),
+  };
+
+  const syncEngineMock = {
+    joinHousehold: vi.fn(),
+  };
+
   beforeEach(async () => {
     vi.clearAllMocks();
     localStorageMock.getItem.mockReturnValue(null);
@@ -112,12 +134,16 @@ describe('SettingsPageScreen (integration)', () => {
         { provide: LocalStorageService, useValue: localStorageMock },
         { provide: BackupRestoreService, useValue: backupRestoreServiceMock },
         { provide: RecurringRuleService, useValue: recurringRuleServiceMock },
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: SyncState, useValue: syncStateMock },
+        { provide: SyncEngineService, useValue: syncEngineMock },
       ],
     }).compileComponents();
   });
 
   it('should render all section titles including backup', async () => {
     await render(SettingsPageScreen);
+    expect(screen.getByText('Gospodarstwo domowe')).toBeDefined();
     expect(screen.getByText('Kategorie i podkategorie')).toBeDefined();
     expect(screen.getByText('Opłaty cykliczne')).toBeDefined();
     expect(screen.getByText('Motyw kolorystyczny')).toBeDefined();

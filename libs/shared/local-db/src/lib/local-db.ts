@@ -1,10 +1,11 @@
 // spec: docs/specs/sync/01-firestore-sync.md
 // spec: docs/specs/transaction/recurring-transactions.md
+// spec: docs/specs/sync/02-multi-user-household.md
 import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
 
 export const BUDGET_FORT_DB_NAME = 'budget-fort-db';
-export const BUDGET_FORT_DB_VERSION = 6;
+export const BUDGET_FORT_DB_VERSION = 7;
 export const TRANSACTION_DB_TOKEN = 'transaction';
 export const CATEGORY_DB_TOKEN = 'category';
 export const SUBCATEGORY_DB_TOKEN = 'subcategory';
@@ -30,7 +31,7 @@ export const BUDGET_FORT_DB_STORES_V5 = {
   [SYNC_QUEUE_DB_TOKEN]: 'id,store,entityId,createdAt,retryCount',
 } as const;
 
-export const BUDGET_FORT_DB_STORES = {
+export const BUDGET_FORT_DB_STORES_V6 = {
   [TRANSACTION_DB_TOKEN]:
     'id,date,categoryId,accountId,subcategory,recurringRuleId,updatedAt,isDeleted',
   [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name,updatedAt,isDeleted',
@@ -40,6 +41,18 @@ export const BUDGET_FORT_DB_STORES = {
   [SYNC_QUEUE_DB_TOKEN]: 'id,store,entityId,createdAt,retryCount',
   [RECURRING_RULE_DB_TOKEN]:
     'id,categoryId,dayOfMonth,isActive,lastGeneratedMonth,updatedAt,isDeleted',
+} as const;
+
+export const BUDGET_FORT_DB_STORES = {
+  [TRANSACTION_DB_TOKEN]:
+    'id,date,categoryId,accountId,subcategory,recurringRuleId,householdId,authorId,updatedAt,isDeleted',
+  [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name,householdId,updatedAt,isDeleted',
+  [SUBCATEGORY_DB_TOKEN]: 'id,categoryId,name,householdId,updatedAt,isDeleted',
+  [BUDGET_DB_TOKEN]: 'id,householdId,updatedAt,isDeleted',
+  [CATEGORY_BUDGET_DB_TOKEN]: 'id,categoryId,householdId,updatedAt,isDeleted',
+  [SYNC_QUEUE_DB_TOKEN]: 'id,store,entityId,createdAt,retryCount',
+  [RECURRING_RULE_DB_TOKEN]:
+    'id,categoryId,dayOfMonth,isActive,lastGeneratedMonth,householdId,updatedAt,isDeleted',
 } as const;
 
 export type BudgetFortStoreName = keyof typeof BUDGET_FORT_DB_STORES;
@@ -110,7 +123,31 @@ export class LocalDbService {
           });
       });
 
-    database.version(BUDGET_FORT_DB_VERSION).stores(BUDGET_FORT_DB_STORES);
+    database.version(6).stores(BUDGET_FORT_DB_STORES_V6);
+
+    database
+      .version(BUDGET_FORT_DB_VERSION)
+      .stores(BUDGET_FORT_DB_STORES)
+      .upgrade(async (tx) => {
+        const defaultHouseholdId = 'local';
+        const tables = [
+          TRANSACTION_DB_TOKEN,
+          CATEGORY_DB_TOKEN,
+          SUBCATEGORY_DB_TOKEN,
+          BUDGET_DB_TOKEN,
+          CATEGORY_BUDGET_DB_TOKEN,
+          RECURRING_RULE_DB_TOKEN,
+        ];
+
+        for (const tableName of tables) {
+          await tx
+            .table(tableName)
+            .toCollection()
+            .modify((record: Record<string, unknown>) => {
+              record['householdId'] = record['householdId'] ?? defaultHouseholdId;
+            });
+        }
+      });
 
     return database;
   }

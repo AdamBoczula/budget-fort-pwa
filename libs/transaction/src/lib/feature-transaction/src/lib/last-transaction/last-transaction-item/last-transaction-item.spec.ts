@@ -183,4 +183,18 @@ describe('LastTransactionItemComponent', () => {
     expect(recurringIcon).toBeInTheDocument();
     expect(recurringIcon).toHaveTextContent('repeat');
   });
+
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-2
+  it('should render author name when present', async () => {
+    const txWithAuthor: Transaction = {
+      ...expenseTransaction,
+      authorName: 'Marta',
+    };
+    await render(LastTransactionItemComponent, {
+      componentInputs: { transaction: txWithAuthor, category: expenseCategory },
+    });
+    const authorSpan = screen.getByTestId('last-transaction-item__author');
+    expect(authorSpan).toBeInTheDocument();
+    expect(authorSpan).toHaveTextContent('Marta');
+  });
 });
