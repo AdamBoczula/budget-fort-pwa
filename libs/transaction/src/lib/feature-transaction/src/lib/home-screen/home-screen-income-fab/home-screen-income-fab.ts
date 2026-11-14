@@ -58,14 +58,20 @@ export class HomeScreenIncomeFabComponent {
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
       if (result) {
-        void this.transactionState.addTransaction({
-          id: crypto.randomUUID(),
-          amount: result.amount,
-          date: result.date,
-          categoryId: result.categoryId,
-          accountId: result.accountId,
-          comment: result.comment,
-        });
+        const recurringOptions = result.isRecurring
+          ? { isRecurring: true, dayOfMonth: result.recurringDayOfMonth }
+          : undefined;
+        void this.transactionState.addTransaction(
+          {
+            id: crypto.randomUUID(),
+            amount: result.amount,
+            date: result.date,
+            categoryId: result.categoryId,
+            accountId: result.accountId,
+            comment: result.comment,
+          },
+          ...(recurringOptions ? [recurringOptions] : []),
+        );
         this.snackBar.open('Dodano przychód.', undefined, { duration: 3000 });
       }
     });

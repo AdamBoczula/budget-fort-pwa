@@ -1,15 +1,17 @@
 // spec: docs/specs/sync/01-firestore-sync.md
+// spec: docs/specs/transaction/recurring-transactions.md
 import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
 
 export const BUDGET_FORT_DB_NAME = 'budget-fort-db';
-export const BUDGET_FORT_DB_VERSION = 5;
+export const BUDGET_FORT_DB_VERSION = 6;
 export const TRANSACTION_DB_TOKEN = 'transaction';
 export const CATEGORY_DB_TOKEN = 'category';
 export const SUBCATEGORY_DB_TOKEN = 'subcategory';
 export const BUDGET_DB_TOKEN = 'budget';
 export const CATEGORY_BUDGET_DB_TOKEN = 'categoryBudget';
 export const SYNC_QUEUE_DB_TOKEN = 'syncQueue';
+export const RECURRING_RULE_DB_TOKEN = 'recurringRule';
 
 export const BUDGET_FORT_DB_STORES_V4 = {
   [TRANSACTION_DB_TOKEN]: 'id,date,categoryId,accountId,subcategory',
@@ -19,13 +21,25 @@ export const BUDGET_FORT_DB_STORES_V4 = {
   [CATEGORY_BUDGET_DB_TOKEN]: 'id,categoryId',
 } as const;
 
-export const BUDGET_FORT_DB_STORES = {
+export const BUDGET_FORT_DB_STORES_V5 = {
   [TRANSACTION_DB_TOKEN]: 'id,date,categoryId,accountId,subcategory,updatedAt,isDeleted',
   [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name,updatedAt,isDeleted',
   [SUBCATEGORY_DB_TOKEN]: 'id,categoryId,name,updatedAt,isDeleted',
   [BUDGET_DB_TOKEN]: 'id,updatedAt,isDeleted',
   [CATEGORY_BUDGET_DB_TOKEN]: 'id,categoryId,updatedAt,isDeleted',
   [SYNC_QUEUE_DB_TOKEN]: 'id,store,entityId,createdAt,retryCount',
+} as const;
+
+export const BUDGET_FORT_DB_STORES = {
+  [TRANSACTION_DB_TOKEN]:
+    'id,date,categoryId,accountId,subcategory,recurringRuleId,updatedAt,isDeleted',
+  [CATEGORY_DB_TOKEN]: 'id,sortOrder,isHidden,name,updatedAt,isDeleted',
+  [SUBCATEGORY_DB_TOKEN]: 'id,categoryId,name,updatedAt,isDeleted',
+  [BUDGET_DB_TOKEN]: 'id,updatedAt,isDeleted',
+  [CATEGORY_BUDGET_DB_TOKEN]: 'id,categoryId,updatedAt,isDeleted',
+  [SYNC_QUEUE_DB_TOKEN]: 'id,store,entityId,createdAt,retryCount',
+  [RECURRING_RULE_DB_TOKEN]:
+    'id,categoryId,dayOfMonth,isActive,lastGeneratedMonth,updatedAt,isDeleted',
 } as const;
 
 export type BudgetFortStoreName = keyof typeof BUDGET_FORT_DB_STORES;
@@ -50,8 +64,8 @@ export class LocalDbService {
     database.version(4).stores(BUDGET_FORT_DB_STORES_V4);
 
     database
-      .version(BUDGET_FORT_DB_VERSION)
-      .stores(BUDGET_FORT_DB_STORES)
+      .version(5)
+      .stores(BUDGET_FORT_DB_STORES_V5)
       .upgrade(async (tx) => {
         const now = new Date().toISOString();
 
@@ -95,6 +109,8 @@ export class LocalDbService {
             s['isDeleted'] = s['isDeleted'] ?? false;
           });
       });
+
+    database.version(BUDGET_FORT_DB_VERSION).stores(BUDGET_FORT_DB_STORES);
 
     return database;
   }

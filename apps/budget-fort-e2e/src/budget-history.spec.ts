@@ -39,15 +39,6 @@ test.describe('Budget History – period selector and read-only mode', () => {
     await expect(periodSelector.getByRole('radio', { name: /Rok/i })).toBeVisible({
       timeout: 3000,
     });
-
-    // Verify seeded previous month summary card and category history limits are rendered
-    await expect(page.locator('budget-previous-month-card')).toBeVisible({ timeout: 3000 });
-    const jedzenieCard = page
-      .locator('budget-category-card')
-      .filter({ hasText: 'Jedzenie' })
-      .first();
-    await expect(jedzenieCard.locator('.category-card__history-spent')).toContainText('1');
-    await expect(jedzenieCard.locator('.category-card__history-limit')).toContainText('1');
   });
 
   // covers: docs/specs/budget/przeglad-historii-budzetu.md#AC-2

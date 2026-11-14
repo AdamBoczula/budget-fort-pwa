@@ -68,15 +68,21 @@ export class CategoriesQuickAddComponent {
     });
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
       if (result) {
-        void this.transactionState.addTransaction({
-          id: crypto.randomUUID(),
-          amount: result.amount,
-          date: result.date,
-          categoryId: result.categoryId,
-          accountId: result.accountId,
-          comment: result.comment,
-          subcategory: result.subcategory,
-        });
+        const recurringOptions = result.isRecurring
+          ? { isRecurring: true, dayOfMonth: result.recurringDayOfMonth }
+          : undefined;
+        void this.transactionState.addTransaction(
+          {
+            id: crypto.randomUUID(),
+            amount: result.amount,
+            date: result.date,
+            categoryId: result.categoryId,
+            accountId: result.accountId,
+            comment: result.comment,
+            subcategory: result.subcategory,
+          },
+          ...(recurringOptions ? [recurringOptions] : []),
+        );
         this.snackBar.open('Dodano transakcję.', undefined, { duration: 3000 });
       }
     });

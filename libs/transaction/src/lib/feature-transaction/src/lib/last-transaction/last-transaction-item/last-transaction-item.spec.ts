@@ -11,14 +11,25 @@ describe('LastTransactionItemComponent', () => {
   });
 
   const expenseCategory: Category = {
-    id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-    sortOrder: 10, isHidden: false,
-    createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    id: 'food',
+    name: 'Jedzenie',
+    colorHex: '#16A34A',
+    icon: 'restaurant',
+    sortOrder: 10,
+    isHidden: false,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
   };
   const incomeCategory: Category = {
-    id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
-    sortOrder: 5, isHidden: false, transactionType: 'income',
-    createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+    id: 'income',
+    name: 'Zarobek',
+    colorHex: '#10B981',
+    icon: 'savings',
+    sortOrder: 5,
+    isHidden: false,
+    transactionType: 'income',
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
   };
 
   const expenseTransaction: Transaction = {
@@ -157,5 +168,19 @@ describe('LastTransactionItemComponent', () => {
     const icon = screen.getByTestId('last-transaction-item__icon');
     expect(icon.querySelector('mat-icon')).toHaveTextContent('category');
     expect(icon.style.backgroundColor).toBe('rgb(107, 114, 128)');
+  });
+
+  // covers: docs/specs/transaction/recurring-transactions.md#AC-5
+  it('should render recurring icon when transaction has recurringRuleId', async () => {
+    const recurringTx: Transaction = {
+      ...expenseTransaction,
+      recurringRuleId: 'rule-netflix',
+    };
+    await render(LastTransactionItemComponent, {
+      componentInputs: { transaction: recurringTx, category: expenseCategory },
+    });
+    const recurringIcon = screen.getByTestId('last-transaction-item__recurring-icon');
+    expect(recurringIcon).toBeInTheDocument();
+    expect(recurringIcon).toHaveTextContent('repeat');
   });
 });

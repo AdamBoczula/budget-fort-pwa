@@ -20,6 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   Category,
@@ -43,6 +44,8 @@ export type TransactionFormResult = {
   accountId: string;
   subcategory?: string;
   transaction?: Transaction;
+  isRecurring?: boolean;
+  recurringDayOfMonth?: number;
 };
 
 @Component({
@@ -57,6 +60,7 @@ export type TransactionFormResult = {
     MatIconModule,
     MatInputModule,
     MatMenuModule,
+    MatSlideToggleModule,
     MatTooltipModule,
   ],
   template: `
@@ -185,6 +189,35 @@ export type TransactionFormResult = {
             placeholder="Np. Obiad w pracy"
           />
         </mat-form-field>
+
+        @if (!isEditMode) {
+          <div class="recurring-section">
+            <mat-slide-toggle
+              [(ngModel)]="isRecurring"
+              name="isRecurring"
+              color="primary"
+              i18n="@@transactionForm.recurringToggle"
+            >
+              Ustaw jako wydatek cykliczny
+            </mat-slide-toggle>
+
+            @if (isRecurring) {
+              <mat-form-field appearance="outline" class="full-width recurring-day-field">
+                <mat-label i18n="@@transactionForm.recurringDayLabel">Dzień miesiąca</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  min="1"
+                  max="31"
+                  [(ngModel)]="recurringDayOfMonth"
+                  name="recurringDayOfMonth"
+                  required
+                />
+                <span matSuffix i18n="@@transactionForm.daySuffix">. dzień</span>
+              </mat-form-field>
+            }
+          </div>
+        }
       </div>
     </mat-dialog-content>
 
@@ -248,6 +281,8 @@ export class TransactionFormComponent implements AfterViewInit {
   protected amount: number | null = null;
   protected selectedDate: Date = new Date();
   protected comment = '';
+  protected isRecurring = false;
+  protected recurringDayOfMonth = 1;
   protected subcategorySignal = signal('');
   /** Sync from ngModel — we read signal for computed reactivity, but field is bound for ngModel. */
   protected get subcategory(): string {
@@ -357,6 +392,8 @@ export class TransactionFormComponent implements AfterViewInit {
       subcategory: trimmedSubcategory || undefined,
       accountId: 'default',
       transaction: this.isEditMode ? this.dialogData.transaction : undefined,
+      isRecurring: !this.isEditMode && this.isRecurring,
+      recurringDayOfMonth: this.recurringDayOfMonth,
     });
   }
 

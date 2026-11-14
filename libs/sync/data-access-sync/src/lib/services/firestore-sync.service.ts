@@ -106,6 +106,7 @@ export class FirestoreSyncService {
       'transaction',
       'budget',
       'categoryBudget',
+      'recurringRule',
     ];
 
     const result: Record<SyncableStoreName, Record<string, unknown>[]> = {
@@ -114,6 +115,7 @@ export class FirestoreSyncService {
       transaction: [],
       budget: [],
       categoryBudget: [],
+      recurringRule: [],
     };
 
     if (!this.firestore || !userId) {

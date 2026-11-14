@@ -142,3 +142,16 @@
     flex-shrink: 0;
   }
 }
+
+.recurring-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px dashed var(--app-color-outline, rgb(148 163 184 / 0.3));
+}
+
+.recurring-day-field {
+  max-width: 12rem;
+  margin-top: 0.25rem;
+}

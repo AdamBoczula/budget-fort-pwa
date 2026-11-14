@@ -6,7 +6,9 @@ import {
   SubcategoryService,
   Category,
   Subcategory,
+  RecurringRuleService,
 } from '@data-access-transaction';
+import { signal } from '@angular/core';
 import { LocalStorageService, BackupRestoreService } from 'local-db';
 import { SettingsPageScreen } from './settings-screen';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -86,6 +88,16 @@ describe('SettingsPageScreen (integration)', () => {
     restoreBackup: vi.fn(),
   };
 
+  const recurringRuleServiceMock = {
+    getRulesAsync: vi.fn().mockResolvedValue([]),
+    rules: signal([]).asReadonly(),
+    totalMonthlyAmount: signal(0).asReadonly(),
+    addRuleAsync: vi.fn(),
+    updateRuleAsync: vi.fn(),
+    deleteRuleAsync: vi.fn(),
+    toggleRuleActiveAsync: vi.fn(),
+  };
+
   beforeEach(async () => {
     vi.clearAllMocks();
     localStorageMock.getItem.mockReturnValue(null);
@@ -99,6 +111,7 @@ describe('SettingsPageScreen (integration)', () => {
         { provide: SubcategoryService, useValue: subcategoryServiceMock },
         { provide: LocalStorageService, useValue: localStorageMock },
         { provide: BackupRestoreService, useValue: backupRestoreServiceMock },
+        { provide: RecurringRuleService, useValue: recurringRuleServiceMock },
       ],
     }).compileComponents();
   });
@@ -106,6 +119,7 @@ describe('SettingsPageScreen (integration)', () => {
   it('should render all section titles including backup', async () => {
     await render(SettingsPageScreen);
     expect(screen.getByText('Kategorie i podkategorie')).toBeDefined();
+    expect(screen.getByText('Opłaty cykliczne')).toBeDefined();
     expect(screen.getByText('Motyw kolorystyczny')).toBeDefined();
     expect(screen.getByText('Waluta')).toBeDefined();
     expect(screen.getByText('Kopia zapasowa i dane')).toBeDefined();

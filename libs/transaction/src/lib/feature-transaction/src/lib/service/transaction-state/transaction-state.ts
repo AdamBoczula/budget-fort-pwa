@@ -1,5 +1,10 @@
 import { computed, inject, Injectable, LOCALE_ID, resource, signal } from '@angular/core';
-import { Transaction, TransactionService } from '@data-access-transaction';
+import {
+  RecurringRuleService,
+  RecurringTransactionRule,
+  Transaction,
+  TransactionService,
+} from '@data-access-transaction';
 
 type TransactionGroup = {
   label: string;
@@ -9,6 +14,7 @@ type TransactionGroup = {
 @Injectable({ providedIn: 'root' })
 export class TransactionState {
   private readonly transactionService = inject(TransactionService);
+  private readonly recurringRuleService = inject(RecurringRuleService, { optional: true });
   private readonly localeId = inject(LOCALE_ID);
 
   /**
@@ -98,9 +104,32 @@ export class TransactionState {
     }
   }
 
-  public async addTransaction(transaction: Transaction): Promise<void> {
+  public async addTransaction(
+    transaction: Transaction,
+    recurringOptions?: { isRecurring: boolean; dayOfMonth?: number },
+  ): Promise<void> {
     try {
       this.mutationError.set(null);
+      if (recurringOptions?.isRecurring && this.recurringRuleService) {
+        const ruleId = crypto.randomUUID();
+        const day = recurringOptions.dayOfMonth ?? 1;
+        const currentMonth = transaction.date.slice(0, 7);
+        const rule: RecurringTransactionRule = {
+          id: ruleId,
+          amount: Math.abs(transaction.amount),
+          categoryId: transaction.categoryId,
+          accountId: transaction.accountId,
+          subcategory: transaction.subcategory,
+          comment: transaction.comment,
+          dayOfMonth: day,
+          startDate: transaction.date.slice(0, 10),
+          lastGeneratedMonth: currentMonth,
+          isActive: true,
+          updatedAt: new Date().toISOString(),
+        };
+        await this.recurringRuleService.addRuleAsync(rule);
+        transaction.recurringRuleId = ruleId;
+      }
       await this.transactionService.addTransactionAsync(transaction);
       this.dataVersion.update((v) => v + 1);
     } catch {

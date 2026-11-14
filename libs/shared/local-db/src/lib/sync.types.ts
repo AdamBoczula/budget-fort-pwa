@@ -10,7 +10,7 @@ export interface SyncableEntity {
 export type SyncOperationType = 'upsert' | 'delete';
 
 export type SyncableStoreName =
-  'transaction' | 'category' | 'subcategory' | 'budget' | 'categoryBudget';
+  'transaction' | 'category' | 'subcategory' | 'budget' | 'categoryBudget' | 'recurringRule';
 
 export interface SyncQueueItem {
   id: string;

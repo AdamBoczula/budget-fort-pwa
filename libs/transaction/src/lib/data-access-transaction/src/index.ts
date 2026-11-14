@@ -8,3 +8,7 @@ export * from './lib/data-access-transaction/subcategory/subcategory.defaults';
 export * from './lib/data-access-transaction/subcategory/subcategory.service';
 export * from './lib/data-access-transaction/subcategory/subcategory-store';
 export * from './lib/data-access-transaction/model/subcategory.type';
+export * from './lib/data-access-transaction/model/recurring-rule.type';
+export * from './lib/data-access-transaction/recurring-rule/recurring-rule-store';
+export * from './lib/data-access-transaction/recurring-rule/recurring-rule.service';
+export * from './lib/data-access-transaction/recurring-rule/recurring-transaction-generator.service';
