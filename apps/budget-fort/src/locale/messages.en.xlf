@@ -464,8 +464,8 @@
         <target>Your file is invalid</target>
       </trans-unit>
       <trans-unit id="settings.invalidData" datatype="html">
-        <source>Błędne dane w pliku: <x id="PH" equiv-text="details"/></source>
-        <target>Invalid data in file: <x id="PH" equiv-text="details"/></target>
+        <source>Błędne dane w pliku: <x id="details" equiv-text="details"/></source>
+        <target>Invalid data in file: <x id="details" equiv-text="details"/></target>
       </trans-unit>
       <trans-unit id="settings.restoreDialogTitle" datatype="html">
         <source>Przywracanie kopii zapasowej</source>

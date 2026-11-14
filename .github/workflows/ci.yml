@@ -82,6 +82,9 @@ jobs:
       - name: Build applications and packages
         run: npx nx run-many -t build
 
+      - name: Build localized bundles (EN)
+        run: npx nx run budget-fort:build:production-en
+
   e2e:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
