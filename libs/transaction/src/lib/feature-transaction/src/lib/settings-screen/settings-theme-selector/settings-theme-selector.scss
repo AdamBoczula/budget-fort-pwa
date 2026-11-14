@@ -2,7 +2,7 @@
   padding: 1rem 0;
 
   h2 {
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.75rem;
     font: var(--mat-sys-title-medium-font);
     font-size: var(--mat-sys-title-medium-size);
     font-weight: var(--mat-sys-title-medium-weight);
@@ -32,12 +32,15 @@
   &[data-theme='azure-blue'] {
     background: linear-gradient(135deg, #0284c7, #1d4ed8);
   }
+
   &[data-theme='rose-red'] {
     background: linear-gradient(135deg, #e11d48, #dc2626);
   }
+
   &[data-theme='magenta-violet'] {
     background: linear-gradient(135deg, #c026d3, #7c3aed);
   }
+
   &[data-theme='cyan-orange'] {
     background: linear-gradient(135deg, #06b6d4, #f97316);
   }
