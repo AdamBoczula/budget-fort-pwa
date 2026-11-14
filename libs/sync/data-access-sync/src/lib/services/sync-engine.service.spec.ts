@@ -1,4 +1,5 @@
 // spec: docs/specs/sync/01-firestore-sync.md
+// spec: docs/specs/sync/02-multi-user-household.md
 
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -25,9 +26,12 @@ describe('SyncEngineService', () => {
     enqueue: ReturnType<typeof vi.fn>;
   };
   let mockFirestore: {
+    isAvailable: ReturnType<typeof vi.fn>;
     pushBatch: ReturnType<typeof vi.fn>;
     pullChanges: ReturnType<typeof vi.fn>;
     pullAll: ReturnType<typeof vi.fn>;
+    getOrCreateHousehold: ReturnType<typeof vi.fn>;
+    joinHouseholdByInviteCode: ReturnType<typeof vi.fn>;
   };
   let mockLocalTable: {
     get: ReturnType<typeof vi.fn>;
@@ -52,6 +56,7 @@ describe('SyncEngineService', () => {
     };
 
     mockFirestore = {
+      isAvailable: vi.fn(() => true),
       pushBatch: vi.fn(async () => []),
       pullChanges: vi.fn(async () => []),
       pullAll: vi.fn(async () => ({
@@ -60,6 +65,27 @@ describe('SyncEngineService', () => {
         transaction: [],
         budget: [],
         categoryBudget: [],
+        recurringRule: [],
+      })),
+      getOrCreateHousehold: vi.fn(async (user) => ({
+        id: `hh-${user.uid}`,
+        name: 'Budżet Domowy',
+        ownerUid: user.uid,
+        members: [user.uid],
+        inviteCode: 'BFTEST',
+        createdAt: '2026-11-14T10:00:00Z',
+        updatedAt: '2026-11-14T10:00:00Z',
+        isDeleted: false,
+      })),
+      joinHouseholdByInviteCode: vi.fn(async (code, user) => ({
+        id: 'hh-partner',
+        name: 'Budżet Partnera',
+        ownerUid: 'partner-uid',
+        members: ['partner-uid', user.uid],
+        inviteCode: code,
+        createdAt: '2026-11-14T10:00:00Z',
+        updatedAt: '2026-11-14T10:00:00Z',
+        isDeleted: false,
       })),
     };
 
@@ -98,7 +124,9 @@ describe('SyncEngineService', () => {
   });
 
   // covers: docs/specs/sync/01-firestore-sync.md#AC-2
-  it('should push pending changes and remove processed IDs', async () => {
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-1
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-3
+  it('should resolve household and push pending changes to household path', async () => {
     const queueItems = [
       {
         id: 'q-1',
@@ -116,17 +144,19 @@ describe('SyncEngineService', () => {
 
     await service.syncNow();
 
-    expect(mockFirestore.pushBatch).toHaveBeenCalledWith('test-user-1', queueItems);
+    expect(mockFirestore.getOrCreateHousehold).toHaveBeenCalled();
+    expect(mockFirestore.pushBatch).toHaveBeenCalledWith('hh-test-user-1', queueItems);
     expect(mockQueue.removeMany).toHaveBeenCalledWith(['q-1']);
   });
 
   // covers: docs/specs/sync/01-firestore-sync.md#AC-3
-  it('should apply Last-Write-Wins (LWW) conflict resolution during pull', async () => {
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-6
+  it('should apply Field-level Last-Write-Wins (LWW) conflict resolution during pull', async () => {
     const syncState = TestBed.inject(SyncState);
     syncState.setLastSyncedAt('2026-11-13T10:00:00Z');
 
-    // Remote has newer updatedAt
-    mockFirestore.pullChanges.mockImplementation(async (uid, store) => {
+    // Remote has newer updatedAt and updated amount
+    mockFirestore.pullChanges.mockImplementation(async (hid, store) => {
       if (store === 'transaction') {
         return [
           {
@@ -139,10 +169,11 @@ describe('SyncEngineService', () => {
       return [];
     });
 
-    // Local has older updatedAt
+    // Local has older updatedAt and an existing comment field
     mockLocalTable.get.mockResolvedValueOnce({
       id: 'tx-1',
       amount: 100,
+      comment: 'Wspolne zakupy',
       updatedAt: '2026-11-13T11:00:00Z',
     });
 
@@ -151,22 +182,25 @@ describe('SyncEngineService', () => {
     expect(mockLocalTable.put).toHaveBeenCalledWith({
       id: 'tx-1',
       amount: 150,
+      comment: 'Wspolne zakupy',
       updatedAt: '2026-11-13T12:00:00Z',
     });
   });
 
   // covers: docs/specs/sync/01-firestore-sync.md#AC-3
-  it('should keep local version if local is newer than remote during pull', async () => {
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-6
+  it('should merge fields preserving local changes when local is newer during pull', async () => {
     const syncState = TestBed.inject(SyncState);
     syncState.setLastSyncedAt('2026-11-13T10:00:00Z');
 
     // Remote has older updatedAt
-    mockFirestore.pullChanges.mockImplementation(async (uid, store) => {
+    mockFirestore.pullChanges.mockImplementation(async (hid, store) => {
       if (store === 'transaction') {
         return [
           {
             id: 'tx-1',
             amount: 150,
+            authorName: 'Anna',
             updatedAt: '2026-11-13T10:30:00Z',
           },
         ];
@@ -183,7 +217,24 @@ describe('SyncEngineService', () => {
 
     await service.syncNow();
 
-    // put should not be called since local is newer
-    expect(mockLocalTable.put).not.toHaveBeenCalled();
+    // Field-level LWW: preserves local amount: 200, but preserves remote authorName: 'Anna'
+    expect(mockLocalTable.put).toHaveBeenCalledWith({
+      id: 'tx-1',
+      amount: 200,
+      authorName: 'Anna',
+      updatedAt: '2026-11-13T11:00:00Z',
+    });
+  });
+
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-4
+  it('should allow joining household by invite code and trigger initial pull', async () => {
+    const household = await service.joinHousehold('BFTEST');
+
+    expect(mockFirestore.joinHouseholdByInviteCode).toHaveBeenCalledWith('BFTEST', {
+      uid: 'test-user-1',
+      email: 'test@example.com',
+    });
+    expect(household.id).toBe('hh-partner');
+    expect(mockFirestore.pullAll).toHaveBeenCalledWith('hh-partner');
   });
 });

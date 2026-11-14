@@ -113,6 +113,13 @@
   }
 }
 
+.author {
+  font-weight: 500;
+  color: var(--mat-sys-primary, #3b82f6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .comment {
   white-space: nowrap;
   overflow: hidden;

@@ -1,12 +1,13 @@
 // spec: docs/specs/sync/01-firestore-sync.md
+// spec: docs/specs/sync/02-multi-user-household.md
 
 import { effect, inject, Injectable } from '@angular/core';
 import { AuthService } from '@data-access-auth';
 import {
   BUDGET_DB_TOKEN,
-  BudgetFortStoreName,
   CATEGORY_BUDGET_DB_TOKEN,
   CATEGORY_DB_TOKEN,
+  Household,
   LocalDbService,
   RECURRING_RULE_DB_TOKEN,
   SUBCATEGORY_DB_TOKEN,
@@ -73,7 +74,7 @@ export class SyncEngineService {
   }
 
   /**
-   * Main synchronization loop: Pushes local changes to Firestore and pulls delta updates.
+   * Main synchronization loop: Pushes local changes to Firestore and pulls delta updates for the current household.
    */
   async syncNow(): Promise<void> {
     if (this.isRunning) {
@@ -102,15 +103,24 @@ export class SyncEngineService {
     this.syncState.setSyncing();
 
     try {
+      // 0. Ensure household is resolved
+      let household = this.syncState.currentHousehold();
+      if (!household && this.firestoreSync.isAvailable()) {
+        household = await this.firestoreSync.getOrCreateHousehold(user);
+        this.syncState.setCurrentHousehold(household);
+      }
+
+      const householdId = household?.id ?? user.uid;
+
       // 1. Push local changes
-      await this.pushPendingChanges(user.uid);
+      await this.pushPendingChanges(householdId);
 
       // 2. Pull remote changes (Delta sync or Initial pull)
       const lastSynced = this.syncState.lastSyncedAt();
       if (!lastSynced) {
-        await this.initialPull(user.uid);
+        await this.initialPull(householdId);
       } else {
-        await this.pullDeltaChanges(user.uid, lastSynced);
+        await this.pullDeltaChanges(householdId, lastSynced);
       }
 
       // 3. Update sync state
@@ -132,14 +142,35 @@ export class SyncEngineService {
   }
 
   /**
+   * Joins an existing household and immediately pulls shared budget data.
+   */
+  async joinHousehold(inviteCode: string): Promise<Household> {
+    const user = this.auth.currentUser();
+    if (!user) {
+      throw new Error('Musisz być zalogowany, aby dołączyć do gospodarstwa domowego.');
+    }
+
+    const household = await this.firestoreSync.joinHouseholdByInviteCode(inviteCode, user);
+    this.syncState.setCurrentHousehold(household);
+    this.syncState.setLastSyncedAt('');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(LAST_SYNCED_STORAGE_KEY);
+    }
+
+    await this.initialPull(household.id);
+    await this.syncNow();
+    return household;
+  }
+
+  /**
    * Pushes all pending queue items in batches.
    */
-  private async pushPendingChanges(userId: string): Promise<void> {
+  private async pushPendingChanges(householdId: string): Promise<void> {
     const batchSize = 50;
     let items = await this.syncQueue.peek(batchSize);
 
     while (items.length > 0) {
-      const processedIds = await this.firestoreSync.pushBatch(userId, items);
+      const processedIds = await this.firestoreSync.pushBatch(householdId, items);
       if (processedIds.length > 0) {
         await this.syncQueue.removeMany(processedIds);
       } else {
@@ -150,10 +181,10 @@ export class SyncEngineService {
   }
 
   /**
-   * Performs an initial complete pull of user data when syncing for the first time.
+   * Performs an initial complete pull of household data when syncing for the first time.
    */
-  async initialPull(userId: string): Promise<void> {
-    const data = await this.firestoreSync.pullAll(userId);
+  async initialPull(householdId: string): Promise<void> {
+    const data = await this.firestoreSync.pullAll(householdId);
 
     for (const store of SYNCABLE_STORES) {
       const remoteItems = data[store];
@@ -165,11 +196,11 @@ export class SyncEngineService {
   }
 
   /**
-   * Pulls remote changes using Delta Sync and applies Last-Write-Wins (LWW) conflict resolution.
+   * Pulls remote changes using Delta Sync and applies Field-level Last-Write-Wins (LWW) conflict resolution.
    */
-  private async pullDeltaChanges(userId: string, sinceTimestamp: string): Promise<void> {
+  private async pullDeltaChanges(householdId: string, sinceTimestamp: string): Promise<void> {
     for (const store of SYNCABLE_STORES) {
-      const changedDocs = await this.firestoreSync.pullChanges(userId, store, sinceTimestamp);
+      const changedDocs = await this.firestoreSync.pullChanges(householdId, store, sinceTimestamp);
 
       if (changedDocs.length === 0) {
         continue;
@@ -188,41 +219,17 @@ export class SyncEngineService {
         if (!local) {
           await table.put(remote);
         } else {
-          // Last-Write-Wins (LWW)
+          // Field-level Last-Write-Wins (LWW)
           const localUpdated = String(local['updatedAt'] ?? '');
           const remoteUpdated = String(remote['updatedAt'] ?? '');
 
           if (remoteUpdated >= localUpdated) {
-            await table.put(remote);
+            await table.put({ ...local, ...remote });
+          } else {
+            await table.put({ ...remote, ...local });
           }
         }
       }
     }
-  }
-
-  /**
-   * Enqueues all existing local records for synchronization when a guest logs in.
-   */
-  async mergeGuestDataToCloud(): Promise<void> {
-    const stores: Array<{ store: SyncableStoreName; token: BudgetFortStoreName }> = [
-      { store: 'category', token: CATEGORY_DB_TOKEN },
-      { store: 'subcategory', token: SUBCATEGORY_DB_TOKEN },
-      { store: 'transaction', token: TRANSACTION_DB_TOKEN },
-      { store: 'budget', token: BUDGET_DB_TOKEN },
-      { store: 'categoryBudget', token: CATEGORY_BUDGET_DB_TOKEN },
-      { store: 'recurringRule', token: RECURRING_RULE_DB_TOKEN },
-    ];
-
-    for (const { store, token } of stores) {
-      const items = await this.localDb.getTable<Record<string, unknown>>(token).toArray();
-      for (const item of items) {
-        const id = String(item['id']);
-        if (id) {
-          await this.syncQueue.enqueue(store, id, 'upsert', item);
-        }
-      }
-    }
-
-    await this.syncNow();
   }
 }

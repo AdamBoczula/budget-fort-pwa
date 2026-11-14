@@ -48,6 +48,12 @@ import { CurrencyService } from '@currency';
             }
           </span>
           <div class="meta">
+            @if (transaction().authorName) {
+              <span class="author" data-testid="last-transaction-item__author">
+                {{ transaction().authorName }}
+              </span>
+              <span class="meta__dot" aria-hidden="true">·</span>
+            }
             @if (transaction().comment) {
               <span class="comment" data-testid="last-transaction-item__comment">
                 {{ transaction().comment }}
