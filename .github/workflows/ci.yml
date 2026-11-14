@@ -37,6 +37,9 @@ jobs:
       - name: Lint workspace projects
         run: npx nx run-many -t lint
 
+      - name: Lint SCSS styles
+        run: npm run lint:css
+
   unit-tests:
     name: Unit Tests (UT)
     runs-on: ubuntu-latest
