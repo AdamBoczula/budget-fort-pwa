@@ -57,7 +57,8 @@
               "maximumError": "8kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "serviceWorker": "apps/budget-fort/ngsw-config.json"
         },
         "production-en": {
           "fileReplacements": [
@@ -80,7 +81,8 @@
               "maximumError": "8kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "serviceWorker": "apps/budget-fort/ngsw-config.json"
         },
         "development": {
           "fileReplacements": [
