@@ -11,12 +11,14 @@ export class SyncState {
   private readonly _pendingCount = signal<number>(0);
   private readonly _errorMessage = signal<string | null>(null);
   private readonly _currentHousehold = signal<Household | null>(null);
+  private readonly _syncVersion = signal<number>(0);
 
   readonly status: Signal<SyncStatus> = this._status.asReadonly();
   readonly lastSyncedAt: Signal<string | null> = this._lastSyncedAt.asReadonly();
   readonly pendingCount: Signal<number> = this._pendingCount.asReadonly();
   readonly errorMessage: Signal<string | null> = this._errorMessage.asReadonly();
   readonly currentHousehold: Signal<Household | null> = this._currentHousehold.asReadonly();
+  readonly syncVersion: Signal<number> = this._syncVersion.asReadonly();
 
   readonly householdId: Signal<string> = computed(() => this._currentHousehold()?.id ?? 'local');
 
@@ -68,5 +70,18 @@ export class SyncState {
 
   setCurrentHousehold(household: Household | null): void {
     this._currentHousehold.set(household);
+  }
+
+  notifyDataSynced(): void {
+    this._syncVersion.update((v) => v + 1);
+  }
+
+  reset(): void {
+    this._status.set('idle');
+    this._lastSyncedAt.set(null);
+    this._pendingCount.set(0);
+    this._errorMessage.set(null);
+    this._currentHousehold.set(null);
+    this._syncVersion.update((v) => v + 1);
   }
 }

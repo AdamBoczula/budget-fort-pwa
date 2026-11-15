@@ -183,7 +183,7 @@ service cloud.firestore {
     }
 
     function isValidTransaction(data) {
-      return data.keys().hasOnly(['id', 'amount', 'date', 'categoryId', 'accountId', 'comment', 'subcategory', 'householdId', 'authorId', 'authorName', 'updatedAt', 'isDeleted', 'deletedAt']) &&
+      return data.keys().hasOnly(['id', 'amount', 'date', 'categoryId', 'accountId', 'comment', 'subcategory', 'householdId', 'authorId', 'authorName', 'recurringRuleId', 'updatedAt', 'isDeleted', 'deletedAt']) &&
              isValidUpdatedAt(data) &&
              isValidSoftDelete(data) &&
              (data.id is string && data.id.size() > 0 && data.id.size() <= 128) &&
@@ -196,6 +196,7 @@ service cloud.firestore {
              isValidOptionalString(data, 'householdId', 1, 128) &&
              isValidOptionalString(data, 'authorId', 1, 128) &&
              isValidOptionalNullableString(data, 'authorName', 0, 100) &&
+             isValidOptionalString(data, 'recurringRuleId', 1, 128) &&
              (data.get('isDeleted', false) == true || data.keys().hasAll(['id', 'amount', 'date', 'categoryId', 'accountId', 'updatedAt']));
     }
 

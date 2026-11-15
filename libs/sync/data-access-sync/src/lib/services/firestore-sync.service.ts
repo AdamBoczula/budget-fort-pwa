@@ -10,6 +10,7 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  initializeFirestore,
   query,
   setDoc,
   updateDoc,
@@ -26,7 +27,11 @@ export const FIREBASE_FIRESTORE = new InjectionToken<Firestore>('FIREBASE_FIREST
     }
     const apps = getApps();
     if (apps.length > 0) {
-      return getFirestore(apps[0]);
+      try {
+        return initializeFirestore(apps[0], { ignoreUndefinedProperties: true });
+      } catch {
+        return getFirestore(apps[0]);
+      }
     }
     return undefined as unknown as Firestore;
   },
@@ -63,7 +68,15 @@ export class FirestoreSyncService {
       const docRef = doc(this.firestore, `households/${householdId}/${item.store}`, item.entityId);
 
       if (item.operation === 'upsert' && item.payload) {
-        batch.set(docRef, item.payload, { merge: true });
+        const payload = this.sanitizePayload(item.payload);
+        // CRITICAL: Always stamp current time on push so that subsequent delta syncs on other devices
+        // detect this change even if the item was originally queued offline in the past.
+        const pushTimestamp = new Date().toISOString();
+        payload['updatedAt'] = pushTimestamp;
+        if (item.payload) {
+          item.payload['updatedAt'] = pushTimestamp;
+        }
+        batch.set(docRef, payload, { merge: true });
         processedIds.push(item.id);
       } else if (item.operation === 'delete') {
         const deletedAt = new Date().toISOString();
@@ -83,6 +96,19 @@ export class FirestoreSyncService {
 
     await batch.commit();
     return processedIds;
+  }
+
+  /**
+   * Strips undefined properties so Firestore Web SDK does not throw Unsupported field value: undefined.
+   */
+  public sanitizePayload(payload: Record<string, unknown>): Record<string, unknown> {
+    const cleaned: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(payload)) {
+      if (value !== undefined) {
+        cleaned[key] = value;
+      }
+    }
+    return cleaned;
   }
 
   /**
@@ -138,10 +164,15 @@ export class FirestoreSyncService {
     for (const store of stores) {
       const colRef = collection(this.firestore, `households/${householdId}/${store}`);
       const snapshot = await getDocs(colRef);
-      result[store] = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      }));
+      result[store] = snapshot.docs
+        .map(
+          (docSnap) =>
+            ({
+              id: docSnap.id,
+              ...docSnap.data(),
+            }) as Record<string, unknown>,
+        )
+        .filter((docData) => docData['isDeleted'] !== true);
     }
 
     return result;

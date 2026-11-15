@@ -3,7 +3,7 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAnalytics, type Analytics } from 'firebase/analytics';
 import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, type Firestore } from 'firebase/firestore';
 import { environment } from '../environments/environment';
 
 let _app: FirebaseApp | undefined;
@@ -44,7 +44,13 @@ export function firebaseFirestore(): Firestore | undefined {
     return undefined; // SSR-safe
   }
   if (!_firestore) {
-    _firestore = getFirestore(firebaseApp());
+    try {
+      _firestore = initializeFirestore(firebaseApp(), {
+        ignoreUndefinedProperties: true,
+      });
+    } catch {
+      _firestore = getFirestore(firebaseApp());
+    }
   }
   return _firestore;
 }

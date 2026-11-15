@@ -3,10 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { TransactionThemeId, TransactionThemeOption } from '@ui-transaction';
 import { LocalStorageService } from 'local-db';
-import {
-  THEME_STORAGE_KEY,
-  DEFAULT_THEME_ID,
-} from '../settings-constants';
+import { THEME_STORAGE_KEY, DEFAULT_THEME_ID } from '../settings-constants';
 import { applyThemeClass } from '../theme-utils';
 
 const SETTINGS_THEME_OPTIONS: ReadonlyArray<TransactionThemeOption> = [

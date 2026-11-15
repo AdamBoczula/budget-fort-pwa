@@ -18,9 +18,14 @@ describe('DashboardPageScreen', () => {
 
   const mockCategories: Category[] = [
     {
-      id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-      sortOrder: 10, isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'food',
+      name: 'Jedzenie',
+      colorHex: '#16A34A',
+      icon: 'restaurant',
+      sortOrder: 10,
+      isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
   ];
 
@@ -79,7 +84,9 @@ describe('DashboardPageScreen', () => {
     }),
   };
 
-  async function createFixture(): Promise<{ fixture: ReturnType<typeof TestBed.createComponent<DashboardPageScreen>> }> {
+  async function createFixture(): Promise<{
+    fixture: ReturnType<typeof TestBed.createComponent<DashboardPageScreen>>;
+  }> {
     await TestBed.configureTestingModule({
       imports: [DashboardPageScreen],
       providers: [

@@ -4,10 +4,7 @@ import { registerLocaleData } from '@angular/common';
 import localePl from '@angular/common/locales/pl';
 import { of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {
-  CategoryService,
-  Category,
-} from '@data-access-transaction';
+import { CategoryService, Category } from '@data-access-transaction';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 import { LastTransactionComponent } from './last-transaction';
 
@@ -22,14 +19,25 @@ describe('LastTransactionComponent', () => {
 
   const mockCategories: Category[] = [
     {
-      id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-      sortOrder: 10, isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'food',
+      name: 'Jedzenie',
+      colorHex: '#16A34A',
+      icon: 'restaurant',
+      sortOrder: 10,
+      isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
     {
-      id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
-      sortOrder: 5, isHidden: false, transactionType: 'income',
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'income',
+      name: 'Zarobek',
+      colorHex: '#10B981',
+      icon: 'savings',
+      sortOrder: 5,
+      isHidden: false,
+      transactionType: 'income',
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
   ];
 
@@ -126,9 +134,7 @@ describe('LastTransactionComponent', () => {
   });
 
   it('should display category name for each transaction', () => {
-    const nameEls = fixture.debugElement.queryAll(
-      By.css('.name'),
-    );
+    const nameEls = fixture.debugElement.queryAll(By.css('.name'));
     expect(nameEls.length).toBe(2);
     // First transaction in sorted order is tx-2 (income, later date)
     expect(nameEls[0].nativeElement.textContent).toContain('Zarobek');
@@ -136,18 +142,14 @@ describe('LastTransactionComponent', () => {
   });
 
   it('should render category names without fallback dash on initial load', () => {
-    const nameEls = fixture.debugElement.queryAll(
-      By.css('.name'),
-    );
+    const nameEls = fixture.debugElement.queryAll(By.css('.name'));
     nameEls.forEach((el) => {
       expect(el.nativeElement.textContent).not.toContain('—');
     });
   });
 
   it('should render category icons on initial load (no race condition)', () => {
-    const icons = fixture.debugElement.queryAll(
-      By.css('.icon mat-icon'),
-    );
+    const icons = fixture.debugElement.queryAll(By.css('.icon mat-icon'));
     expect(icons.length).toBe(2);
     // First transaction in sorted order = income (savings), second = food (restaurant)
     expect(icons[0].nativeElement.textContent.trim()).toBe('savings');
@@ -155,26 +157,20 @@ describe('LastTransactionComponent', () => {
   });
 
   it('should render icon background colors based on category color', () => {
-    const iconEls = fixture.debugElement.queryAll(
-      By.css('.icon'),
-    );
+    const iconEls = fixture.debugElement.queryAll(By.css('.icon'));
     // Income → #10B981, Food → #16A34A
     expect(iconEls[0].nativeElement.style.backgroundColor).toBe('rgb(16, 185, 129)');
     expect(iconEls[1].nativeElement.style.backgroundColor).toBe('rgb(22, 163, 74)');
   });
 
   it('should display comment when present', () => {
-    const comments = fixture.debugElement.queryAll(
-      By.css('.comment'),
-    );
+    const comments = fixture.debugElement.queryAll(By.css('.comment'));
     expect(comments.length).toBe(1);
     expect(comments[0].nativeElement.textContent).toContain('Test transaction');
   });
 
   it('should format amounts correctly (income positive, expense negative)', () => {
-    const amountEls = fixture.debugElement.queryAll(
-      By.css('.amount'),
-    );
+    const amountEls = fixture.debugElement.queryAll(By.css('.amount'));
     expect(amountEls.length).toBe(2);
     // First (income, 100) should not have minus
     expect(amountEls[0].nativeElement.textContent).not.toContain('-');
@@ -183,9 +179,7 @@ describe('LastTransactionComponent', () => {
   });
 
   it('should show income style for positive amounts', () => {
-    const incomeAmount = fixture.debugElement.query(
-      By.css('.amount.income'),
-    );
+    const incomeAmount = fixture.debugElement.query(By.css('.amount.income'));
     expect(incomeAmount).toBeTruthy();
   });
 
@@ -219,17 +213,14 @@ describe('LastTransactionComponent', () => {
         { provide: CategoryService, useValue: mockCategoryService },
         { provide: TransactionState, useValue: emptyTxState },
       ],
-    })
-      .overrideComponent(LastTransactionComponent, {
-        add: { providers: [{ provide: MatSnackBar, useValue: mockSnackBar }] },
-      });
+    }).overrideComponent(LastTransactionComponent, {
+      add: { providers: [{ provide: MatSnackBar, useValue: mockSnackBar }] },
+    });
 
     const emptyFixture = TestBed.createComponent(LastTransactionComponent);
     emptyFixture.detectChanges();
 
-    const emptyMsg = emptyFixture.debugElement.query(
-      By.css('.last-transactions__empty'),
-    );
+    const emptyMsg = emptyFixture.debugElement.query(By.css('.last-transactions__empty'));
     expect(emptyMsg).toBeTruthy();
     expect(emptyMsg.nativeElement.textContent).toContain('Brak transakcji');
 

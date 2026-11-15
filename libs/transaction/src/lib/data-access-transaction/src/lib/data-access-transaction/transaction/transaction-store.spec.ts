@@ -47,10 +47,7 @@ describe('TransactionStore', () => {
     localDbServiceMock.getDatabase.mockReturnValue(mockDb);
 
     TestBed.configureTestingModule({
-      providers: [
-        TransactionStore,
-        { provide: LocalDbService, useValue: localDbServiceMock },
-      ],
+      providers: [TransactionStore, { provide: LocalDbService, useValue: localDbServiceMock }],
     });
 
     service = TestBed.inject(TransactionStore);
@@ -89,9 +86,7 @@ describe('TransactionStore', () => {
   it('should update a transaction', async () => {
     mockTable.put.mockResolvedValue(sampleTransaction.id);
 
-    const result = await firstValueFrom(
-      service.updateTransaction(sampleTransaction),
-    );
+    const result = await firstValueFrom(service.updateTransaction(sampleTransaction));
 
     expect(result).toEqual(sampleTransaction);
     expect(mockTable.put).toHaveBeenCalledWith(sampleTransaction);
@@ -101,7 +96,9 @@ describe('TransactionStore', () => {
     const transactions = [sampleTransaction];
 
     // Mock database.transaction to execute the callback
-    mockDb.transaction.mockImplementation((_mode: string, _table: unknown, callback: () => Promise<void>) => callback());
+    mockDb.transaction.mockImplementation(
+      (_mode: string, _table: unknown, callback: () => Promise<void>) => callback(),
+    );
     mockTable.clear.mockResolvedValue(undefined);
     mockTable.bulkPut.mockResolvedValue(undefined);
 
@@ -113,7 +110,9 @@ describe('TransactionStore', () => {
   });
 
   it('should set empty transactions without calling bulkPut', async () => {
-    mockDb.transaction.mockImplementation((_mode: string, _table: unknown, callback: () => Promise<void>) => callback());
+    mockDb.transaction.mockImplementation(
+      (_mode: string, _table: unknown, callback: () => Promise<void>) => callback(),
+    );
     mockTable.clear.mockResolvedValue(undefined);
 
     const result = await firstValueFrom(service.setTransactions([]));

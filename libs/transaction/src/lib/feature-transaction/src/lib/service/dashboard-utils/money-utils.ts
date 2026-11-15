@@ -14,7 +14,7 @@ export function roundHalfUp(value: number, decimals = 2): number {
   // Dla liczb ujemnych używamy -Math.round(-x) żeby uzyskać half-up
   const sign = value >= 0 ? 1 : -1;
   const abs = Math.abs(value);
-  return Math.round(abs * multiplier) / multiplier * sign;
+  return (Math.round(abs * multiplier) / multiplier) * sign;
 }
 
 /**
@@ -23,7 +23,9 @@ export function roundHalfUp(value: number, decimals = 2): number {
  * Gdy total = 0, zwraca 0.
  */
 export function calculatePercentage(part: number, total: number): number {
-  if (total === 0) {return 0;}
+  if (total === 0) {
+    return 0;
+  }
   return roundHalfUp((Math.abs(part) / Math.abs(total)) * 100, 1);
 }
 
@@ -31,11 +33,7 @@ export function calculatePercentage(part: number, total: number): number {
  * Formatuje kwotę do wyświetlenia z symbolem waluty.
  * Wykorzystuje Intl.NumberFormat dla poprawnej lokalizacji.
  */
-export function formatCurrency(
-  amount: number,
-  currency = 'PLN',
-  locale = 'pl',
-): string {
+export function formatCurrency(amount: number, currency = 'PLN', locale = 'pl'): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
@@ -48,11 +46,7 @@ export function formatCurrency(
  * Formatuje kwotę do wyświetlenia skróconego (np. "12,3 tys.").
  * Do użytku w centrum wykresu kołowego dla dużych kwot.
  */
-export function formatCompactCurrency(
-  amount: number,
-  currency = 'PLN',
-  locale = 'pl',
-): string {
+export function formatCompactCurrency(amount: number, currency = 'PLN', locale = 'pl'): string {
   const abs = Math.abs(amount);
   let value: number;
   let suffix: string;

@@ -1,11 +1,13 @@
 // spec: docs/qa/2026-10-21-ui-ux-audit.md
 
-import { Component, inject, LOCALE_ID, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, LOCALE_ID, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@data-access-auth';
+import { getUserAvatarInitials } from './avatar-utils';
 
 export type TransactionThemeId = 'azure-blue' | 'rose-red' | 'magenta-violet' | 'cyan-orange';
 
@@ -22,7 +24,7 @@ type MenuItem = {
 
 @Component({
   selector: 'transaction-navigation-drawer',
-  imports: [RouterModule, MatListModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, RouterModule, MatListModule, MatButtonModule, MatIconModule],
   template: `
     <div class="header">
       <h2 i18n="@@navigation.title">Nawigacja</h2>
@@ -54,6 +56,21 @@ type MenuItem = {
     </mat-nav-list>
 
     <div class="drawer-footer">
+      @if (currentUser()) {
+        <div class="drawer-footer__user">
+          <div class="drawer-footer__avatar">
+            <span>{{ userInitials() }}</span>
+          </div>
+          <div class="drawer-footer__details">
+            <span class="drawer-footer__name">{{
+              currentUser()?.displayName || currentUser()?.email
+            }}</span>
+            @if (currentUser()?.displayName && currentUser()?.email) {
+              <span class="drawer-footer__email">{{ currentUser()?.email }}</span>
+            }
+          </div>
+        </div>
+      }
       <button type="button" mat-button class="logout-btn" (click)="onLogout()">
         <mat-icon>logout</mat-icon>
         <span i18n="@@navigation.logout">Wyloguj</span>
@@ -66,6 +83,13 @@ export class TransactionNavigationDrawerComponent {
   private readonly localeId = inject(LOCALE_ID);
   private readonly authService = inject(AuthService, { optional: true });
   private readonly router = inject(Router, { optional: true });
+
+  protected readonly currentUser = computed(() => this.authService?.currentUser() ?? null);
+
+  protected readonly userInitials = computed(() => {
+    const user = this.currentUser();
+    return getUserAvatarInitials(user?.email || user?.displayName);
+  });
 
   protected readonly menuItems: ReadonlyArray<MenuItem> = this.createMenuItems();
 

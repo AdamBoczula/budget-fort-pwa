@@ -1,6 +1,7 @@
 // spec: docs/specs/auth/01-firebase-authentication.md
 
 import { inject, Injectable, InjectionToken } from '@angular/core';
+import { Subject } from 'rxjs';
 import { getApps } from 'firebase/app';
 import {
   Auth,
@@ -57,6 +58,8 @@ export class AuthService {
   readonly currentUser = this.authState.currentUser;
   readonly isLoading = this.authState.isLoading;
   readonly errorMessage = this.authState.errorMessage;
+
+  readonly onLogout$ = new Subject<void>();
 
   waitForAuthReady(): Promise<void> {
     if (!this.authState.isLoading()) {
@@ -222,6 +225,7 @@ export class AuthService {
       }
     }
     this.authState.setUnauthenticated();
+    this.onLogout$.next();
   }
 
   private clearGuestFlag(): void {

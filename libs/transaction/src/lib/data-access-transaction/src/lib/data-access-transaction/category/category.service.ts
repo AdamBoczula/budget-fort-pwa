@@ -16,13 +16,15 @@ export class CategoryService {
   }
 
   public getVisibleCategories(): Observable<Category[]> {
-    return this.categoryStore.getCategories().pipe(
-      map((categories) =>
-        categories.filter(
-          (category) => !category.isHidden && category.transactionType !== 'income',
+    return this.categoryStore
+      .getCategories()
+      .pipe(
+        map((categories) =>
+          categories.filter(
+            (category) => !category.isHidden && category.transactionType !== 'income',
+          ),
         ),
-      ),
-    );
+      );
   }
 
   public async getVisibleCategoriesAsync(): Promise<Category[]> {

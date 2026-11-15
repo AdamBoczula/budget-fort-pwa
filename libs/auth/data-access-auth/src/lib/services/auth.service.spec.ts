@@ -147,9 +147,14 @@ describe('AuthService', () => {
   });
 
   // covers: docs/specs/auth/01-firebase-authentication.md#AC-8
-  it('should logout and clear session and guest flag', async () => {
+  it('should logout and clear session and guest flag and emit onLogout$', async () => {
     service.continueAsGuest();
     expect(service.isGuest()).toBe(true);
+
+    let logoutEmitted = false;
+    service.onLogout$.subscribe(() => {
+      logoutEmitted = true;
+    });
 
     await service.logout();
 
@@ -157,5 +162,6 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(service.isGuest()).toBe(false);
     expect(service.isAuthorized()).toBe(false);
+    expect(logoutEmitted).toBe(true);
   });
 });

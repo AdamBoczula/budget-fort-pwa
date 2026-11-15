@@ -32,14 +32,22 @@ export class TransactionState {
 
   /**
    * Główne źródło danych – `resource()` ładuje transakcje przy starcie
-   * i automatycznie przeładowuje gdy zmieni się `dataVersion`.
+   * i automatycznie przeładowuje gdy zmieni się `dataVersion` lub `syncVersion`.
    */
   readonly transactionsResource = resource({
-    params: () => this.dataVersion(),
+    params: () => ({
+      dataVersion: this.dataVersion(),
+      syncVersion:
+        typeof this.syncState?.syncVersion === 'function' ? this.syncState.syncVersion() : 0,
+    }),
     loader: async () => {
       return this.transactionService.getTransactionsAsync();
     },
   });
+
+  public refresh(): void {
+    this.dataVersion.update((v) => v + 1);
+  }
 
   /** Backward-compat computed: lista transakcji (pusta przed załadowaniem). */
   public readonly transactions = computed(() => this.transactionsResource.value() ?? []);
@@ -122,10 +130,14 @@ export class TransactionState {
           transaction.authorName ?? (user.displayName || user.email || 'Domownik');
       }
 
-      const householdId = this.syncState?.householdId();
-      if (householdId) {
-        transaction.householdId = transaction.householdId ?? householdId;
-      }
+      const householdId =
+        (typeof this.syncState?.currentHousehold === 'function'
+          ? this.syncState.currentHousehold()?.id
+          : null) ??
+        (typeof this.syncState?.householdId === 'function' ? this.syncState.householdId() : null) ??
+        user?.uid ??
+        'local';
+      transaction.householdId = transaction.householdId ?? householdId;
 
       if (recurringOptions?.isRecurring && this.recurringRuleService) {
         const ruleId = crypto.randomUUID();

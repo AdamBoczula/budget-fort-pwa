@@ -8,22 +8,19 @@ import { CurrencyService } from '@currency';
 
 @Component({
   selector: 'transaction-dashboard-category-detail',
-  imports: [
-    DatePipe,
-    MatButtonModule,
-    MatIconModule,
-    MatTableModule,
-  ],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MatTableModule],
   template: `
     <div class="detail-table">
       <table mat-table [dataSource]="transactions()" class="table">
         <ng-container matColumnDef="date">
           <th mat-header-cell *matHeaderCellDef i18n="@@dashboard.detailDate">Data</th>
-          <td mat-cell *matCellDef="let tx">{{ tx.date | date : 'dd.MM' }}</td>
+          <td mat-cell *matCellDef="let tx">{{ tx.date | date: 'dd.MM' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="subcategory">
-          <th mat-header-cell *matHeaderCellDef i18n="@@dashboard.detailSubcategory">Podkategoria</th>
+          <th mat-header-cell *matHeaderCellDef i18n="@@dashboard.detailSubcategory">
+            Podkategoria
+          </th>
           <td mat-cell *matCellDef="let tx">
             {{ tx.subcategory || '—' }}
             @if (tx.comment) {
@@ -62,31 +59,33 @@ import { CurrencyService } from '@currency';
       </table>
     </div>
   `,
-  styles: [`
-    .detail-table {
-      overflow-x: auto;
-    }
+  styles: [
+    `
+      .detail-table {
+        overflow-x: auto;
+      }
 
-    .table {
-      width: 100%;
-    }
+      .table {
+        width: 100%;
+      }
 
-    .detail-table__comment {
-      color: var(--mat-sys-on-surface-variant, #6B7280);
-      font-size: 0.85em;
-    }
+      .detail-table__comment {
+        color: var(--mat-sys-on-surface-variant, #6b7280);
+        font-size: 0.85em;
+      }
 
-    .detail-table__amount {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
+      .detail-table__amount {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
 
-    .detail-table__edit-btn {
-      width: 32px;
-      height: 32px;
-      line-height: 32px;
-    }
-  `],
+      .detail-table__edit-btn {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+      }
+    `,
+  ],
 })
 export class DashboardCategoryDetailComponent {
   protected readonly currencyService = inject(CurrencyService);

@@ -13,10 +13,7 @@ export function getCurrentLocalMonth(): { year: number; month: number } {
  * Zwraca daty początku i końca miesiąca w formacie ISO.
  * Miesiące: 0 = styczeń, 11 = grudzień.
  */
-export function getMonthRange(
-  year: number,
-  month: number,
-): { startDate: string; endDate: string } {
+export function getMonthRange(year: number, month: number): { startDate: string; endDate: string } {
   const start = new Date(year, month, 1);
   const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
   return {
@@ -41,9 +38,7 @@ export function getYearRange(year: number): { startDate: string; endDate: string
  * Zwraca dostępne lata na podstawie listy transakcji.
  * Transakcje nieposiadające daty (invalid date) są pomijane.
  */
-export function getAvailableYears(
-  dates: string[],
-): number[] {
+export function getAvailableYears(dates: string[]): number[] {
   const years = new Set<number>();
   for (const d of dates) {
     const date = new Date(d);
@@ -58,10 +53,7 @@ export function getAvailableYears(
  * Zwraca nazwę miesiąca w podanym locale.
  * Miesiące: 0 = styczeń, 11 = grudzień.
  */
-export function getMonthName(
-  month: number,
-  locale: string,
-): string {
+export function getMonthName(month: number, locale: string): string {
   const date = new Date(2000, month, 1);
   return date.toLocaleDateString(locale, { month: 'long' });
 }
@@ -69,24 +61,21 @@ export function getMonthName(
 /**
  * Sprawdza, czy data należy do podanego miesiąca (wg czasu lokalnego).
  */
-export function isInMonth(
-  dateString: string,
-  year: number,
-  month: number,
-): boolean {
+export function isInMonth(dateString: string, year: number, month: number): boolean {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) {return false;}
+  if (isNaN(date.getTime())) {
+    return false;
+  }
   return date.getFullYear() === year && date.getMonth() === month;
 }
 
 /**
  * Sprawdza, czy data należy do podanego roku (wg czasu lokalnego).
  */
-export function isInYear(
-  dateString: string,
-  year: number,
-): boolean {
+export function isInYear(dateString: string, year: number): boolean {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) {return false;}
+  if (isNaN(date.getTime())) {
+    return false;
+  }
   return date.getFullYear() === year;
 }

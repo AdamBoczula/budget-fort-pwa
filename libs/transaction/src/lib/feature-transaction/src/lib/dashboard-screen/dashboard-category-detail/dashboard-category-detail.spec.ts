@@ -13,9 +13,30 @@ describe('DashboardCategoryDetailComponent', () => {
   });
 
   const mockTransactions: Transaction[] = [
-    { id: '1', amount: -150, date: '2026-07-15T12:00:00.000Z', categoryId: 'food', accountId: 'default', comment: 'Obiad', subcategory: 'Jedzenie na mieście' },
-    { id: '2', amount: -80, date: '2026-07-20T12:00:00.000Z', categoryId: 'food', accountId: 'default', subcategory: 'Zakupy' },
-    { id: '3', amount: -50, date: '2026-07-10T12:00:00.000Z', categoryId: 'food', accountId: 'default' },
+    {
+      id: '1',
+      amount: -150,
+      date: '2026-07-15T12:00:00.000Z',
+      categoryId: 'food',
+      accountId: 'default',
+      comment: 'Obiad',
+      subcategory: 'Jedzenie na mieście',
+    },
+    {
+      id: '2',
+      amount: -80,
+      date: '2026-07-20T12:00:00.000Z',
+      categoryId: 'food',
+      accountId: 'default',
+      subcategory: 'Zakupy',
+    },
+    {
+      id: '3',
+      amount: -50,
+      date: '2026-07-10T12:00:00.000Z',
+      categoryId: 'food',
+      accountId: 'default',
+    },
   ];
 
   beforeEach(async () => {
@@ -39,7 +60,9 @@ describe('DashboardCategoryDetailComponent', () => {
   });
 
   it('should display date for each transaction', () => {
-    const firstDate = fixture.debugElement.query(By.css('table tbody tr:first-child td:first-child'));
+    const firstDate = fixture.debugElement.query(
+      By.css('table tbody tr:first-child td:first-child'),
+    );
     expect(firstDate).toBeTruthy();
     expect(firstDate.nativeElement.textContent.trim()).toBeTruthy();
   });
@@ -52,7 +75,9 @@ describe('DashboardCategoryDetailComponent', () => {
   });
 
   it('should display comment when present', () => {
-    const firstCell = fixture.debugElement.query(By.css('table tbody tr:first-child td:nth-child(2)'));
+    const firstCell = fixture.debugElement.query(
+      By.css('table tbody tr:first-child td:nth-child(2)'),
+    );
     expect(firstCell.nativeElement.textContent).toContain('Obiad');
   });
 
@@ -63,7 +88,9 @@ describe('DashboardCategoryDetailComponent', () => {
   });
 
   it('should render edit button for each transaction', () => {
-    const editButtons = fixture.debugElement.queryAll(By.css('table tbody tr button[mat-icon-button]'));
+    const editButtons = fixture.debugElement.queryAll(
+      By.css('table tbody tr button[mat-icon-button]'),
+    );
     expect(editButtons.length).toBe(3);
   });
 
@@ -72,7 +99,9 @@ describe('DashboardCategoryDetailComponent', () => {
     fixture.componentInstance.edit.subscribe(editSpy);
     fixture.detectChanges();
 
-    const editButton = fixture.debugElement.query(By.css('table tbody tr:first-child button[mat-icon-button]'));
+    const editButton = fixture.debugElement.query(
+      By.css('table tbody tr:first-child button[mat-icon-button]'),
+    );
     editButton.nativeElement.click();
 
     expect(editSpy).toHaveBeenCalledTimes(1);

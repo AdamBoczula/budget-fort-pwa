@@ -52,16 +52,16 @@ The full workflow is defined in `docs/specs/01-spec-workflow.md`.
 
 ### SDLC & Dynamic Agent Workflows
 
-The primary entry point for tasks is the **SDLC Orchestrator (Flash)**, which classifies the incoming request and dynamically routes it to the optimal minimal chain of agents:
+The primary entry point for tasks is the **SDLC Orchestrator (Gemini 3.8 Flash)**, which classifies the incoming request and dynamically routes it to the optimal minimal chain of agents:
 
-| Task Type          | Use Case                                | Agent Chain                                                                                                                                                                                                                        |
-| ------------------ | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **New Feature**    | New screens, new domains                | Orchestrator $\rightarrow$ BA $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Architect _(Argon)_ $\rightarrow$ Automation Tester $\rightarrow$ Senior Dev (TDD) $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
-| **Bugfix**         | Bug fixes, regressions                  | Orchestrator $\rightarrow$ BA (reproduction) $\rightarrow$ Senior Dev (regression TDD + fix) $\rightarrow$ Reviewer $\rightarrow$ QA                                                                                               |
-| **Improvement**    | UI polish, UX enhancements              | Orchestrator $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Senior Dev $\rightarrow$ Reviewer $\rightarrow$ QA (screenshots)                                                                                                 |
-| **Technical Task** | Refactoring, Dexie DB migrations, CI/CD | Orchestrator $\rightarrow$ Architect _(Argon, if arch)_ $\rightarrow$ Senior Dev $\rightarrow$ Security Guard $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps                                                         |
+| Task Type          | Use Case                                | Agent Chain                                                                                                                                                                                                                                                 |
+| ------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **New Feature**    | New screens, new domains                | Orchestrator $\rightarrow$ BA $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Architect _(Claude Opus)_ $\rightarrow$ Automation Tester $\rightarrow$ Senior Dev (TDD - Gemini 3.8 Flash) $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
+| **Bugfix**         | Bug fixes, regressions                  | Orchestrator $\rightarrow$ BA (reproduction) $\rightarrow$ Senior Dev (Gemini 3.8 Flash - regression TDD + fix) $\rightarrow$ Reviewer $\rightarrow$ QA                                                                                                     |
+| **Improvement**    | UI polish, UX enhancements              | Orchestrator $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Senior Dev (Gemini 3.8 Flash) $\rightarrow$ Reviewer $\rightarrow$ QA (screenshots)                                                                                                       |
+| **Technical Task** | Refactoring, Dexie DB migrations, CI/CD | Orchestrator $\rightarrow$ Architect _(Claude Opus, if arch)_ $\rightarrow$ Senior Dev (Gemini 3.8 Flash) $\rightarrow$ Security Guard $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps                                                         |
 
-Models: **Argon (Pro)** for Architect and UI/UX Designer; **Flash** for all other roles (Orchestrator, BA, Tester, Dev, Reviewer, QA, DevOps, Security).
+Models: **Claude Opus** for Architect; **Argon** for UI/UX Designer; **Gemini 3.8 Flash** for all simple/operational roles (Plan Executor / Senior Dev, Orchestrator, BA, Tester, Reviewer, QA, DevOps, Security) to minimize costs on routine tasks.
 
 ### SDD traceability
 
@@ -204,10 +204,10 @@ The review is **optional** — it does NOT block the pipeline. Results are saved
 
 ### Agent roles
 
-| Agent              | Target Model Profile    | Why                                            |
-| ------------------ | ----------------------- | ---------------------------------------------- |
-| QA Coordinator     | Pro / Complex reasoning | Orchestration, report merging, decision-making |
-| UI Reviewer        | Flash / Fast multimodal | Visual analysis — doesn't need deep reasoning  |
-| UX Analyzer        | Flash / Fast            | Heuristic evaluation — procedural task         |
-| A11y Auditor       | Flash / Fast            | Audits are tool-driven, not reasoning-heavy    |
-| Responsive Checker | Flash / Fast            | Viewport testing is procedural                 |
+| Agent              | Target Model Profile | Why                                            |
+| ------------------ | -------------------- | ---------------------------------------------- |
+| QA Coordinator     | Gemini 3.8 Flash     | Orchestration, report merging, decision-making |
+| UI Reviewer        | Gemini 3.8 Flash     | Visual analysis — doesn't need deep reasoning  |
+| UX Analyzer        | Gemini 3.8 Flash     | Heuristic evaluation — procedural task         |
+| A11y Auditor       | Gemini 3.8 Flash     | Audits are tool-driven, not reasoning-heavy    |
+| Responsive Checker | Gemini 3.8 Flash     | Viewport testing is procedural                 |

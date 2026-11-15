@@ -1,16 +1,26 @@
 // spec: docs/qa/2026-10-21-ui-ux-audit.md
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
-import { Component, inject, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { AuthService } from '@data-access-auth';
 import { SyncStatusComponent } from '@ui-sync';
+import { getUserAvatarInitials } from './avatar-utils';
 
 @Component({
   selector: 'transaction-header-toolbar',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, SyncStatusComponent],
+  imports: [
+    CommonModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    SyncStatusComponent,
+  ],
   template: `
     <mat-toolbar class="transaction-header-toolbar">
       <button
@@ -27,6 +37,18 @@ import { SyncStatusComponent } from '@ui-sync';
 
       <div class="transaction-header-toolbar__actions">
         <sync-status />
+
+        @if (currentUser() || isGuest()) {
+          <div
+            class="transaction-header-toolbar__user-avatar"
+            [matTooltip]="userTooltip()"
+            [attr.aria-label]="userTooltip()"
+          >
+            <span class="transaction-header-toolbar__user-initials">
+              {{ userInitials() }}
+            </span>
+          </div>
+        }
 
         <button
           type="button"
@@ -50,6 +72,27 @@ export class TransactionHeaderToolbarComponent {
   public readonly monthName = input('');
   public readonly menuClick = output<void>();
   public readonly logoutClick = output<void>();
+
+  protected readonly currentUser = computed(() => this.authService?.currentUser() ?? null);
+  protected readonly isGuest = computed(() => this.authService?.isGuest() ?? false);
+
+  protected readonly userInitials = computed(() => {
+    if (this.isGuest()) {
+      return 'G';
+    }
+    const user = this.currentUser();
+    return getUserAvatarInitials(user?.email || user?.displayName);
+  });
+
+  protected readonly userTooltip = computed(() => {
+    const user = this.currentUser();
+    if (user) {
+      return user.displayName
+        ? `${user.displayName} (${user.email || ''})`
+        : user.email || 'Zalogowany';
+    }
+    return this.isGuest() ? 'Tryb lokalny (Gość)' : '';
+  });
 
   protected onMenuClick(): void {
     this.menuClick.emit();

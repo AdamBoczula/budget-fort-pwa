@@ -43,10 +43,7 @@ describe('TransactionService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        TransactionService,
-        { provide: TransactionStore, useValue: storeMock },
-      ],
+      providers: [TransactionService, { provide: TransactionStore, useValue: storeMock }],
     });
 
     service = TestBed.inject(TransactionService);

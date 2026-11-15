@@ -1,6 +1,7 @@
 // spec: docs/specs/sync/01-firestore-sync.md
 
 import { inject, Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import type Dexie from 'dexie';
 import {
   LocalDbService,
@@ -13,6 +14,9 @@ import {
 @Injectable({ providedIn: 'root' })
 export class SyncQueueService {
   private readonly localDbService = inject(LocalDbService);
+  private readonly _queued$ = new Subject<void>();
+
+  readonly queued$ = this._queued$.asObservable();
 
   private get table(): Dexie.Table<SyncQueueItem, string> {
     return this.localDbService.getTable<SyncQueueItem, string>(SYNC_QUEUE_DB_TOKEN);
@@ -60,10 +64,12 @@ export class SyncQueueService {
           createdAt: now,
         };
         await this.table.put(updatedItem);
+        this._queued$.next();
         return updatedItem;
       }
 
       await this.table.put(fallbackItem);
+      this._queued$.next();
       return fallbackItem;
     } catch {
       return fallbackItem;

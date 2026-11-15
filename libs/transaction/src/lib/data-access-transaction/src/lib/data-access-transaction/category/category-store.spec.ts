@@ -6,14 +6,24 @@ import { CategoryStore } from './category-store';
 
 const mockCategories: Category[] = [
   {
-    id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-    sortOrder: 10, isHidden: false,
-    createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
+    id: 'food',
+    name: 'Jedzenie',
+    colorHex: '#16A34A',
+    icon: 'restaurant',
+    sortOrder: 10,
+    isHidden: false,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'transport', name: 'Transport', colorHex: '#2563EB', icon: 'directions_car',
-    sortOrder: 20, isHidden: false,
-    createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
+    id: 'transport',
+    name: 'Transport',
+    colorHex: '#2563EB',
+    icon: 'directions_car',
+    sortOrder: 20,
+    isHidden: false,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
   },
 ];
 
@@ -74,9 +84,14 @@ describe('CategoryStore', () => {
 
   it('should create a category via put', async () => {
     const created: Category = {
-      id: 'new-cat', name: 'Nowa', colorHex: '#000', icon: 'star',
-      sortOrder: 99, isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'new-cat',
+      name: 'Nowa',
+      colorHex: '#000',
+      icon: 'star',
+      sortOrder: 99,
+      isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     };
     await store.createCategoryAsync(created);
     expect(tableMock.put).toHaveBeenCalledWith(created);

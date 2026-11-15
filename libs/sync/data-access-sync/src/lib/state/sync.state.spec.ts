@@ -76,4 +76,37 @@ describe('SyncState', () => {
     expect(state.currentHousehold()).toBeNull();
     expect(state.householdId()).toBe('local');
   });
+
+  // covers: docs/specs/sync/02-multi-user-household.md#AC-1
+  // covers: docs/specs/auth/01-firebase-authentication.md#AC-7
+  it('should reset all household and sync state on reset()', () => {
+    const mockHousehold: Household = {
+      id: 'hh-123',
+      name: 'Nasz Dom',
+      ownerUid: 'uid-1',
+      members: ['uid-1', 'uid-2'],
+      inviteCode: 'DOM123',
+      createdAt: '2026-11-14T10:00:00Z',
+      updatedAt: '2026-11-14T10:00:00Z',
+    };
+    state.setCurrentHousehold(mockHousehold);
+    state.setPendingCount(10);
+    state.setLastSyncedAt('2026-11-14T12:00:00Z');
+    state.setError('Err');
+
+    state.reset();
+
+    expect(state.currentHousehold()).toBeNull();
+    expect(state.householdId()).toBe('local');
+    expect(state.pendingCount()).toBe(0);
+    expect(state.lastSyncedAt()).toBeNull();
+    expect(state.status()).toBe('idle');
+    expect(state.errorMessage()).toBeNull();
+  });
+
+  it('should increment syncVersion on notifyDataSynced()', () => {
+    const v1 = state.syncVersion();
+    state.notifyDataSynced();
+    expect(state.syncVersion()).toBe(v1 + 1);
+  });
 });
