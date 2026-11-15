@@ -15,7 +15,9 @@ describe('DashboardPeriodSelectorComponent', () => {
   });
 
   let mockDashboardState: ReturnType<typeof createMockState>;
-  const createMockState = (overrides?: Partial<ReturnType<typeof createMockState>>): ReturnType<typeof createMockState> => ({
+  const createMockState = (
+    overrides?: Partial<ReturnType<typeof createMockState>>,
+  ): ReturnType<typeof createMockState> => ({
     periodMode: vi.fn(() => 'month' as const),
     selectedYear: vi.fn(() => 2026),
     selectedMonth: vi.fn(() => 6),
@@ -106,7 +108,9 @@ describe('DashboardPeriodSelectorComponent', () => {
 
   it('should call setMonth and setYear on monthSelected in month mode', () => {
     const testDate = new Date(2025, 3, 15); // kwiecień 2025
-    const fakePicker = { close: vi.fn() } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
+    const fakePicker = {
+      close: vi.fn(),
+    } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
 
     component.onMonthSelected(testDate, fakePicker);
 
@@ -118,7 +122,9 @@ describe('DashboardPeriodSelectorComponent', () => {
   it('should call setYear and close on yearSelected in year mode', () => {
     mockDashboardState.periodMode.mockReturnValue('year');
     const testDate = new Date(2025, 0, 1);
-    const fakePicker = { close: vi.fn() } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
+    const fakePicker = {
+      close: vi.fn(),
+    } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
 
     component.onYearSelected(testDate, fakePicker);
 
@@ -130,7 +136,9 @@ describe('DashboardPeriodSelectorComponent', () => {
   it('should ignore monthSelected in year mode', () => {
     mockDashboardState.periodMode.mockReturnValue('year');
     const testDate = new Date(2025, 3, 15);
-    const fakePicker = { close: vi.fn() } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
+    const fakePicker = {
+      close: vi.fn(),
+    } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
 
     component.onMonthSelected(testDate, fakePicker);
 
@@ -141,7 +149,9 @@ describe('DashboardPeriodSelectorComponent', () => {
 
   it('should ignore yearSelected in month mode', () => {
     const testDate = new Date(2025, 0, 1);
-    const fakePicker = { close: vi.fn() } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
+    const fakePicker = {
+      close: vi.fn(),
+    } as unknown as import('@angular/material/datepicker').MatDatepicker<Date>;
 
     component.onYearSelected(testDate, fakePicker);
 

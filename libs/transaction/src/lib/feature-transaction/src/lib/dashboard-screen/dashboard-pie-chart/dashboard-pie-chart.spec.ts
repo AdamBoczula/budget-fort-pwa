@@ -72,8 +72,24 @@ describe('DashboardPieChartComponent', () => {
 
   describe('with data', () => {
     const mockCategorySpending = [
-      { categoryId: 'food', categoryName: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant', totalAmount: 500, percentage: 50, transactions: [] },
-      { categoryId: 'transport', categoryName: 'Transport', colorHex: '#2563EB', icon: 'directions_car', totalAmount: 300, percentage: 30, transactions: [] },
+      {
+        categoryId: 'food',
+        categoryName: 'Jedzenie',
+        colorHex: '#16A34A',
+        icon: 'restaurant',
+        totalAmount: 500,
+        percentage: 50,
+        transactions: [],
+      },
+      {
+        categoryId: 'transport',
+        categoryName: 'Transport',
+        colorHex: '#2563EB',
+        icon: 'directions_car',
+        totalAmount: 300,
+        percentage: 30,
+        transactions: [],
+      },
     ];
 
     beforeEach(async () => {

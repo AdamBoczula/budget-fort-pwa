@@ -14,8 +14,23 @@ describe('DashboardCategoryListComponent', () => {
   });
 
   const mockTransactions: Transaction[] = [
-    { id: '1', amount: -150, date: '2026-07-15T12:00:00.000Z', categoryId: 'food', accountId: 'default', comment: 'Obiad', subcategory: 'Jedzenie na mieście' },
-    { id: '2', amount: -80, date: '2026-07-20T12:00:00.000Z', categoryId: 'food', accountId: 'default', subcategory: 'Zakupy' },
+    {
+      id: '1',
+      amount: -150,
+      date: '2026-07-15T12:00:00.000Z',
+      categoryId: 'food',
+      accountId: 'default',
+      comment: 'Obiad',
+      subcategory: 'Jedzenie na mieście',
+    },
+    {
+      id: '2',
+      amount: -80,
+      date: '2026-07-20T12:00:00.000Z',
+      categoryId: 'food',
+      accountId: 'default',
+      subcategory: 'Zakupy',
+    },
   ];
 
   const mockCategoryWithSubcategories = [
@@ -36,7 +51,7 @@ describe('DashboardCategoryListComponent', () => {
 
   function createMockState(data: { hasData: boolean }): ReturnType<typeof createMockState> {
     return {
-      categoryWithSubcategories: () => data.hasData ? mockCategoryWithSubcategories : [],
+      categoryWithSubcategories: () => (data.hasData ? mockCategoryWithSubcategories : []),
       periodMode: () => 'month' as const,
       selectedYear: () => 2026,
       selectedMonth: () => 6,

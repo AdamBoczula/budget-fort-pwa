@@ -2,8 +2,8 @@
 name: automation-playwright-tester
 description: Writes high-quality, non-duplicated E2E Playwright tests for Budget Fort. Auto-creates test utilities, runs verification, and enforces strict TypeScript standards.
 mode: subagent
-model: flash
-target_profile: Flash / Fast E2E testing
+model: gemini-3.8-flash
+target_profile: Gemini 3.8 Flash / Fast E2E testing
 allowed_skills:
   - nx-run-tasks
   - nx-workspace
@@ -35,6 +35,7 @@ For every E2E test task:
 ### 0. Load Context
 
 Before writing or modifying tests, read in this order:
+
 1. `apps/budget-fort-e2e/src/` — all existing spec files (understand what is already tested)
 2. `apps/budget-fort-e2e/src/utils/` — all existing utility files
 3. `apps/budget-fort-e2e/playwright.config.mts` — current Playwright configuration
@@ -44,6 +45,7 @@ Before writing or modifying tests, read in this order:
 ### 1. Analyze Existing Coverage
 
 **Before writing a single test:**
+
 - Read every existing `.spec.ts` file in `apps/budget-fort-e2e/src/`
 - Catalogue what behaviors are already verified
 - Identify gaps — behaviors not yet covered by any test
@@ -60,15 +62,16 @@ Before writing or modifying tests, read in this order:
 
 Before writing test specs, create or update utilities in `apps/budget-fort-e2e/src/utils/`:
 
-| Utility file | Purpose |
-|---|---|
-| `seed-transactions.ts` | Seed transactions into IndexedDB (**already exists**) |
-| `seed-categories.ts` | Seed categories into IndexedDB for test setup |
-| `db-helpers.ts` | Read/write/drop IndexedDB objects (e.g., `getStoredCategories`, `clearTransactions`) |
-| `dialog-helpers.ts` | Open, close, verify dialog presence, get dialog buttons |
-| `navigation-helpers.ts` | Navigate to routes, wait for page load, verify active route |
+| Utility file            | Purpose                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| `seed-transactions.ts`  | Seed transactions into IndexedDB (**already exists**)                                |
+| `seed-categories.ts`    | Seed categories into IndexedDB for test setup                                        |
+| `db-helpers.ts`         | Read/write/drop IndexedDB objects (e.g., `getStoredCategories`, `clearTransactions`) |
+| `dialog-helpers.ts`     | Open, close, verify dialog presence, get dialog buttons                              |
+| `navigation-helpers.ts` | Navigate to routes, wait for page load, verify active route                          |
 
 **Utility standards:**
+
 - Every exported function must have an explicit return type
 - Use `satisfies` / `as const` where appropriate
 - Never use `any` — use `unknown` + type guards or typed `page.evaluate()` generics
@@ -82,11 +85,13 @@ Follow the test writing standards below rigorously.
 ### 5. Run Verification
 
 After writing tests, **always** run:
+
 ```bash
 npm exec nx e2e budget-fort-e2e --skip-nx-cache
 ```
 
 If the full suite is too slow for iteration, run a single spec:
+
 ```bash
 npx playwright test --config apps/budget-fort-e2e/playwright.config.mts src/<file>.spec.ts
 ```
@@ -154,6 +159,7 @@ const DEFAULT_CATEGORIES = [
 ### Rule 5: Never Use `any`
 
 Zero tolerance. If you don't know the type:
+
 - `unknown` + type guard
 - `Record<string, unknown>` for truly dynamic structures
 - Generics if appropriate
@@ -203,6 +209,7 @@ type CategoryData = { transactionType: TransactionType };
 ### Rule 9: No DTO Confusion in E2E Layer
 
 E2E tests interact with the running application. Define clear types for:
+
 - **Seed data** — what you insert into IndexedDB
 - **IndexedDB reads** — what you read back for assertions
 - **Page element asserts** — what you verify in the DOM
@@ -259,12 +266,12 @@ when the current level is genuinely impossible:
 
 ```typescript
 // ✅ DO — follow priority order
-const saveBtn = page.getByRole('button', { name: /Zapisz/i });         // 1st: role
-const nameInput = page.getByLabelText('Nazwa kategorii');               // 2nd: label
-const heading = page.getByText('Kategorie i podkategorie');              // 3rd: text
-const amountInput = page.getByPlaceholder('0.00');                       // 4th: placeholder
-const transactionItem = page.getByTestId('last-transaction-item');       // 5th: test-id
-const dialog = page.locator('mat-dialog-container');                     // 6th: CSS (last resort)
+const saveBtn = page.getByRole('button', { name: /Zapisz/i }); // 1st: role
+const nameInput = page.getByLabelText('Nazwa kategorii'); // 2nd: label
+const heading = page.getByText('Kategorie i podkategorie'); // 3rd: text
+const amountInput = page.getByPlaceholder('0.00'); // 4th: placeholder
+const transactionItem = page.getByTestId('last-transaction-item'); // 5th: test-id
+const dialog = page.locator('mat-dialog-container'); // 6th: CSS (last resort)
 ```
 
 ### Test Isolation (Mandatory)
@@ -289,6 +296,7 @@ test.describe('Transaction create', () => {
 ```
 
 **Never:**
+
 - Rely on data seeded by another test
 - Assume categories or transactions exist from a previous test run
 - Leave IndexedDB in a dirty state after a test
@@ -312,6 +320,7 @@ test('should open add category dialog with correct title and form fields', ...);
 ```
 
 **Also never test:**
+
 - Playwright framework internals (e.g., `page.goto` works — Playwright already tests that)
 - Angular framework behavior (e.g., `*ngIf` hides elements — Angular already tests that)
 - Angular Material internals (e.g., `MatDialog` opens — Material already tests that)
@@ -349,7 +358,7 @@ test.describe('Transaction edit', () => {
     await page.goto('/feature-transaction');
     await clearTransactions(page);
     await seedCategories(page);
-    await seedTransactions(page, [{ amount: 42.00, categoryId: 'food' }]);
+    await seedTransactions(page, [{ amount: 42.0, categoryId: 'food' }]);
     await page.reload();
     await expect(page.getByTestId('last-transaction-item').first()).toBeVisible({ timeout: 5000 });
 
@@ -392,8 +401,8 @@ For non-SDD tests (bug fixes, refactors, quality improvements), add a brief comm
 
 ### Existing Utilities
 
-| File | Exports | Purpose |
-|---|---|---|
+| File                             | Exports                                     | Purpose                                                        |
+| -------------------------------- | ------------------------------------------- | -------------------------------------------------------------- |
 | `src/utils/seed-transactions.ts` | `seedCurrentMonthTransactions(page, count)` | Seeds `count` transactions with food category in current month |
 
 ### Planned Utilities (create as needed)

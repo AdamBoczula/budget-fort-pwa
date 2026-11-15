@@ -9,19 +9,35 @@ describe('CategoryService', () => {
 
   const mockCategories: Category[] = [
     {
-      id: 'food', name: 'Jedzenie', colorHex: '#16A34A', icon: 'restaurant',
-      sortOrder: 10, isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'food',
+      name: 'Jedzenie',
+      colorHex: '#16A34A',
+      icon: 'restaurant',
+      sortOrder: 10,
+      isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
     {
-      id: 'income', name: 'Zarobek', colorHex: '#10B981', icon: 'savings',
-      sortOrder: 5, isHidden: false, transactionType: 'income',
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'income',
+      name: 'Zarobek',
+      colorHex: '#10B981',
+      icon: 'savings',
+      sortOrder: 5,
+      isHidden: false,
+      transactionType: 'income',
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
     {
-      id: 'hidden', name: 'Hidden Category', colorHex: '#000', icon: 'block',
-      sortOrder: 999, isHidden: true,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'hidden',
+      name: 'Hidden Category',
+      colorHex: '#000',
+      icon: 'block',
+      sortOrder: 999,
+      isHidden: true,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     },
   ];
 
@@ -36,10 +52,7 @@ describe('CategoryService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        CategoryService,
-        { provide: CategoryStore, useValue: categoryStoreMock },
-      ],
+      providers: [CategoryService, { provide: CategoryStore, useValue: categoryStoreMock }],
     });
     service = TestBed.inject(CategoryService);
   });
@@ -76,9 +89,14 @@ describe('CategoryService', () => {
 
   it('should create a category via store', async () => {
     const newCat: Category = {
-      id: 'new-cat', name: 'Nowa', colorHex: '#000', icon: 'star',
-      sortOrder: 99, isHidden: false,
-      createdAt: '2026-08-01T00:00:00.000Z', updatedAt: '2026-08-01T00:00:00.000Z',
+      id: 'new-cat',
+      name: 'Nowa',
+      colorHex: '#000',
+      icon: 'star',
+      sortOrder: 99,
+      isHidden: false,
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
     };
     await service.createCategoryAsync(newCat);
     expect(categoryStoreMock.createCategoryAsync).toHaveBeenCalledWith(newCat);

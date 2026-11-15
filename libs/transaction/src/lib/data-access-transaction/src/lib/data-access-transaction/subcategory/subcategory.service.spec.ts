@@ -17,10 +17,7 @@ describe('SubcategoryService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
-      providers: [
-        SubcategoryService,
-        { provide: SubcategoryStore, useValue: mockStore },
-      ],
+      providers: [SubcategoryService, { provide: SubcategoryStore, useValue: mockStore }],
     });
 
     service = TestBed.inject(SubcategoryService);

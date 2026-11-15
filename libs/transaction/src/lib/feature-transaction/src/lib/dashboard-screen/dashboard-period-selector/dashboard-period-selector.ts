@@ -7,12 +7,7 @@ import { DashboardState, PeriodMode } from '../../service/dashboard-state/dashbo
 
 @Component({
   selector: 'transaction-dashboard-period-selector',
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    MatButtonToggleModule,
-    MatDatepickerModule,
-  ],
+  imports: [MatButtonModule, MatIconModule, MatButtonToggleModule, MatDatepickerModule],
   template: `
     <div class="period-selector">
       <div class="period-selector__navigation">
@@ -66,45 +61,47 @@ import { DashboardState, PeriodMode } from '../../service/dashboard-state/dashbo
       />
     </div>
   `,
-  styles: [`
-    .period-selector {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-    }
+  styles: [
+    `
+      .period-selector {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+      }
 
-    .period-selector__navigation {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+      .period-selector__navigation {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-    .period-selector__label {
-      font-size: 1.2rem;
-      font-weight: 600;
-      min-width: 180px;
-      text-align: center;
-      cursor: pointer;
-      border: none;
-      background: none;
-      font: inherit;
-      padding: 0;
-      color: inherit;
-    }
+      .period-selector__label {
+        font-size: 1.2rem;
+        font-weight: 600;
+        min-width: 180px;
+        text-align: center;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font: inherit;
+        padding: 0;
+        color: inherit;
+      }
 
-    .period-selector__label:hover {
-      opacity: 0.7;
-    }
+      .period-selector__label:hover {
+        opacity: 0.7;
+      }
 
-    .period-selector__controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
-  `],
+      .period-selector__controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+    `,
+  ],
 })
 export class DashboardPeriodSelectorComponent {
   protected readonly dashboardState = inject(DashboardState);
@@ -115,7 +112,9 @@ export class DashboardPeriodSelectorComponent {
   }
 
   protected onMonthSelected(date: Date | null, picker: MatDatepicker<Date>): void {
-    if (this.dashboardState.periodMode() !== 'month' || !date) {return;}
+    if (this.dashboardState.periodMode() !== 'month' || !date) {
+      return;
+    }
 
     this.dashboardState.setMonth(date.getMonth());
     this.dashboardState.setYear(date.getFullYear());
@@ -123,7 +122,9 @@ export class DashboardPeriodSelectorComponent {
   }
 
   protected onYearSelected(date: Date | null, picker: MatDatepicker<Date>): void {
-    if (this.dashboardState.periodMode() !== 'year' || !date) {return;}
+    if (this.dashboardState.periodMode() !== 'year' || !date) {
+      return;
+    }
 
     this.dashboardState.setYear(date.getFullYear());
     picker.close();

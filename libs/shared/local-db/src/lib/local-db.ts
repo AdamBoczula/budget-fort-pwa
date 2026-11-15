@@ -71,6 +71,28 @@ export class LocalDbService {
     return this.database.table<RecordType, KeyType>(tableName);
   }
 
+  public async clearAllTables(): Promise<void> {
+    this.assertIndexedDbAvailable();
+    const tableNames: BudgetFortStoreName[] = [
+      TRANSACTION_DB_TOKEN,
+      CATEGORY_DB_TOKEN,
+      SUBCATEGORY_DB_TOKEN,
+      BUDGET_DB_TOKEN,
+      CATEGORY_BUDGET_DB_TOKEN,
+      SYNC_QUEUE_DB_TOKEN,
+      RECURRING_RULE_DB_TOKEN,
+    ];
+    await this.database.transaction(
+      'rw',
+      tableNames.map((t) => this.database.table(t)),
+      async () => {
+        for (const tableName of tableNames) {
+          await this.database.table(tableName).clear();
+        }
+      },
+    );
+  }
+
   private createDatabase(): Dexie {
     const database = new Dexie(BUDGET_FORT_DB_NAME);
 

@@ -46,9 +46,6 @@ describe('SettingsThemeSelectorComponent', () => {
     const option = await screen.findByText('Rose & Red');
     await user.click(option);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
-      'budget-fort.theme',
-      'rose-red',
-    );
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('budget-fort.theme', 'rose-red');
   });
 });

@@ -1,9 +1,9 @@
 ---
 name: qa-coordinator
-description: QA Coordinator & Gatekeeper for Budget Fort (model: Gemini Flash). Runs quality tests, manages test evidences (Antigravity internal browser & Playwright screenshots), coordinates audits, and invokes any agent (Dev, Architect, Designer, Tester) to triage failures.
+description: QA Coordinator & Gatekeeper for Budget Fort (model: Gemini 3.8 Flash). Runs quality tests, manages test evidences (Antigravity internal browser & Playwright screenshots), coordinates audits, and invokes any agent (Dev, Architect, Designer, Tester) to triage failures.
 mode: subagent
-model: flash
-target_profile: Flash / Fast orchestration & verification
+model: gemini-3.8-flash
+target_profile: Gemini 3.8 Flash / Fast orchestration & verification
 allowed_skills:
   - nx-run-tasks
   - nx-workspace
@@ -31,16 +31,17 @@ to the user.
 
 You spawn these four subagents (they do the actual analysis):
 
-| Subagent | File | Focus | Target Profile |
-|----------|------|-------|----------------|
-| `ui-reviewer` | `docs/ai/agents/ui-reviewer.md` | Visual consistency, layout, spacing, typography, component states | Flash / Fast multimodal |
-| `ux-analyzer` | `docs/ai/agents/ux-analyzer.md` | User flows, interaction design, heuristics, click efficiency | Flash / Fast |
-| `a11y-auditor` | `docs/ai/agents/a11y-auditor.md` | WCAG 2.1 AA compliance, Axe-core, ARIA, keyboard, contrast | Flash / Fast |
-| `responsive-checker` | `docs/ai/agents/responsive-checker.md` | Viewport testing, layout integrity, touch targets | Flash / Fast |
+| Subagent             | File                                   | Focus                                                             | Target Profile                     |
+| -------------------- | -------------------------------------- | ----------------------------------------------------------------- | ---------------------------------- |
+| `ui-reviewer`        | `docs/ai/agents/ui-reviewer.md`        | Visual consistency, layout, spacing, typography, component states | Gemini 3.8 Flash / Fast multimodal |
+| `ux-analyzer`        | `docs/ai/agents/ux-analyzer.md`        | User flows, interaction design, heuristics, click efficiency      | Gemini 3.8 Flash / Fast            |
+| `a11y-auditor`       | `docs/ai/agents/a11y-auditor.md`       | WCAG 2.1 AA compliance, Axe-core, ARIA, keyboard, contrast        | Gemini 3.8 Flash / Fast            |
+| `responsive-checker` | `docs/ai/agents/responsive-checker.md` | Viewport testing, layout integrity, touch targets                 | Gemini 3.8 Flash / Fast            |
 
 ## Workflow
 
 ### Step 1: Verify Dev Server
+
 ```
 - Check if the Budget Fort dev server is running at http://localhost:4200.
 - If not running, instruct the user to start it:
@@ -49,6 +50,7 @@ You spawn these four subagents (they do the actual analysis):
 ```
 
 ### Step 2: Spawn Review Subagents
+
 ```
 Spawn all four subagents IN PARALLEL (they work independently):
 
@@ -73,11 +75,13 @@ Spawn all four subagents IN PARALLEL (they work independently):
 ```
 
 ### Step 3: Collect & Merge Results
+
 ```
 Wait for all subagents to complete. Collect their reports.
 ```
 
 ### Step 4: Generate Unified QA Report
+
 ```
 Create a file: docs/qa/YYYY-MM-DD-qa-report.md
 
@@ -93,6 +97,7 @@ The unified report must contain:
 ```
 
 ### Step 5: Present Summary
+
 ```
 Present a concise summary to the user:
 - Overall QA score
@@ -104,6 +109,7 @@ Present a concise summary to the user:
 ```
 
 ### Step 6: Optional — Create GitHub Issue
+
 ```
 If the user agrees, use GitHub MCP to create an issue with:
 - Title: "QA Review — [YYYY-MM-DD] — [overall score]/10"
@@ -129,13 +135,13 @@ tasks.
 
 ### Score Interpretation
 
-| Score | Rating | Action |
-|-------|--------|--------|
-| 9-10 | Excellent | No action needed |
-| 7-8 | Good | Minor issues, fix when convenient |
-| 5-6 | Fair | Several issues, plan fixes for next sprint |
-| 3-4 | Poor | Significant issues, prioritize fixes |
-| 0-2 | Critical | Blocking issues, fix immediately |
+| Score | Rating    | Action                                     |
+| ----- | --------- | ------------------------------------------ |
+| 9-10  | Excellent | No action needed                           |
+| 7-8   | Good      | Minor issues, fix when convenient          |
+| 5-6   | Fair      | Several issues, plan fixes for next sprint |
+| 3-4   | Poor      | Significant issues, prioritize fixes       |
+| 0-2   | Critical  | Blocking issues, fix immediately           |
 
 ## Quality Gate Integration
 

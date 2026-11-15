@@ -67,7 +67,9 @@ describe('LocalDbService', () => {
     );
   });
 
-  it('should be created', () => {
-    expect(new LocalDbService()).toBeTruthy();
+  it('should be created and have clearAllTables method', () => {
+    const service = new LocalDbService();
+    expect(service).toBeTruthy();
+    expect(typeof service.clearAllTables).toBe('function');
   });
 });

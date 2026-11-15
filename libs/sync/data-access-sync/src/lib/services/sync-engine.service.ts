@@ -2,6 +2,7 @@
 // spec: docs/specs/sync/02-multi-user-household.md
 
 import { effect, inject, Injectable } from '@angular/core';
+import { debounceTime } from 'rxjs';
 import { AuthService } from '@data-access-auth';
 import {
   BUDGET_DB_TOKEN,
@@ -43,6 +44,22 @@ export class SyncEngineService {
 
   constructor() {
     this.initLastSynced();
+
+    this.auth.onLogout$?.subscribe(async () => {
+      this.syncState.reset();
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(LAST_SYNCED_STORAGE_KEY);
+      }
+      await this.localDb.clearAllTables();
+    });
+
+    this.syncQueue.queued$?.pipe(debounceTime(300)).subscribe(() => {
+      if (this.auth.isAuthenticated() && this.networkStatus.isOnline()) {
+        this.syncNow().catch((err) => {
+          console.error('[SyncEngine] Automatic sync on queue change failed:', err);
+        });
+      }
+    });
 
     effect(() => {
       const isOnline = this.networkStatus.isOnline();
@@ -105,12 +122,20 @@ export class SyncEngineService {
     try {
       // 0. Ensure household is resolved
       let household = this.syncState.currentHousehold();
+      if (household && !household.members.includes(user.uid)) {
+        household = null;
+        this.syncState.setCurrentHousehold(null);
+      }
       if (!household && this.firestoreSync.isAvailable()) {
         household = await this.firestoreSync.getOrCreateHousehold(user);
         this.syncState.setCurrentHousehold(household);
       }
 
       const householdId = household?.id ?? user.uid;
+
+      // Update pending count before push
+      const currentPending = await this.syncQueue.getPendingCount();
+      this.syncState.setPendingCount(currentPending);
 
       // 1. Push local changes
       await this.pushPendingChanges(householdId);
@@ -172,6 +197,16 @@ export class SyncEngineService {
     while (items.length > 0) {
       const processedIds = await this.firestoreSync.pushBatch(householdId, items);
       if (processedIds.length > 0) {
+        for (const item of items) {
+          if (processedIds.includes(item.id) && item.payload?.['updatedAt']) {
+            try {
+              const table = this.localDb.getTable(item.store);
+              await table.update(item.entityId, { updatedAt: item.payload['updatedAt'] });
+            } catch {
+              // Ignore if record does not support update or was removed
+            }
+          }
+        }
         await this.syncQueue.removeMany(processedIds);
       } else {
         break; // If nothing was processed (e.g. error), prevent infinite loop
@@ -185,13 +220,19 @@ export class SyncEngineService {
    */
   async initialPull(householdId: string): Promise<void> {
     const data = await this.firestoreSync.pullAll(householdId);
+    let hasItems = false;
 
     for (const store of SYNCABLE_STORES) {
       const remoteItems = data[store];
       if (remoteItems && remoteItems.length > 0) {
+        hasItems = true;
         const table = this.localDb.getTable(store);
         await table.bulkPut(remoteItems);
       }
+    }
+
+    if (hasItems) {
+      this.syncState.notifyDataSynced();
     }
   }
 
@@ -199,12 +240,23 @@ export class SyncEngineService {
    * Pulls remote changes using Delta Sync and applies Field-level Last-Write-Wins (LWW) conflict resolution.
    */
   private async pullDeltaChanges(householdId: string, sinceTimestamp: string): Promise<void> {
+    let hasChanges = false;
+
+    // Safety lookback margin (24 hours) to cover clock drift, offline queued batches,
+    // and sync sequence races across multiple household members.
+    const lookbackMs = 24 * 60 * 60 * 1000;
+    const sinceTime = new Date(sinceTimestamp).getTime();
+    const safeSince = !isNaN(sinceTime)
+      ? new Date(Math.max(0, sinceTime - lookbackMs)).toISOString()
+      : sinceTimestamp;
+
     for (const store of SYNCABLE_STORES) {
-      const changedDocs = await this.firestoreSync.pullChanges(householdId, store, sinceTimestamp);
+      const changedDocs = await this.firestoreSync.pullChanges(householdId, store, safeSince);
 
       if (changedDocs.length === 0) {
         continue;
       }
+      hasChanges = true;
 
       const table = this.localDb.getTable<Record<string, unknown>, string>(store);
 
@@ -215,6 +267,13 @@ export class SyncEngineService {
         }
 
         const local = await table.get(id);
+
+        if (remote['isDeleted'] === true) {
+          if (local) {
+            await table.delete(id);
+          }
+          continue;
+        }
 
         if (!local) {
           await table.put(remote);
@@ -230,6 +289,10 @@ export class SyncEngineService {
           }
         }
       }
+    }
+
+    if (hasChanges) {
+      this.syncState.notifyDataSynced();
     }
   }
 }

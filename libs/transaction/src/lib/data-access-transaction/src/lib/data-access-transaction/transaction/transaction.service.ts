@@ -15,9 +15,7 @@ export class TransactionService {
   private readonly transactionsState = signal<Transaction[]>([]);
 
   public readonly transactions = this.transactionsState.asReadonly();
-  public readonly transactionsCount = computed(
-    () => this.transactionsState().length,
-  );
+  public readonly transactionsCount = computed(() => this.transactionsState().length);
 
   public getTransactions(): Observable<Transaction[]> {
     return this.transactionStore
@@ -31,52 +29,36 @@ export class TransactionService {
     return transactions;
   }
 
-  public setTransactions(
-    transactions: Transaction[],
-  ): Observable<Transaction[]> {
+  public setTransactions(transactions: Transaction[]): Observable<Transaction[]> {
     return this.transactionStore
       .setTransactions(transactions)
-      .pipe(
-        tap((persistedTransactions) =>
-          this.transactionsState.set(persistedTransactions),
-        ),
-      );
+      .pipe(tap((persistedTransactions) => this.transactionsState.set(persistedTransactions)));
   }
 
   public deleteTransaction(id: string): Observable<void> {
     return this.transactionStore.deleteTransaction(id).pipe(
       tap(() => {
-        this.transactionsState.update((transactions) =>
-          transactions.filter((t) => t.id !== id),
-        );
+        this.transactionsState.update((transactions) => transactions.filter((t) => t.id !== id));
       }),
     );
   }
 
   public async deleteTransactionAsync(id: string): Promise<void> {
     await this.transactionStore.deleteTransactionAsync(id);
-    this.transactionsState.update((transactions) =>
-      transactions.filter((t) => t.id !== id),
-    );
+    this.transactionsState.update((transactions) => transactions.filter((t) => t.id !== id));
   }
 
   public addTransaction(transaction: Transaction): Observable<Transaction> {
     return this.transactionStore.addTransaction(transaction).pipe(
       tap((savedTransaction) => {
-        this.transactionsState.update((transactions) => [
-          ...transactions,
-          savedTransaction,
-        ]);
+        this.transactionsState.update((transactions) => [...transactions, savedTransaction]);
       }),
     );
   }
 
   public async addTransactionAsync(transaction: Transaction): Promise<Transaction> {
     const saved = await this.transactionStore.addTransactionAsync(transaction);
-    this.transactionsState.update((transactions) => [
-      ...transactions,
-      saved,
-    ]);
+    this.transactionsState.update((transactions) => [...transactions, saved]);
     return saved;
   }
 
@@ -98,9 +80,7 @@ export class TransactionService {
     const updated = await this.transactionStore.updateTransactionAsync(transaction);
     this.transactionsState.update((transactions) =>
       transactions.map((currentTransaction) =>
-        currentTransaction.id === updated.id
-          ? updated
-          : currentTransaction,
+        currentTransaction.id === updated.id ? updated : currentTransaction,
       ),
     );
     return updated;

@@ -8,46 +8,32 @@ export class SubcategoryStore {
   private readonly localDbService = inject(LocalDbService);
 
   private get subcategoriesTable() {
-    return this.localDbService.getTable<Subcategory, string>(
-      SUBCATEGORY_DB_TOKEN,
-    );
+    return this.localDbService.getTable<Subcategory, string>(SUBCATEGORY_DB_TOKEN);
   }
 
   public getSubcategories(categoryId: string): Observable<Subcategory[]> {
     return defer(() =>
-      this.subcategoriesTable
-        .where('categoryId')
-        .equals(categoryId)
-        .sortBy('name'),
+      this.subcategoriesTable.where('categoryId').equals(categoryId).sortBy('name'),
     );
   }
 
   public async getSubcategoriesAsync(categoryId: string): Promise<Subcategory[]> {
-    return this.subcategoriesTable
-      .where('categoryId')
-      .equals(categoryId)
-      .sortBy('name');
+    return this.subcategoriesTable.where('categoryId').equals(categoryId).sortBy('name');
   }
 
-  public addSubcategory(
-    subcategory: Subcategory,
-  ): Observable<Subcategory> {
+  public addSubcategory(subcategory: Subcategory): Observable<Subcategory> {
     return defer(async () => {
       await this.subcategoriesTable.add(subcategory);
       return subcategory;
     });
   }
 
-  public async addSubcategoryAsync(
-    subcategory: Subcategory,
-  ): Promise<Subcategory> {
+  public async addSubcategoryAsync(subcategory: Subcategory): Promise<Subcategory> {
     await this.subcategoriesTable.add(subcategory);
     return subcategory;
   }
 
-  public async upsertSubcategoryAsync(
-    subcategory: Subcategory,
-  ): Promise<Subcategory> {
+  public async upsertSubcategoryAsync(subcategory: Subcategory): Promise<Subcategory> {
     const existing = await this.subcategoriesTable
       .where({ categoryId: subcategory.categoryId, name: subcategory.name })
       .first();

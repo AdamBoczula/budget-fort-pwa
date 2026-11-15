@@ -60,4 +60,24 @@ describe('FirestoreSyncService', () => {
       'Kod zaproszenia nie może być pusty.',
     );
   });
+
+  // covers: docs/specs/sync/01-firestore-sync.md#AC-2
+  it('should sanitize payload by removing undefined properties', () => {
+    const raw = {
+      id: 'tx-123',
+      amount: 150,
+      comment: undefined,
+      subcategory: undefined,
+      recurringRuleId: undefined,
+      authorName: 'Adam',
+    };
+    const cleaned = service.sanitizePayload(raw);
+    expect(cleaned).toEqual({
+      id: 'tx-123',
+      amount: 150,
+      authorName: 'Adam',
+    });
+    expect('comment' in cleaned).toBe(false);
+    expect('subcategory' in cleaned).toBe(false);
+  });
 });

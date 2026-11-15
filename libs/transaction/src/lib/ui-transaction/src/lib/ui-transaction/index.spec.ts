@@ -1,7 +1,9 @@
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
-import { LOCALE_ID } from '@angular/core';
+import { LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { AuthService } from '@data-access-auth';
+import { SyncState, SyncEngineService } from '@data-access-sync';
 import { TransactionBottomNavComponent } from './transaction-bottom-nav.component';
 import { TransactionHeaderToolbarComponent } from './transaction-header-toolbar.component';
 import { TransactionNavigationDrawerComponent } from './transaction-navigation-drawer.component';
@@ -59,5 +61,49 @@ describe('@ui-transaction exports', () => {
     expect(text).toContain('Analiza');
     expect(text).toContain('Budżet');
     expect(text).toContain('Ustawienia');
+  });
+
+  it('should render user avatar with initials in header toolbar', async () => {
+    const mockAuth = {
+      currentUser: signal({
+        uid: 'user-1',
+        email: 'boczuleq@gmail.com',
+        displayName: 'boczuleq',
+      }),
+      isGuest: signal(false),
+      logout: vi.fn(),
+    };
+    const mockSyncState = {
+      status: signal('idle'),
+      isSyncing: signal(false),
+      isOffline: signal(false),
+      isError: signal(false),
+      isGuest: signal(false),
+      pendingCount: signal(0),
+    };
+    const mockSyncEngine = {
+      syncNow: vi.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [TransactionHeaderToolbarComponent],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: mockAuth },
+        { provide: SyncState, useValue: mockSyncState },
+        { provide: SyncEngineService, useValue: mockSyncEngine },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(TransactionHeaderToolbarComponent);
+    fixture.detectChanges();
+
+    const element: HTMLElement = fixture.nativeElement;
+    const avatar = element.querySelector('.transaction-header-toolbar__user-avatar');
+    expect(avatar).toBeTruthy();
+    expect(avatar?.textContent?.trim()).toBe('B');
+    expect(avatar?.getAttribute('mattooltip') || avatar?.getAttribute('aria-label')).toContain(
+      'boczuleq@gmail.com',
+    );
   });
 });

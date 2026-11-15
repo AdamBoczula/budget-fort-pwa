@@ -11,7 +11,15 @@ const mockSubcategories = [
 
 describe('SubcategoryStore', () => {
   let store: SubcategoryStore;
-  let tableMock: { add: ReturnType<typeof vi.fn>; bulkPut: ReturnType<typeof vi.fn>; where: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn>; toArray: ReturnType<typeof vi.fn>; put: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> };
+  let tableMock: {
+    add: ReturnType<typeof vi.fn>;
+    bulkPut: ReturnType<typeof vi.fn>;
+    where: ReturnType<typeof vi.fn>;
+    count: ReturnType<typeof vi.fn>;
+    toArray: ReturnType<typeof vi.fn>;
+    put: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     tableMock = {
@@ -23,7 +31,9 @@ describe('SubcategoryStore', () => {
       delete: vi.fn().mockResolvedValue(undefined),
       where: vi.fn().mockReturnValue({
         equals: vi.fn().mockReturnValue({
-          sortBy: vi.fn().mockResolvedValue(mockSubcategories.filter((s) => s.categoryId === 'transport')),
+          sortBy: vi
+            .fn()
+            .mockResolvedValue(mockSubcategories.filter((s) => s.categoryId === 'transport')),
         }),
         first: vi.fn().mockResolvedValue(null),
       }),

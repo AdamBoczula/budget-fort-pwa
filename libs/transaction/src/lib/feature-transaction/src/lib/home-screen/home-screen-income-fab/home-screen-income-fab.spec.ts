@@ -134,11 +134,9 @@ describe('HomeScreenIncomeFabComponent', () => {
         comment: 'Wypłata',
       }),
     );
-    expect(mockSnackBar.open).toHaveBeenCalledWith(
-      'Dodano przychód.',
-      undefined,
-      { duration: 3000 },
-    );
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Dodano przychód.', undefined, {
+      duration: 3000,
+    });
   });
 
   it('should not add transaction when dialog is cancelled', async () => {

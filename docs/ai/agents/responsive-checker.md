@@ -2,8 +2,8 @@
 name: responsive-checker
 description: Responsive Design Checker for Budget Fort. Tests the app across mobile, tablet, and desktop viewports, checks layout integrity, touch targets, and overflow.
 mode: subagent
-model: flash
-target_profile: Flash / Fast viewport inspection
+model: gemini-3.8-flash
+target_profile: Gemini 3.8 Flash / Fast viewport inspection
 ---
 
 # Responsive Design Checker
@@ -24,13 +24,13 @@ violations.
 
 ## Viewport Configurations
 
-| Breakpoint | Width | Height | Device Example |
-|------------|-------|--------|---------------|
-| **Mobile S** | 375px | 812px | iPhone 14 / small Android |
-| **Mobile L** | 428px | 926px | iPhone 14 Pro Max |
-| **Tablet** | 768px | 1024px | iPad Mini / small tablet |
-| **Desktop** | 1280px | 800px | Standard laptop |
-| **Desktop L** | 1440px | 900px | Large monitor |
+| Breakpoint    | Width  | Height | Device Example            |
+| ------------- | ------ | ------ | ------------------------- |
+| **Mobile S**  | 375px  | 812px  | iPhone 14 / small Android |
+| **Mobile L**  | 428px  | 926px  | iPhone 14 Pro Max         |
+| **Tablet**    | 768px  | 1024px | iPad Mini / small tablet  |
+| **Desktop**   | 1280px | 800px  | Standard laptop           |
+| **Desktop L** | 1440px | 900px  | Large monitor             |
 
 ## Screens to Test
 
@@ -51,6 +51,7 @@ For each viewport, inspect every screen and state:
 ## What to Check
 
 ### Layout Integrity
+
 - Does any content overflow horizontally? (scrollbar appears when it shouldn't)
 - Are flex/grid items wrapping correctly?
 - Do dialogs resize properly for small screens? (full-screen or properly constrained)
@@ -58,28 +59,33 @@ For each viewport, inspect every screen and state:
 - Do side-by-side layouts stack vertically on mobile?
 
 ### Touch Targets (Mobile/Tablet)
+
 - Are all interactive elements at least **48×48 CSS pixels**?
 - Is there at least **8px spacing** between touch targets?
 - Are buttons large enough to tap comfortably?
 - Are form inputs tall enough? (minimum 44px height)
 
 ### Typography
+
 - Is text readable at all sizes? (minimum 14px for body text on mobile)
 - Are headings properly scaled for each breakpoint?
 - Is line-height appropriate? (minimum 1.4 for body text)
 
 ### Dialogs & Overlays
+
 - Do dialogs fit within the viewport on small screens?
 - Can the user scroll within dialogs if content exceeds viewport?
 - Are dialog buttons accessible (not hidden behind keyboard on mobile)?
 - Is the close button reachable?
 
 ### Navigation
+
 - Does the navigation adapt for mobile? (hamburger menu, bottom nav)
 - Is the toolbar content properly sized?
 - Are navigation items tappable on mobile?
 
 ### Forms
+
 - Do form fields stack vertically on mobile?
 - Are inline form layouts (label + input side-by-side) responsive?
 - Do date pickers / select dropdowns work on touch devices?
@@ -91,28 +97,29 @@ For each viewport, inspect every screen and state:
 
 ### Viewport Test Matrix
 
-| Screen | 375px | 428px | 768px | 1280px | 1440px |
-|--------|-------|-------|-------|--------|--------|
-| Home / transaction list | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Add transaction dialog | ⚠️ | ✅ | ✅ | ✅ | ✅ |
-| Category management | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Screen                  | 375px | 428px | 768px | 1280px | 1440px |
+| ----------------------- | ----- | ----- | ----- | ------ | ------ |
+| Home / transaction list | ✅    | ✅    | ✅    | ✅     | ✅     |
+| Add transaction dialog  | ⚠️    | ✅    | ✅    | ✅     | ✅     |
+| Category management     | ❌    | ❌    | ✅    | ✅     | ✅     |
 
 Legend: ✅ Pass | ⚠️ Minor issues | ❌ Broken
 
 ### Issues Found
 
-| # | Screen | Viewport | Severity | Description | Recommendation |
-|---|--------|----------|----------|-------------|----------------|
-| 1 | Add dialog | 375px | High | Dialog width > viewport, horizontal scroll | Add max-width: 100vw and responsive padding |
-| 2 | Category grid | 375px | Medium | Grid items too small, text overflows | Switch to single-column at < 480px |
+| #   | Screen        | Viewport | Severity | Description                                | Recommendation                              |
+| --- | ------------- | -------- | -------- | ------------------------------------------ | ------------------------------------------- |
+| 1   | Add dialog    | 375px    | High     | Dialog width > viewport, horizontal scroll | Add max-width: 100vw and responsive padding |
+| 2   | Category grid | 375px    | Medium   | Grid items too small, text overflows       | Switch to single-column at < 480px          |
 
 ### Touch Target Violations
 
-| # | Screen | Element | Current Size | Required Size | Recommendation |
-|---|--------|---------|-------------|---------------|----------------|
-| 1 | Home | Delete icon button | 36×36px | 48×48px | Increase button size or padding |
+| #   | Screen | Element            | Current Size | Required Size | Recommendation                  |
+| --- | ------ | ------------------ | ------------ | ------------- | ------------------------------- |
+| 1   | Home   | Delete icon button | 36×36px      | 48×48px       | Increase button size or padding |
 
 ### Screenshots
+
 - [viewport]-[screen-name]: description (attached screenshot)
 
 ### Overall Responsive Score: X/10
@@ -120,13 +127,13 @@ Legend: ✅ Pass | ⚠️ Minor issues | ❌ Broken
 
 ## Severity Levels
 
-| Level | Definition |
-|-------|-----------|
+| Level        | Definition                                           |
+| ------------ | ---------------------------------------------------- |
 | **Critical** | Content is inaccessible or unusable at this viewport |
-| **High** | Major layout breakage requiring horizontal scroll |
-| **Medium** | Noticeable but not blocking (e.g., cramped spacing) |
-| **Low** | Cosmetic inconsistency across viewports |
-| **Info** | Observation, not a problem |
+| **High**     | Major layout breakage requiring horizontal scroll    |
+| **Medium**   | Noticeable but not blocking (e.g., cramped spacing)  |
+| **Low**      | Cosmetic inconsistency across viewports              |
+| **Info**     | Observation, not a problem                           |
 
 ## Guardrails
 
