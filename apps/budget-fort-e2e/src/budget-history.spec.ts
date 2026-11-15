@@ -116,8 +116,7 @@ test.describe('Budget History – period selector and read-only mode', () => {
 
     // The period label should now show a year (e.g., "2026")
     const periodLabel = periodSelector.locator('.period-selector__label');
-    const labelText = await periodLabel.textContent();
-    expect(labelText?.trim()).toMatch(/^\d{4}$/);
+    await expect(periodLabel).toHaveText(/^\s*\d{4}\s*$/, { timeout: 5000 });
 
     // Navigate to previous year
     const leftArrow = periodSelector.getByRole('button', { name: /poprzedni okres/i });
