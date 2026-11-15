@@ -635,6 +635,18 @@
         <source>Dołącz</source>
         <target>Join</target>
       </trans-unit>
+      <trans-unit id="pwa.update.available" datatype="html">
+        <source>Dostępna jest nowa wersja Budget Fort</source>
+        <target>A new version of Budget Fort is available</target>
+      </trans-unit>
+      <trans-unit id="pwa.update.action" datatype="html">
+        <source>Zaktualizuj</source>
+        <target>Update</target>
+      </trans-unit>
+      <trans-unit id="maintenance.banner.close" datatype="html">
+        <source>Zamknij powiadomienie</source>
+        <target>Close notification</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

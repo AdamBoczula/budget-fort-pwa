@@ -8,17 +8,20 @@ import {
   RouterModule,
 } from '@angular/router';
 import { SplashComponent } from './splash/splash.component';
+import { MaintenanceBannerComponent } from './components/maintenance-banner/maintenance-banner.component';
+import { PwaUpdateService } from './services/pwa-update.service';
 
 type ThemeMode = 'light' | 'dark';
 
 @Component({
-  imports: [RouterModule, SplashComponent],
+  imports: [RouterModule, SplashComponent, MaintenanceBannerComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App implements OnInit {
   private readonly router = inject(Router, { optional: true });
+  private readonly pwaUpdateService = inject(PwaUpdateService, { optional: true });
   protected readonly isInitialLoading = signal<boolean>(false);
   private initialDataLoaded = false;
   protected currentTheme = signal<ThemeMode>('light');
@@ -54,6 +57,7 @@ export class App implements OnInit {
   ngOnInit(): void {
     const preferredTheme = this.getInitialTheme();
     this.setTheme(preferredTheme);
+    this.pwaUpdateService?.init();
   }
 
   protected toggleTheme(): void {
