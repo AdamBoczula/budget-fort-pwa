@@ -1,5 +1,6 @@
 // spec: docs/specs/sync/01-firestore-sync.md
 // spec: docs/specs/sync/02-multi-user-household.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -7,6 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { AuthService } from '@data-access-auth';
 import { LocalDbService } from 'local-db';
 import { SyncState } from '../state/sync.state';
+import { getPendingInviteCode, setPendingInviteCode } from '../utils/invite-link.utils';
 import { FirestoreSyncService } from './firestore-sync.service';
 import { NetworkStatusService } from './network-status.service';
 import { SyncEngineService } from './sync-engine.service';
@@ -251,6 +253,34 @@ describe('SyncEngineService', () => {
     });
     expect(household.id).toBe('hh-partner');
     expect(mockFirestore.pullAll).toHaveBeenCalledWith('hh-partner');
+  });
+
+  // covers: docs/specs/sync/03-household-invite-link.md#AC-5
+  it('should auto-join household when pending invite code exists in sessionStorage', async () => {
+    setPendingInviteCode('AUTO99');
+
+    await service.syncNow();
+
+    expect(mockFirestore.joinHouseholdByInviteCode).toHaveBeenCalledWith('AUTO99', {
+      uid: 'test-user-1',
+      email: 'test@example.com',
+    });
+    expect(getPendingInviteCode()).toBeNull();
+  });
+
+  // covers: docs/specs/sync/03-household-invite-link.md#AC-5
+  it('should clear invalid pending invite and fallback to getOrCreateHousehold gracefully', async () => {
+    setPendingInviteCode('INVALID');
+    mockFirestore.joinHouseholdByInviteCode.mockRejectedValueOnce(new Error('Invalid code'));
+
+    await service.syncNow();
+
+    expect(mockFirestore.joinHouseholdByInviteCode).toHaveBeenCalledWith('INVALID', {
+      uid: 'test-user-1',
+      email: 'test@example.com',
+    });
+    expect(getPendingInviteCode()).toBeNull();
+    expect(mockFirestore.getOrCreateHousehold).toHaveBeenCalled();
   });
 
   // covers: docs/specs/auth/01-firebase-authentication.md#AC-7

@@ -9,6 +9,11 @@ Data sporządzenia: 2026-11-14
 ## 1. Model Gospodarstwa Domowego i Synchronizacja (Multi-user)
 
 - **Koncepcja:** Aplikacja działa w oparciu o wspólne gospodarstwo domowe (`householdId`), a nie tylko pojedynczego użytkownika. Wiele osób z domowników może w tym samym czasie rejestrować lub modyfikować wydatki i budżety.
+- **Zaproszenia i dołączanie przez bezpośredni link (Deep Link / Invite Link):**
+  - **Mechanizm:** Zamiast ręcznego przepisywania 6-znakowego kodu, użytkownik może skopiować gotowy link zaproszenia (np. `https://budget-fort.app/join?code=ABC123` lub z parametrem query `?invite=ABC123`).
+  - **UX dla zaproszonego:**
+    - Jeśli użytkownik jest już zalogowany: natychmiastowe potwierdzenie i dołączenie do gospodarstwa.
+    - Jeśli użytkownik nie jest zalogowany: kod zaproszenia jest zapamiętywany (w `sessionStorage`), użytkownik przechodzi logowanie/rejestrację, a po sukcesie zostaje automatycznie przypisany do zapraszającego gospodarstwa bez ponownego wpisywania kodu.
 - **Rozwiązywanie konfliktów:**
   - **Przyjęta strategia:** **Field-level Last-Write-Wins (LWW)** w oparciu o stempel czasu `updatedAt`.
   - **Dlaczego:** Wpisywanie wydatków to w >95% operacje dopisywania (append-only). Równoczesna edycja tego samego wpisu zdarza się marginalnie rzadko.
@@ -30,16 +35,20 @@ Data sporządzenia: 2026-11-14
 
 ---
 
-## 3. Aktualizacje aplikacji (Deployments) i Komunikacja z Użytkownikiem
+## 3. Aktualizacje aplikacji (Deployments) i Automatyczna Instalacja
 
-- **Koncepcja:** Płynne wdrażanie nowych wersji bez negatywnego wpływu na UX.
-- **Przyjęta strategia:**
+- **Koncepcja:** Płynne wdrażanie nowych wersji bez negatywnego wpływu na UX oraz automatyczna instalacja nowej wersji u użytkowników bez konieczności ręcznego czyszczenia pamięci podręcznej.
+- **Problem braku automatycznej aktualizacji:**
+  - Przeglądarka z Service Workerem domyślnie trzyma pliki w pamięci podręcznej (Cache-First) i nie aktywuje nowego workera w locie, jeśli otwarta jest jakakolwiek karta aplikacji.
+- **Wdrożona i rozwijana strategia:**
+  - **PWA Service Worker (`@angular/service-worker` + `ngsw-config.json`):** Automatyczne hashowanie plików buildu i precyzyjne odświeżanie assetów.
   - **Brak automatycznego wylogowywania:** Wylogowanie po deployu zostało **odrzucone** (użytkownik PWA oczekuje stałej sesji, a w trybie offline nie mógłby się ponownie zalogować).
-  - **Standardowe powiadomienie PWA:** Poinformowanie o nowej wersji za pomocą banera/Snackbara (obsługa przez `@angular/service-worker` i `SwUpdate`) z opcją przeładowania.
-  - **Prace konserwacyjne / Duże wdrożenia (Breaking Changes):**
-    - Planowane na godziny nocne.
-    - Wprowadzenie mechanizmu powiadomień/bannera informacyjnego w aplikacji przed planowaną przerwą/wdrożeniem.
-    - Wymuszone wylogowanie stosowane wyłącznie w wyjątkowych sytuacjach krytycznych migracji schematu autoryzacji.
+  - **Obsługa cyklu życia nowej wersji:**
+    - Powiadomienie Snackbar (`VERSION_READY`) z przyciskiem _„Zaktualizuj”_ podczas aktywnej pracy.
+    - Automatyczne ciche przeładowanie/aktywacja przy ponownym otwarciu lub powrocie do aplikacji (np. po przełączeniu aplikacji na telefonie).
+  - **Prace konserwacyjne / Banner w chmurze (Maintenance Banner):**
+    - Dokument w Firestore (`/app_config/maintenance`) nasłuchiwany w czasie rzeczywistym.
+    - Informowanie z wyprzedzeniem o oknach serwisowych w chmurze z uspokojeniem, że tryb offline działa nieprzerwanie.
 
 ---
 
@@ -86,6 +95,7 @@ Data sporządzenia: 2026-11-14
 | :------------- | :-------------------------------------- | :----------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **P1**         | **Transakcje rekurencyjne**             | ✅ Zrealizowano (2026-11-14)                     | Definicja reguł, deterministyczne generowanie instancji (`rec_${ruleId}_${YYYY-MM}`) w IndexedDB przy starcie aplikacji (offline-first).                                                                                                                               |
 | **P2**         | **Multi-user (`householdId`)**          | ✅ Zrealizowano (2026-11-14)                     | Podział danych na gospodarstwa domowe, synchronizacja Firebase `/households/{householdId}`, LWW. Zobacz [Spec](specs/sync/02-multi-user-household.md) i [ADR-005](adr/005-multi-user-household-data-model.md).                                                         |
+| **P2.1**       | **Zaproszenia do Household przez Link** | ✅ Zrealizowano (2026-11-16)                     | Generowanie linku z kodem (`/join?code=...`), auto-logowanie / auto-join po autoryzacji zaproszonej osoby bez ręcznego wpisywania kodu. Zobacz [Spec](specs/sync/03-household-invite-link.md) i [ADR-007](adr/007-household-invite-deep-link.md). |
 | **P3**         | **Zarządzanie aktualizacjami & Banner** | ✅ Zrealizowano (2026-11-15)                     | PWA Service Worker (`@angular/service-worker`), powiadomienie `SwUpdate` z opcją przeładowania, banner informacyjny o planowanych pracach. Zobacz [Spec](specs/pwa/01-app-update-and-maintenance-banner.md) i [ADR-006](adr/006-pwa-update-and-maintenance-banner.md). |
 | **P4**         | **Regulamin & Polityka prywatności**    | Ekrany informacyjne dla trybu offline vs online. |
 | **P5**         | **Privacy-first Analytics**             | Anonimowe zdarzenia bez danych kwotowych.        |

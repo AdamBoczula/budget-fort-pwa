@@ -1,12 +1,14 @@
 // spec: docs/specs/auth/01-firebase-authentication.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { getPendingInviteCode } from '@data-access-sync';
 import { GoogleSignInButtonComponent } from '@ui-auth';
 import { AuthContainerComponent } from '../container/auth-container.component';
 import { AuthScreenStateService } from '../services/auth-screen-state.service';
@@ -33,6 +35,16 @@ import { AuthScreenStateService } from '../services/auth-screen-state.service';
       [loading]="screenState.isLoading()"
       [errorMessage]="screenState.errorMessage()"
     >
+      @if (hasPendingInvite()) {
+        <div class="bf-login-form__invite-banner" data-testid="pending-invite-banner">
+          <mat-icon class="bf-login-form__invite-icon">group_add</mat-icon>
+          <span i18n="@@auth.pendingInviteBanner">
+            Dołączasz do gospodarstwa domowego. Zaloguj się lub utwórz konto, aby uzyskać dostęp do
+            wspólnego budżetu.
+          </span>
+        </div>
+      }
+
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="bf-login-form">
         <mat-form-field appearance="outline" class="bf-login-form__field">
           <mat-label i18n="@@auth.emailLabel">Adres email</mat-label>
@@ -121,6 +133,8 @@ import { AuthScreenStateService } from '../services/auth-screen-state.service';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   readonly screenState = inject(AuthScreenStateService);
+
+  readonly hasPendingInvite = signal<boolean>(!!getPendingInviteCode());
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

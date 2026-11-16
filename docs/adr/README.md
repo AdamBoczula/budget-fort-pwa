@@ -16,7 +16,8 @@ Szablon: [`adr-template.md`](./adr-template.md)
 | [ADR-003](./003-data-export-import-backup.md)               | Eksport i import danych (Kopia zapasowa w formacie JSON)                             | accepted | 2026-11-11 |
 | [ADR-004](./004-firestore-hybrid-sync-and-offline-first.md) | Hybrydowa synchronizacja IndexedDB (Dexie) z Cloud Firestore (Offline-First)         | accepted | 2026-11-13 |
 | [ADR-005](./005-multi-user-household-data-model.md)         | Podział danych na gospodarstwa domowe (`householdId`) i reguły uprawnień w Firestore | accepted | 2026-11-14 |
-| [ADR-006](./006-pwa-update-and-maintenance-banner.md)       | Zarządzanie aktualizacjami PWA (`SwUpdate`) i komunikaty prac serwisowych            | proposed | 2026-11-15 |
+| [ADR-006](./006-pwa-update-and-maintenance-banner.md)       | Zarządzanie aktualizacjami PWA (`SwUpdate`) i komunikaty prac serwisowych            | accepted | 2026-11-15 |
+| [ADR-007](./007-household-invite-deep-link.md)              | Dołączanie do Gospodarstwa Domowego poprzez Deep Link (Invite Link)                  | accepted | 2026-11-16 |
 
 ## Statusy
 

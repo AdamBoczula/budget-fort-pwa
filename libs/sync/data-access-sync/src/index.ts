@@ -6,3 +6,4 @@ export * from './lib/services/network-status.service';
 export * from './lib/services/sync-queue.service';
 export * from './lib/services/firestore-sync.service';
 export * from './lib/services/sync-engine.service';
+export * from './lib/utils/invite-link.utils';

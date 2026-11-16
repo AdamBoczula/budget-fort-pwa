@@ -1,21 +1,13 @@
 // spec: docs/specs/sync/01-firestore-sync.md
 // spec: docs/specs/sync/02-multi-user-household.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
 import { effect, inject, Injectable } from '@angular/core';
 import { debounceTime } from 'rxjs';
 import { AuthService } from '@data-access-auth';
-import {
-  BUDGET_DB_TOKEN,
-  CATEGORY_BUDGET_DB_TOKEN,
-  CATEGORY_DB_TOKEN,
-  Household,
-  LocalDbService,
-  RECURRING_RULE_DB_TOKEN,
-  SUBCATEGORY_DB_TOKEN,
-  SyncableStoreName,
-  TRANSACTION_DB_TOKEN,
-} from 'local-db';
+import { Household, LocalDbService, SyncableStoreName } from 'local-db';
 import { SyncState } from '../state/sync.state';
+import { clearPendingInviteCode, getPendingInviteCode } from '../utils/invite-link.utils';
 import { FirestoreSyncService } from './firestore-sync.service';
 import { NetworkStatusService } from './network-status.service';
 import { SyncQueueService } from './sync-queue.service';
@@ -126,6 +118,24 @@ export class SyncEngineService {
         household = null;
         this.syncState.setCurrentHousehold(null);
       }
+
+      // Check for pending invite code from deep-link flow
+      const pendingInvite = getPendingInviteCode();
+      if (pendingInvite && this.firestoreSync.isAvailable()) {
+        try {
+          household = await this.firestoreSync.joinHouseholdByInviteCode(pendingInvite, user);
+          this.syncState.setCurrentHousehold(household);
+          this.syncState.setLastSyncedAt('');
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem(LAST_SYNCED_STORAGE_KEY);
+          }
+          clearPendingInviteCode();
+        } catch (inviteErr) {
+          console.error('[SyncEngine] Failed to auto-join pending household invite:', inviteErr);
+          clearPendingInviteCode();
+        }
+      }
+
       if (!household && this.firestoreSync.isAvailable()) {
         household = await this.firestoreSync.getOrCreateHousehold(user);
         this.syncState.setCurrentHousehold(household);
@@ -176,6 +186,7 @@ export class SyncEngineService {
     }
 
     const household = await this.firestoreSync.joinHouseholdByInviteCode(inviteCode, user);
+    clearPendingInviteCode();
     this.syncState.setCurrentHousehold(household);
     this.syncState.setLastSyncedAt('');
     if (typeof localStorage !== 'undefined') {
