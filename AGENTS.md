@@ -85,13 +85,24 @@ Before making changes, read these files in order:
 10. `docs/ai/06-repository-architecture.md`
 11. `docs/specs/01-spec-workflow.md` (if working on a new feature)
 
-## Mandatory Verification Command
+## Mandatory Verification Command (Pre-PR Quality Gate)
 
-Before marking a task as complete, run:
+Before marking a task as complete, committing, or opening a PR, the agent MUST run the full verification suite matching the CI pipeline:
 
 ```bash
-npm exec nx affected -t lint test build e2e
+# 1. Format check & auto-format (covers code, markdown docs, json, yml)
+npx nx format:write --base=origin/main
+npx nx format:check --base=origin/main
+
+# 2. Workspace lint and SCSS lint
+npx nx run-many -t lint
+npm run lint:css
+
+# 3. Tests and build
+npm exec nx affected -t test build e2e
 ```
+
+Never skip `nx format:check` or `npm run lint:css`. Formatting and documentation files (`docs/**/*.md`) are strictly validated in CI.
 
 ## Governance
 

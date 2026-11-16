@@ -27,8 +27,9 @@
 This repository is **Budget Fort**, a home-budget PWA (Angular + Nx). The authoritative source of repository-specific guidance is `AGENTS.md` — read it first, along with the AI documentation chain in `docs/ai/` (see the read-order in `AGENTS.md`).
 
 Key points:
+
 - Active app: `apps/budget-fort` (offline-first, IndexedDB persistence)
 - Active libraries: `libs/transaction/**` (`@feature-transaction`, `@data-access-transaction`, `@ui-transaction`) and `libs/shared/local-db` (`local-db`)
 - `packages/**` is legacy/demo code — do not build new features there
-- Mandatory verification before PR: `npm exec nx affected -t lint test build e2e`
+- Mandatory verification before PR: `npx nx format:write --base=origin/main && npx nx format:check --base=origin/main && npx nx run-many -t lint && npm run lint:css && npm exec nx affected -t test build e2e`
 - Agents may update docs without approval; code/test changes require approval

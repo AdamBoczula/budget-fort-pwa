@@ -13,6 +13,7 @@ W [ADR-005](./005-multi-user-household-data-model.md) wdrożyliśmy współdziel
 Zgodnie z Roadmapą strategiczną (Zadanie P2.1 w `docs/roadmap.md`), proces ten powinien być maksymalnie bezwysiłkowy (frictionless). Użytkownik powinien móc wysłać link zaproszenia (np. komunikatorami WhatsApp/Signal/SMS), a zaproszony partner po jednym kliknięciu dołączyć do wspólnego budżetu.
 
 Wyzwania architektoniczne:
+
 1. **Stan autoryzacji odbiorcy:** Odbiorca może być już zalogowany w aplikacji, nie posiadać konta w ogóle lub korzystać z trybu gościa.
 2. **Utrata kontekstu podczas logowania/rejestracji:** Jeśli użytkownik musi przejść procedurę rejestracji i weryfikacji mailowej lub logowania Google, link zaproszenia nie może zginąć w trakcie przekierowań autoryzacyjnych.
 3. **PWA / Offline-First:** Aplikacja działa jako PWA na urządzeniach mobilnych, więc trasa `/join` musi być obsłużona natychmiastowo przez Angular Router i integrować się z Web Share API.
@@ -56,4 +57,4 @@ Wdrażamy architekturę **Invite Deep Link z sesyjnym buforem oczekującego zapr
   - Zero wpisywania 6-znakowego kodu dla nowego użytkownika — płynny onboarding.
   - Pełna integracja z mechanizmem synchronizacji Firestore z ADR-005.
 - **Ryzyka i mitygacja:**
-  - *Ryzyko:* Użytkownik wchodzi na stary/błędny link. *Mitygacja:* `JoinHouseholdComponent` i `SyncEngineService` czyszczą `sessionStorage` w przypadku błędu i wyświetlają zrozumiały komunikat z możliwością przejścia do standardowego budżetu.
+  - _Ryzyko:_ Użytkownik wchodzi na stary/błędny link. _Mitygacja:_ `JoinHouseholdComponent` i `SyncEngineService` czyszczą `sessionStorage` w przypadku błędu i wyświetlają zrozumiały komunikat z możliwością przejścia do standardowego budżetu.

@@ -5,6 +5,7 @@ Last updated: 2026-07-22
 ## Testing Stack
 
 Primary stack:
+
 - Vitest
 - Angular Testing Library
 - TestBed where needed
@@ -13,20 +14,24 @@ Primary stack:
 ## Required Test Layers
 
 1. Unit tests
+
 - Dumb/presentational components
 - Services
 - TypeScript utility/domain logic
 
 2. Component/Integration tests
+
 - User-centric flows around transaction forms and category selection
 - Summary rendering for monthly/yearly totals
 
 3. E2E tests
+
 - Critical path coverage for MVP flows
 
 ## Minimum Scenario Set (MVP)
 
 For each release candidate, ensure automated coverage for:
+
 1. Add transaction with decimal amount and category assignment
 2. Edit an existing transaction and verify updated totals
 3. Monthly category summary reflects transaction changes
@@ -34,25 +39,39 @@ For each release candidate, ensure automated coverage for:
 
 ## Quality Gates
 
-Before merge, AI should run:
+Before opening a PR or merging, the agent MUST run the full CI validation suite:
 
 ```bash
-npm exec nx affected -t lint test build e2e
+# 1. Formatting
+npx nx format:write --base=origin/main
+npx nx format:check --base=origin/main
+
+# 2. Project & SCSS Linting
+npx nx run-many -t lint
+npm run lint:css
+
+# 3. Tests & Build
+npm exec nx affected -t test build e2e
 ```
 
 And confirm:
-- No lint errors
+
+- Formatting check passes (`nx format:check` returns 0 for all files, including `docs/**/*.md`)
+- No project lint errors (`nx run-many -t lint`)
+- No SCSS stylelint errors (`npm run lint:css`)
 - No failing unit/component tests
 - No failing e2e tests in affected scope
 - Build succeeds
 
 Current enforcement policy:
+
 - CI does not block automatically yet for missing critical-flow tests.
 - Agents should still add those tests and explicitly report any missing coverage.
 
 ## Money Calculation Test Guidance
 
 Use these mandatory checks:
+
 - Decimal inputs (for example 0.1, 0.2, 100.23)
 - Summary aggregation of multiple decimal transactions
 - Edit flow where amount changes from one decimal value to another
@@ -63,6 +82,7 @@ Use these mandatory checks:
 ## Offline/PWA Test Guidance
 
 Include scenarios for:
+
 - Create transaction while offline
 - Edit transaction while offline
 - App refresh behavior in offline state
@@ -72,6 +92,7 @@ Include scenarios for:
 ## Non-Goals For MVP Test Automation
 
 Not required yet unless a task explicitly requests it:
+
 - Cloud synchronization conflict resolution
 - Authentication and authorization paths
 - Recurring transaction logic
@@ -79,6 +100,7 @@ Not required yet unless a task explicitly requests it:
 ## Security Checklist For AI Changes
 
 Before merge, confirm:
+
 - Inputs are validated on client and server boundaries.
 - No secrets or credentials are introduced in client code.
 - User-controlled strings are sanitized before rendering.
@@ -87,6 +109,7 @@ Before merge, confirm:
 ## Manual QA Checklist
 
 Before release candidate sign-off, confirm manually:
+
 1. Create transaction flow works.
 2. Edit transaction flow works.
 3. Monthly and yearly summaries are correct.

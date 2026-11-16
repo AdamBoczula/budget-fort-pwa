@@ -194,31 +194,31 @@ Uproszczenie procesu współdzielenia budżetu domowego z partnerem/domownikiem 
 
 ## Task Board
 
-| # | Task | Status | Assignee | Notes |
-|---|------|--------|----------|-------|
-| 1 | Przygotowanie specyfikacji i ADR-007 | ✅ Done | BA / Architect | `docs/specs/sync/03-household-invite-link.md`, `docs/adr/007-household-invite-deep-link.md` |
-| 2 | Utilities / Storage dla Pending Invite w `data-access-sync` | ✅ Done | Senior Dev | `getPendingInviteCode`, `setPendingInviteCode`, `buildInviteUrl` |
-| 3 | Aktualizacja `SettingsHouseholdSectionComponent` (przycisk Kopiuj link) | ✅ Done | Senior Dev | `copy-invite-link-btn`, obsługa `navigator.share` / `clipboard` |
-| 4 | Utworzenie `JoinHouseholdComponent` w `@feature-auth` + trasa `/join` w `app.routes.ts` | ✅ Done | Senior Dev | Obsługa zalogowanych/niezalogowanych, stany błędu i sukcesu |
-| 5 | Auto-dołączanie w `SyncEngineService` po autoryzacji | ✅ Done | Senior Dev | Rozwiązanie oczekującego kodu z `sessionStorage` |
-| 6 | Banner zaproszenia w `LoginComponent` i `RegisterComponent` | ✅ Done | UI/UX / Dev | Material styling, Anti-UI-Slop, i18n |
-| 7 | Tłumaczenia i18n w `messages.en.xlf` | ✅ Done | Senior Dev | Klucze `@@settingsHousehold.copyLinkBtn`, `@@joinHousehold.*`, `@@auth.pendingInviteBanner` |
-| 8 | Testy jednostkowe i integracyjne (Vitest) | ✅ Done | Senior Dev | Testy `JoinHouseholdComponent`, `SettingsHouseholdSectionComponent`, `SyncEngineService` |
-| 9 | Test E2E Playwright (`household-invite-link.spec.ts`) | ✅ Done | Automation Tester | Ścieżka logged-in i unauthenticated join |
-| 10 | Quality Gate Verification | ✅ Done | QA Gatekeeper | `npm exec nx affected -t lint test build e2e` |
+| #   | Task                                                                                    | Status  | Assignee          | Notes                                                                                       |
+| --- | --------------------------------------------------------------------------------------- | ------- | ----------------- | ------------------------------------------------------------------------------------------- |
+| 1   | Przygotowanie specyfikacji i ADR-007                                                    | ✅ Done | BA / Architect    | `docs/specs/sync/03-household-invite-link.md`, `docs/adr/007-household-invite-deep-link.md` |
+| 2   | Utilities / Storage dla Pending Invite w `data-access-sync`                             | ✅ Done | Senior Dev        | `getPendingInviteCode`, `setPendingInviteCode`, `buildInviteUrl`                            |
+| 3   | Aktualizacja `SettingsHouseholdSectionComponent` (przycisk Kopiuj link)                 | ✅ Done | Senior Dev        | `copy-invite-link-btn`, obsługa `navigator.share` / `clipboard`                             |
+| 4   | Utworzenie `JoinHouseholdComponent` w `@feature-auth` + trasa `/join` w `app.routes.ts` | ✅ Done | Senior Dev        | Obsługa zalogowanych/niezalogowanych, stany błędu i sukcesu                                 |
+| 5   | Auto-dołączanie w `SyncEngineService` po autoryzacji                                    | ✅ Done | Senior Dev        | Rozwiązanie oczekującego kodu z `sessionStorage`                                            |
+| 6   | Banner zaproszenia w `LoginComponent` i `RegisterComponent`                             | ✅ Done | UI/UX / Dev       | Material styling, Anti-UI-Slop, i18n                                                        |
+| 7   | Tłumaczenia i18n w `messages.en.xlf`                                                    | ✅ Done | Senior Dev        | Klucze `@@settingsHousehold.copyLinkBtn`, `@@joinHousehold.*`, `@@auth.pendingInviteBanner` |
+| 8   | Testy jednostkowe i integracyjne (Vitest)                                               | ✅ Done | Senior Dev        | Testy `JoinHouseholdComponent`, `SettingsHouseholdSectionComponent`, `SyncEngineService`    |
+| 9   | Test E2E Playwright (`household-invite-link.spec.ts`)                                   | ✅ Done | Automation Tester | Ścieżka logged-in i unauthenticated join                                                    |
+| 10  | Quality Gate Verification                                                               | ✅ Done | QA Gatekeeper     | `npm exec nx affected -t lint test build e2e`                                               |
 
 ---
 
 ## Implemented in
 
-| Plik | Data | AC pokryte |
-|------|------|------------|
-| `libs/sync/data-access-sync/src/lib/utils/invite-link.utils.ts` | 2026-11-16 | AC-1, AC-3 |
-| `libs/transaction/src/lib/feature-transaction/src/lib/settings-screen/settings-household-section/settings-household-section.ts` | 2026-11-16 | AC-1 |
-| `libs/auth/feature-auth/src/lib/join-household/join-household.component.ts` | 2026-11-16 | AC-2, AC-3, AC-6 |
-| `apps/budget-fort/src/app/app.routes.ts` | 2026-11-16 | AC-2, AC-3 |
-| `libs/sync/data-access-sync/src/lib/services/sync-engine.service.ts` | 2026-11-16 | AC-2, AC-5 |
-| `libs/auth/feature-auth/src/lib/login/login.component.ts` | 2026-11-16 | AC-4 |
-| `libs/auth/feature-auth/src/lib/register/register.component.ts` | 2026-11-16 | AC-4 |
-| `apps/budget-fort/src/locale/messages.en.xlf` | 2026-11-16 | AC-1, AC-2, AC-4 |
-| `apps/budget-fort-e2e/src/household-invite-link.spec.ts` | 2026-11-16 | AC-1, AC-2, AC-3, AC-4, AC-5, AC-6 |
+| Plik                                                                                                                            | Data       | AC pokryte                         |
+| ------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------- |
+| `libs/sync/data-access-sync/src/lib/utils/invite-link.utils.ts`                                                                 | 2026-11-16 | AC-1, AC-3                         |
+| `libs/transaction/src/lib/feature-transaction/src/lib/settings-screen/settings-household-section/settings-household-section.ts` | 2026-11-16 | AC-1                               |
+| `libs/auth/feature-auth/src/lib/join-household/join-household.component.ts`                                                     | 2026-11-16 | AC-2, AC-3, AC-6                   |
+| `apps/budget-fort/src/app/app.routes.ts`                                                                                        | 2026-11-16 | AC-2, AC-3                         |
+| `libs/sync/data-access-sync/src/lib/services/sync-engine.service.ts`                                                            | 2026-11-16 | AC-2, AC-5                         |
+| `libs/auth/feature-auth/src/lib/login/login.component.ts`                                                                       | 2026-11-16 | AC-4                               |
+| `libs/auth/feature-auth/src/lib/register/register.component.ts`                                                                 | 2026-11-16 | AC-4                               |
+| `apps/budget-fort/src/locale/messages.en.xlf`                                                                                   | 2026-11-16 | AC-1, AC-2, AC-4                   |
+| `apps/budget-fort-e2e/src/household-invite-link.spec.ts`                                                                        | 2026-11-16 | AC-1, AC-2, AC-3, AC-4, AC-5, AC-6 |
