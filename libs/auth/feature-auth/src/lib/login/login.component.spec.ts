@@ -1,8 +1,10 @@
 // spec: docs/specs/auth/01-firebase-authentication.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { AuthService } from '@data-access-auth';
+import { BF_PENDING_INVITE_CODE_KEY } from '@data-access-sync';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -90,5 +92,19 @@ describe('LoginComponent', () => {
 
     expect(mockAuthService.continueAsGuest).toHaveBeenCalled();
     expect(router.navigateByUrl).toHaveBeenCalledWith('/settings');
+  });
+
+  // covers: docs/specs/sync/03-household-invite-link.md#AC-4
+  it('should show pending invite banner when invite code exists in sessionStorage', () => {
+    sessionStorage.setItem(BF_PENDING_INVITE_CODE_KEY, 'BF8899');
+    const customFixture = TestBed.createComponent(LoginComponent);
+    customFixture.detectChanges();
+
+    const banner = customFixture.nativeElement.querySelector(
+      '[data-testid="pending-invite-banner"]',
+    );
+    expect(banner).toBeTruthy();
+    expect(banner.textContent).toContain('Dołączasz do gospodarstwa');
+    sessionStorage.removeItem(BF_PENDING_INVITE_CODE_KEY);
   });
 });

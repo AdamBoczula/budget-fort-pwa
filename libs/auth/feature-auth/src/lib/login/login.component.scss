@@ -1,9 +1,30 @@
 // spec: docs/specs/auth/01-firebase-authentication.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
 .bf-login-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  &__invite-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--mat-sys-primary-container, #dbeafe);
+    color: var(--mat-sys-on-primary-container, #1e40af);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  &__invite-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
 
   &__field {
     width: 100%;

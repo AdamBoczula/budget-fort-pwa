@@ -623,6 +623,10 @@
         <source>Kopiuj</source>
         <target>Copy</target>
       </trans-unit>
+      <trans-unit id="settingsHousehold.copyLinkBtn" datatype="html">
+        <source>Kopiuj link</source>
+        <target>Copy link</target>
+      </trans-unit>
       <trans-unit id="settingsHousehold.joinTitle" datatype="html">
         <source>Dołącz do gospodarstwa partnera</source>
         <target>Join partner's household</target>
@@ -634,6 +638,38 @@
       <trans-unit id="settingsHousehold.joinBtn" datatype="html">
         <source>Dołącz</source>
         <target>Join</target>
+      </trans-unit>
+      <trans-unit id="auth.pendingInviteBanner" datatype="html">
+        <source>Dołączasz do gospodarstwa domowego. Zaloguj się lub utwórz konto, aby uzyskać dostęp do wspólnego budżetu.</source>
+        <target>You are joining a household. Sign in or create an account to access the shared budget.</target>
+      </trans-unit>
+      <trans-unit id="joinHousehold.joiningTitle" datatype="html">
+        <source>Dołączanie do gospodarstwa domowego...</source>
+        <target>Joining household...</target>
+      </trans-unit>
+      <trans-unit id="joinHousehold.joiningSubtitle" datatype="html">
+        <source>Weryfikujemy kod zaproszenia i przygotowujemy Twój budżet.</source>
+        <target>Verifying invite code and preparing your budget.</target>
+      </trans-unit>
+      <trans-unit id="joinHousehold.successTitle" datatype="html">
+        <source>Pomyślnie dołączono!</source>
+        <target>Successfully joined!</target>
+      </trans-unit>
+      <trans-unit id="joinHousehold.successSubtitle" datatype="html">
+        <source>Należysz teraz do wspólnego gospodarstwa domowego.</source>
+        <target>You are now a member of the shared household.</target>
+      </trans-unit>
+      <trans-unit id="joinHousehold.errorTitle" datatype="html">
+        <source>Nie udało się dołączyć do gospodarstwa</source>
+        <target>Failed to join household</target>
+      </trans-unit>
+      <trans-unit id="joinHousehold.retryBtn" datatype="html">
+        <source>Spróbuj ponownie</source>
+        <target>Try again</target>
+      </trans-unit>
+      <trans-unit id="joinHousehold.goToDashboard" datatype="html">
+        <source>Przejdź do aplikacji</source>
+        <target>Go to app</target>
       </trans-unit>
       <trans-unit id="pwa.update.available" datatype="html">
         <source>Dostępna jest nowa wersja Budget Fort</source>

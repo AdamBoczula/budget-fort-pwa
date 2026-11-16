@@ -1,6 +1,7 @@
 // spec: docs/specs/auth/01-firebase-authentication.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -14,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { getPendingInviteCode } from '@data-access-sync';
 import { AuthContainerComponent } from '../container/auth-container.component';
 import { AuthScreenStateService } from '../services/auth-screen-state.service';
 
@@ -47,6 +49,16 @@ export const passwordMatchValidator: ValidatorFn = (
       [loading]="screenState.isLoading()"
       [errorMessage]="screenState.errorMessage()"
     >
+      @if (hasPendingInvite()) {
+        <div class="bf-create-account-form__invite-banner" data-testid="pending-invite-banner">
+          <mat-icon class="bf-create-account-form__invite-icon">group_add</mat-icon>
+          <span i18n="@@auth.pendingInviteBanner">
+            Dołączasz do gospodarstwa domowego. Zaloguj się lub utwórz konto, aby uzyskać dostęp do
+            wspólnego budżetu.
+          </span>
+        </div>
+      }
+
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="bf-create-account-form">
         <mat-form-field appearance="outline" class="bf-create-account-form__field">
           <mat-label i18n="@@auth.emailLabel">Adres email</mat-label>
@@ -160,6 +172,8 @@ export const passwordMatchValidator: ValidatorFn = (
 export class CreateAccountComponent {
   private readonly fb = inject(FormBuilder);
   readonly screenState = inject(AuthScreenStateService);
+
+  readonly hasPendingInvite = signal<boolean>(!!getPendingInviteCode());
 
   readonly registerForm = this.fb.nonNullable.group(
     {

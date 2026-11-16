@@ -1,4 +1,5 @@
 // spec: docs/specs/sync/02-multi-user-household.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '@data-access-auth';
-import { SyncEngineService, SyncState } from '@data-access-sync';
+import { buildInviteUrl, SyncEngineService, SyncState } from '@data-access-sync';
 
 @Component({
   selector: 'transaction-settings-household-section',
@@ -72,6 +73,16 @@ import { SyncEngineService, SyncState } from '@data-access-sync';
               >
                 <mat-icon>content_copy</mat-icon>
                 Kopiuj
+              </button>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="copyInviteLink()"
+                data-testid="copy-invite-link-btn"
+                i18n="@@settingsHousehold.copyLinkBtn"
+              >
+                <mat-icon>link</mat-icon>
+                Kopiuj link
               </button>
             </div>
           </div>
@@ -152,6 +163,35 @@ export class SettingsHouseholdSectionComponent {
         this.snackBar.open('Kod zaproszenia skopiowany do schowka!', 'OK', { duration: 3000 });
       } catch {
         this.snackBar.open(`Kod: ${code}`, 'OK', { duration: 5000 });
+      }
+    }
+  }
+
+  async copyInviteLink(): Promise<void> {
+    const code = this.inviteCode();
+    if (code && code !== '—') {
+      const url = buildInviteUrl(code);
+      try {
+        if (typeof navigator !== 'undefined' && navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Budget Fort',
+              text: 'Dołącz do mojego gospodarstwa domowego w Budget Fort:',
+              url,
+            });
+            return;
+          } catch (shareErr) {
+            if ((shareErr as { name?: string }).name === 'AbortError') {
+              return;
+            }
+          }
+        }
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+          await navigator.clipboard.writeText(url);
+        }
+        this.snackBar.open('Link zaproszenia skopiowany do schowka!', 'OK', { duration: 3000 });
+      } catch {
+        this.snackBar.open(`Link: ${url}`, 'OK', { duration: 5000 });
       }
     }
   }

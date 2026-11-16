@@ -7,4 +7,5 @@ export * from './lib/create-account/create-account.component';
 export * from './lib/login/login.component';
 export * from './lib/register/register.component';
 export * from './lib/verify-email/verify-email.component';
+export * from './lib/join-household/join-household.component';
 export * from './lib/feature-auth.routes';

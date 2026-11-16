@@ -1,4 +1,5 @@
 // spec: docs/specs/auth/01-firebase-authentication.md
+// spec: docs/specs/sync/03-household-invite-link.md
 import { EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
 import { ActivatedRouteSnapshot, Route, RouterStateSnapshot } from '@angular/router';
 
@@ -6,6 +7,10 @@ export const appRoutes: Route[] = [
   {
     path: 'auth',
     loadChildren: () => import('@feature-auth').then((m) => m.featureAuthRoutes),
+  },
+  {
+    path: 'join',
+    loadComponent: () => import('@feature-auth').then((m) => m.JoinHouseholdComponent),
   },
   {
     path: '',

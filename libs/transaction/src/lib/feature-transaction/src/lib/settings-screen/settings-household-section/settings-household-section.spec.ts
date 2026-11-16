@@ -1,4 +1,5 @@
 // spec: docs/specs/sync/02-multi-user-household.md
+// spec: docs/specs/sync/03-household-invite-link.md
 
 import { signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -84,6 +85,23 @@ describe('SettingsHouseholdSectionComponent', () => {
     await waitFor(() => {
       expect(mockSnackBar.open).toHaveBeenCalledWith(
         expect.stringMatching(/skopiowany|BF7788/),
+        'OK',
+        expect.any(Object),
+      );
+    });
+  });
+
+  // covers: docs/specs/sync/03-household-invite-link.md#AC-1
+  it('should copy invite link to clipboard and show snackbar', async () => {
+    const { fixture } = await renderComponent();
+
+    const copyLinkBtn = screen.getByTestId('copy-invite-link-btn');
+    fireEvent.click(copyLinkBtn);
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      expect(mockSnackBar.open).toHaveBeenCalledWith(
+        expect.stringMatching(/Link zaproszenia skopiowany|join\?code=BF7788/),
         'OK',
         expect.any(Object),
       );
