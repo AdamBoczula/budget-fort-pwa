@@ -113,4 +113,67 @@ describe('TransactionDialogService', () => {
       duration: 3000,
     });
   });
+
+  it('should forward recurring options when editing a transaction', () => {
+    const tx: Transaction = {
+      id: 'tx-2',
+      amount: -40,
+      date: '2026-08-15T00:00:00.000Z',
+      categoryId: 'food',
+      accountId: 'default',
+    };
+    mockDialog.open.mockReturnValue({
+      afterClosed: () =>
+        of({
+          amount: -40,
+          type: 'expense',
+          date: '2026-08-15T00:00:00.000Z',
+          categoryId: 'food',
+          accountId: 'default',
+          comment: '',
+          transaction: tx,
+          isRecurring: true,
+          recurringDayOfMonth: 18,
+        }),
+    });
+
+    service.openEditDialog(expenseCategory, tx);
+
+    expect(mockTransactionState.editTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'tx-2' }),
+      { isRecurring: true, dayOfMonth: 18 },
+    );
+  });
+
+  it('should forward recurring detach option when editing a transaction', () => {
+    const tx: Transaction = {
+      id: 'tx-3',
+      amount: -40,
+      date: '2026-08-15T00:00:00.000Z',
+      categoryId: 'food',
+      accountId: 'default',
+      recurringRuleId: 'rule-1',
+    };
+    mockDialog.open.mockReturnValue({
+      afterClosed: () =>
+        of({
+          amount: -40,
+          type: 'expense',
+          date: '2026-08-15T00:00:00.000Z',
+          categoryId: 'food',
+          accountId: 'default',
+          comment: '',
+          transaction: tx,
+          isRecurring: false,
+          recurringDayOfMonth: 18,
+        }),
+    });
+
+    service.openEditDialog(expenseCategory, tx);
+
+    expect(mockTransactionState.editTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'tx-3' }),
+      { isRecurring: false, dayOfMonth: 18 },
+    );
+  });
 });

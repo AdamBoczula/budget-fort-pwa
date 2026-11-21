@@ -128,7 +128,7 @@ test.describe('Categories initialization', () => {
     expect(layout.headerRight).toBe(layout.documentClientWidth);
     expect(layout.homeOverflowY).toBe('auto');
     expect(layout.homeScrollHeight).toBeGreaterThan(layout.homeClientHeight);
-    expect(layout.transactionsOverflowY).toBe('visible');
+    expect(layout.transactionsOverflowY).toBe('auto');
 
     await page.locator('transaction-home-page-screen').evaluate((element) => {
       element.scrollTop = 160;

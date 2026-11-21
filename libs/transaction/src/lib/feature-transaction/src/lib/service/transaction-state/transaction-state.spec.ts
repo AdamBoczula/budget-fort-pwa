@@ -202,6 +202,128 @@ describe('TransactionState', () => {
     expect(transactionServiceMock.addTransactionAsync).toHaveBeenCalledWith(tx);
   });
 
+  it('should create recurring rule when editing transaction with recurringOptions enabled', async () => {
+    const mockRecurringService = {
+      rules: vi.fn().mockReturnValue([]),
+      addRuleAsync: vi.fn().mockImplementation(async (rule) => rule),
+      updateRuleAsync: vi.fn().mockImplementation(async (rule) => rule),
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TransactionService, useValue: transactionServiceMock },
+        { provide: RecurringRuleService, useValue: mockRecurringService },
+      ],
+    });
+
+    const stateWithRecurring = TestBed.inject(TransactionState);
+    const tx = {
+      id: 'tx-edit',
+      amount: -80,
+      date: '2026-11-14T10:00:00.000Z',
+      categoryId: 'bills',
+      accountId: 'default',
+    };
+
+    await stateWithRecurring.editTransaction(tx, { isRecurring: true, dayOfMonth: 12 });
+
+    expect(mockRecurringService.addRuleAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 80,
+        categoryId: 'bills',
+        dayOfMonth: 12,
+      }),
+    );
+    expect(tx.recurringRuleId).toBeDefined();
+    expect(transactionServiceMock.editTransactionAsync).toHaveBeenCalledWith(tx);
+  });
+
+  it('should clear recurringRuleId when editing transaction with recurringOptions disabled', async () => {
+    const mockRecurringService = {
+      rules: vi.fn().mockReturnValue([]),
+      addRuleAsync: vi.fn(),
+      updateRuleAsync: vi.fn(),
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TransactionService, useValue: transactionServiceMock },
+        { provide: RecurringRuleService, useValue: mockRecurringService },
+      ],
+    });
+
+    const stateWithRecurring = TestBed.inject(TransactionState);
+    const tx = {
+      id: 'tx-edit-off',
+      amount: -80,
+      date: '2026-11-14T10:00:00.000Z',
+      categoryId: 'bills',
+      accountId: 'default',
+      recurringRuleId: 'rule-1',
+    };
+
+    await stateWithRecurring.editTransaction(tx, { isRecurring: false });
+
+    expect(tx.recurringRuleId).toBeUndefined();
+    expect(transactionServiceMock.editTransactionAsync).toHaveBeenCalledWith(tx);
+  });
+
+  it('should update existing recurring rule when editing transaction that already has recurringRuleId', async () => {
+    const existingRule = {
+      id: 'rule-1',
+      amount: 50,
+      categoryId: 'food',
+      accountId: 'default',
+      dayOfMonth: 5,
+      startDate: '2026-10-05',
+      lastGeneratedMonth: '2026-11',
+      isActive: true,
+      updatedAt: '2026-10-05T00:00:00.000Z',
+    };
+    const mockRecurringService = {
+      rules: vi.fn().mockReturnValue([existingRule]),
+      addRuleAsync: vi.fn(),
+      updateRuleAsync: vi.fn().mockImplementation(async (rule) => rule),
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: TransactionService, useValue: transactionServiceMock },
+        { provide: RecurringRuleService, useValue: mockRecurringService },
+      ],
+    });
+
+    const stateWithRecurring = TestBed.inject(TransactionState);
+    const tx = {
+      id: 'tx-edit-existing',
+      amount: -95,
+      date: '2026-11-14T10:00:00.000Z',
+      categoryId: 'bills',
+      accountId: 'default',
+      subcategory: 'Internet',
+      comment: 'Fiber',
+      recurringRuleId: 'rule-1',
+    };
+
+    await stateWithRecurring.editTransaction(tx, { isRecurring: true, dayOfMonth: 20 });
+
+    expect(mockRecurringService.addRuleAsync).not.toHaveBeenCalled();
+    expect(mockRecurringService.updateRuleAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'rule-1',
+        amount: 95,
+        categoryId: 'bills',
+        subcategory: 'Internet',
+        comment: 'Fiber',
+        dayOfMonth: 20,
+      }),
+    );
+    expect(transactionServiceMock.editTransactionAsync).toHaveBeenCalledWith(tx);
+  });
+
   // covers: docs/specs/sync/02-multi-user-household.md#AC-2
   it('should automatically attach authorId, authorName and householdId when adding transaction', async () => {
     const mockAuth = {

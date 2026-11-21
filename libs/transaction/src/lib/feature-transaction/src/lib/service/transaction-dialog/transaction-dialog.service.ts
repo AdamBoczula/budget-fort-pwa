@@ -62,15 +62,23 @@ export class TransactionDialogService {
       if (!result?.transaction) {
         return;
       }
-      void this.transactionState.editTransaction({
-        id: result.transaction.id,
-        categoryId: result.categoryId,
-        amount: result.amount,
-        date: result.date,
-        accountId: result.accountId,
-        comment: result.comment,
-        subcategory: result.subcategory,
-      });
+      const recurringOptions =
+        result.isRecurring !== undefined
+          ? { isRecurring: result.isRecurring, dayOfMonth: result.recurringDayOfMonth }
+          : undefined;
+      void this.transactionState.editTransaction(
+        {
+          ...result.transaction,
+          id: result.transaction.id,
+          categoryId: result.categoryId,
+          amount: result.amount,
+          date: result.date,
+          accountId: result.accountId,
+          comment: result.comment,
+          subcategory: result.subcategory,
+        },
+        ...(recurringOptions ? [recurringOptions] : []),
+      );
       if (showSuccessToast) {
         this.snackBar.open(
           $localize`:@@transactionDialog.savedChanges:Zapisano zmiany.`,
