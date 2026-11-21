@@ -49,7 +49,7 @@ describe('HomeScreenIncomeFabComponent', () => {
     mockDialog = { open: vi.fn() };
     mockSnackBar = { open: vi.fn() };
     mockCategoryService = {
-      getCategoriesAsync: vi.fn(),
+      getCategoriesAsync: vi.fn().mockResolvedValue([incomeCategory, expenseCategory]),
       getVisibleCategories: () => of([incomeCategory]),
       getVisibleCategoriesAsync: vi.fn().mockResolvedValue([incomeCategory, expenseCategory]),
       getCategories: () => of([incomeCategory]),
@@ -148,7 +148,7 @@ describe('HomeScreenIncomeFabComponent', () => {
 
   it('should show snackbar and not open dialog when no income category exists', async () => {
     // covers: docs/qa/2026-10-21-ui-ux-audit.md#UI-08
-    mockCategoryService.getVisibleCategoriesAsync.mockResolvedValue([]);
+    mockCategoryService.getCategoriesAsync.mockResolvedValue([]);
 
     fixture.debugElement.query(By.css('.fab-income')).nativeElement.click();
     fixture.detectChanges();
@@ -164,7 +164,7 @@ describe('HomeScreenIncomeFabComponent', () => {
   });
 
   it('should show snackbar and not open dialog when no expense category exists', async () => {
-    mockCategoryService.getVisibleCategoriesAsync.mockResolvedValue([]);
+    mockCategoryService.getCategoriesAsync.mockResolvedValue([]);
 
     fixture.debugElement.query(By.css('.fab-income')).nativeElement.click();
     fixture.detectChanges();

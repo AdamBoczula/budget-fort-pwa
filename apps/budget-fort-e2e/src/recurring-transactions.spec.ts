@@ -52,7 +52,9 @@ test.describe('Recurring Transactions E2E', () => {
     await page.goto('/feature-transaction/home');
 
     // Click quick add category button to open transaction form
-    const categoryBtn = page.locator('button.category-btn, .categories-quick-add button').first();
+    const categoryBtn = page
+      .locator('button.category-btn, .categories-quick-add .category-card')
+      .first();
     await expect(categoryBtn).toBeVisible({ timeout: 10000 });
     await categoryBtn.click();
 

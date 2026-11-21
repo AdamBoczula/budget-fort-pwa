@@ -112,8 +112,10 @@ export class HomeScreenIncomeFabComponent {
 
   protected async openTransactionDialog(type: TransactionType): Promise<void> {
     this.close();
-    const categories = await this.categoryService.getVisibleCategoriesAsync();
-    const category = categories.find((c) => (c.transactionType ?? 'expense') === type);
+    const categories = await this.categoryService.getCategoriesAsync();
+    const category = categories.find(
+      (c) => (c.transactionType ?? 'expense') === type && (type === 'income' || !c.isHidden),
+    );
     if (!category) {
       const emptyMessage =
         type === 'income'

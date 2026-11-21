@@ -299,7 +299,7 @@ export class TransactionFormComponent implements AfterViewInit {
 
   /** Kategorie załadowane przez resource(). */
   protected readonly categories = resource({
-    loader: async () => this.categoryService.getVisibleCategoriesAsync(),
+    loader: async () => this.categoryService.getCategoriesAsync(),
   });
 
   /** Wszystkie podkategorie dla wybranej kategorii (z DB). */
@@ -323,7 +323,7 @@ export class TransactionFormComponent implements AfterViewInit {
   /** Kategorie wydatków do menu wyboru kategorii. */
   protected readonly expenseCategories = computed(() => {
     const all = this.categories.value() ?? [];
-    return all.filter((cat) => (cat.transactionType ?? 'expense') === 'expense');
+    return all.filter((cat) => (cat.transactionType ?? 'expense') === 'expense' && !cat.isHidden);
   });
 
   /** Kategorie przychodów do menu wyboru kategorii. */
