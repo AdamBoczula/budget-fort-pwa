@@ -68,7 +68,7 @@ test.describe('Categories initialization', () => {
     expect(await page.locator('.category-card').count()).toBeGreaterThan(0);
   });
 
-  test('should keep the mobile shell inside the viewport and scroll only transactions', async ({
+  test('should keep the mobile shell inside the viewport with single page scroll', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -85,13 +85,15 @@ test.describe('Categories initialization', () => {
     const layout = await page.evaluate(() => {
       const sidenavContent = document.querySelector('mat-sidenav-content');
       const header = document.querySelector('transaction-header-toolbar');
+      const homeScreen = document.querySelector('transaction-home-page-screen');
       const transactions = document.querySelector('transaction-last-transaction');
 
-      if (!sidenavContent || !header || !transactions) {
+      if (!sidenavContent || !header || !homeScreen || !transactions) {
         throw new Error('Transaction shell layout is incomplete');
       }
 
       const headerRect = header.getBoundingClientRect();
+      const homeStyle = getComputedStyle(homeScreen);
       const transactionsStyle = getComputedStyle(transactions);
 
       return {
@@ -109,10 +111,10 @@ test.describe('Categories initialization', () => {
         sidenavScrollHeight: sidenavContent.scrollHeight,
         headerLeft: headerRect.left,
         headerRight: headerRect.right,
-        transactionsOverflowX: transactionsStyle.overflowX,
+        homeOverflowY: homeStyle.overflowY,
+        homeClientHeight: homeScreen.clientHeight,
+        homeScrollHeight: homeScreen.scrollHeight,
         transactionsOverflowY: transactionsStyle.overflowY,
-        transactionsClientHeight: transactions.clientHeight,
-        transactionsScrollHeight: transactions.scrollHeight,
       };
     });
 
@@ -124,20 +126,22 @@ test.describe('Categories initialization', () => {
     expect(layout.sidenavScrollHeight).toBe(layout.sidenavClientHeight);
     expect(layout.headerLeft).toBe(0);
     expect(layout.headerRight).toBe(layout.documentClientWidth);
-    expect(layout.transactionsOverflowX).toBe('hidden');
-    expect(layout.transactionsOverflowY).toBe('auto');
-    expect(layout.transactionsScrollHeight).toBeGreaterThan(layout.transactionsClientHeight);
+    expect(layout.homeOverflowY).toBe('auto');
+    expect(layout.homeScrollHeight).toBeGreaterThan(layout.homeClientHeight);
+    expect(layout.transactionsOverflowY).toBe('visible');
 
-    await page.locator('transaction-last-transaction').evaluate((element) => {
+    await page.locator('transaction-home-page-screen').evaluate((element) => {
       element.scrollTop = 160;
     });
     const scrollPositions = await page.evaluate(() => ({
       page: window.scrollY,
       sidenav: document.querySelector('mat-sidenav-content')?.scrollTop ?? -1,
+      home: document.querySelector('transaction-home-page-screen')?.scrollTop ?? 0,
       transactions: document.querySelector('transaction-last-transaction')?.scrollTop ?? 0,
     }));
 
-    expect(scrollPositions.transactions).toBeGreaterThan(0);
+    expect(scrollPositions.home).toBeGreaterThan(0);
+    expect(scrollPositions.transactions).toBe(0);
     expect(scrollPositions.sidenav).toBe(0);
     expect(scrollPositions.page).toBe(0);
   });
@@ -158,10 +162,12 @@ test.describe('Categories initialization', () => {
     await expect(fab.locator('mat-icon')).toContainText('add');
   });
 
-  test('should open income dialog on FAB click with amount field', async ({ page }) => {
+  test('should open income dialog via FAB speed-dial with amount field', async ({ page }) => {
     await page.goto('/feature-transaction');
     await expect(page.locator('.fab-income')).toBeVisible({ timeout: 5000 });
     await page.locator('.fab-income').click();
+    await expect(page.locator('.fab-action--income')).toBeVisible({ timeout: 3000 });
+    await page.locator('.fab-action--income').click();
     await expect(page.locator('mat-dialog-container')).toBeVisible({ timeout: 3000 });
     await expect(page.getByPlaceholder('0.00')).toBeVisible();
     await expect(page.getByRole('button', { name: /Zapisz/i })).toBeVisible();

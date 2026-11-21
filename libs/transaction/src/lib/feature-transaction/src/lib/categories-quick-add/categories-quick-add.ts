@@ -2,25 +2,35 @@
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import { Component, inject, resource } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Category, CategoryService } from '@data-access-transaction';
-import { TransactionState } from '../service/transaction-state/transaction-state';
 import {
-  TransactionFormComponent,
-  TransactionFormResult,
-} from '../transaction-form/transaction-form';
+  CategoryEditDialogComponent,
+  CategoryEditDialogResult,
+} from '../category-edit-dialog/category-edit-dialog';
+import { TransactionDialogService } from '../service/transaction-dialog/transaction-dialog.service';
 
 @Component({
   selector: 'transaction-categories-quick-add',
-  imports: [MatIconModule, MatSnackBarModule],
+  imports: [MatButtonModule, MatIconModule, MatSnackBarModule],
   template: `
     <section class="categories-quick-add">
       <div class="categories-quick-add__header">
         <h2 class="categories-quick-add__title" i18n="@@categoriesQuickAdd.title">
           Wybierz kategorię
         </h2>
+        <button
+          mat-button
+          type="button"
+          class="categories-quick-add__add-btn"
+          (click)="openAddCategoryDialog()"
+        >
+          <mat-icon>add</mat-icon>
+          <span i18n="@@categoriesQuickAdd.addCategory">Dodaj kategorię</span>
+        </button>
       </div>
 
       @if (categories.value(); as cats) {
@@ -46,7 +56,7 @@ import {
 })
 export class CategoriesQuickAddComponent {
   private readonly categoryService = inject(CategoryService);
-  private readonly transactionState = inject(TransactionState);
+  private readonly transactionDialogService = inject(TransactionDialogService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -58,32 +68,26 @@ export class CategoriesQuickAddComponent {
   });
 
   protected openTransactionForm(category: Category): void {
-    const dialogRef = this.dialog.open(TransactionFormComponent, {
-      data: { category },
-      minWidth: '320px',
-      maxWidth: '480px',
-      width: '100%',
-      panelClass: 'transaction-bottom-sheet-dialog',
-      autoFocus: 'input',
+    this.transactionDialogService.openCreateDialog(
+      category,
+      $localize`:@@categoriesQuickAdd.addedTransaction:Dodano transakcję.`,
+    );
+  }
+
+  protected openAddCategoryDialog(): void {
+    const dialogRef = this.dialog.open(CategoryEditDialogComponent, {
+      data: {},
+      width: '400px',
+      maxWidth: '95vw',
     });
-    dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
+    dialogRef.afterClosed().subscribe((result: CategoryEditDialogResult | null) => {
       if (result) {
-        const recurringOptions = result.isRecurring
-          ? { isRecurring: true, dayOfMonth: result.recurringDayOfMonth }
-          : undefined;
-        void this.transactionState.addTransaction(
-          {
-            id: crypto.randomUUID(),
-            amount: result.amount,
-            date: result.date,
-            categoryId: result.categoryId,
-            accountId: result.accountId,
-            comment: result.comment,
-            subcategory: result.subcategory,
-          },
-          ...(recurringOptions ? [recurringOptions] : []),
+        this.categories.reload();
+        this.snackBar.open(
+          $localize`:@@categoriesQuickAdd.addedCategory:Dodano kategorię.`,
+          undefined,
+          { duration: 3000 },
         );
-        this.snackBar.open('Dodano transakcję.', undefined, { duration: 3000 });
       }
     });
   }

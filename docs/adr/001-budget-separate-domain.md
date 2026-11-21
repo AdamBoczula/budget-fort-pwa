@@ -11,6 +11,7 @@ budżet ogólny + limity kategorii. Kod musi gdzieś trafić — albo jako rozsz
 libs w `libs/transaction/`, albo jako osobna domena `libs/budget/`.
 
 Istniejąca architektura:
+
 - `libs/transaction/feature-transaction` — dashboard, settings, home screen
 - `libs/transaction/data-access-transaction` — CRUD dla Transaction i Category
 - `libs/transaction/ui-transaction` — komponenty UI (header, nav drawer)
@@ -28,6 +29,7 @@ libs/budget/
 ```
 
 Nowe aliasy w `tsconfig.base.json`:
+
 - `@feature-budget` → `libs/budget/feature-budget/src/index.ts`
 - `@data-access-budget` → `libs/budget/data-access-budget/src/index.ts`
 - `@ui-budget` → `libs/budget/ui-budget/src/index.ts`
@@ -121,4 +123,4 @@ sequenceDiagram
 ## Powiązane
 
 - [Spec: `docs/specs/budget/planowanie-budzetu.md`]
-- [Architektura repo: `docs/ai/06-repository-architecture.md`]
+- [Architektura repo: `.agents/context/06-repository-architecture.md`]

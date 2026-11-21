@@ -115,7 +115,7 @@ export class RecurringEditDialogComponent {
   protected isEditMode = false;
   protected categoryId = '';
   protected amount: number | null = null;
-  protected dayOfMonth = 1;
+  protected dayOfMonth = new Date().getDate();
   protected comment = '';
 
   constructor() {

@@ -4,6 +4,10 @@
 
 :host {
   position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
 
   /* bottom nav (3.75rem) + safe area + 1rem clearance to avoid touch-target conflicts */
   bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px) + 1rem);
@@ -16,6 +20,52 @@
   }
 }
 
+.fab-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(15 23 42 / 0.25);
+  z-index: -1;
+}
+
+.fab-speed-dial__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.fab-speed-dial__item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.fab-speed-dial__label {
+  padding: 0.3rem 0.7rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--mat-sys-surface-container-high, #ffffff);
+  color: var(--mat-sys-on-surface, #0f172a);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.16);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.fab-action {
+  &--income {
+    background: var(--app-color-accent) !important;
+    color: var(--app-color-accent-contrast) !important;
+  }
+
+  &--expense {
+    background: var(--mat-sys-error, #dc2626) !important;
+    color: var(--mat-sys-on-error, #ffffff) !important;
+  }
+}
+
 .fab-income {
   background: var(--app-color-accent) !important;
   color: var(--app-color-accent-contrast) !important;
@@ -23,6 +73,14 @@
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
+
+  mat-icon {
+    transition: transform 0.2s ease;
+  }
+
+  &--open mat-icon {
+    transform: rotate(45deg);
+  }
 
   &:hover {
     box-shadow: 0 8px 20px color-mix(in srgb, var(--app-color-accent) 45%, transparent);

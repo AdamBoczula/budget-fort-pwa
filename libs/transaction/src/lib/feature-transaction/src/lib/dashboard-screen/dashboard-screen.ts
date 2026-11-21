@@ -1,14 +1,9 @@
 // spec: docs/specs/budget/planowanie-budzetu.md
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 import { Component, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Transaction, CategoryService, Category } from '@data-access-transaction';
 import { DashboardState } from '../service/dashboard-state/dashboard-state';
-import { TransactionState } from '../service/transaction-state/transaction-state';
-import {
-  TransactionFormComponent,
-  TransactionFormResult,
-} from '../transaction-form/transaction-form';
+import { TransactionDialogService } from '../service/transaction-dialog/transaction-dialog.service';
 import { DashboardPeriodSelectorComponent } from './dashboard-period-selector/dashboard-period-selector';
 import { DashboardPieChartComponent } from './dashboard-pie-chart/dashboard-pie-chart';
 import { DashboardCategoryListComponent } from './dashboard-category-list/dashboard-category-list';
@@ -33,9 +28,8 @@ import { DashboardCategoryListComponent } from './dashboard-category-list/dashbo
 })
 export class DashboardPageScreen {
   private readonly dashboardState = inject(DashboardState);
-  private readonly transactionState = inject(TransactionState);
   private readonly categoryService = inject(CategoryService);
-  private readonly dialog = inject(MatDialog);
+  private readonly transactionDialogService = inject(TransactionDialogService);
 
   private categories: Category[] = [];
 
@@ -52,26 +46,6 @@ export class DashboardPageScreen {
       return;
     }
 
-    const dialogRef = this.dialog.open(TransactionFormComponent, {
-      data: { category, transaction },
-      minWidth: '320px',
-      maxWidth: '480px',
-      width: '100%',
-      panelClass: 'transaction-bottom-sheet-dialog',
-    });
-
-    dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
-      if (result?.transaction) {
-        void this.transactionState.editTransaction({
-          id: result.transaction.id,
-          categoryId: result.categoryId,
-          amount: result.amount,
-          date: result.date,
-          accountId: result.accountId,
-          comment: result.comment,
-          subcategory: result.subcategory,
-        });
-      }
-    });
+    this.transactionDialogService.openEditDialog(category, transaction, false);
   }
 }

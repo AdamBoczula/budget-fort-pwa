@@ -52,16 +52,16 @@ The full workflow is defined in `docs/specs/01-spec-workflow.md`.
 
 ### SDLC & Dynamic Agent Workflows
 
-The primary entry point for tasks is the **SDLC Orchestrator (Gemini 3.8 Flash)**, which classifies the incoming request and dynamically routes it to the optimal minimal chain of agents:
+The primary entry point for tasks is the **SDLC Orchestrator**, which classifies the incoming request and dynamically routes it to the optimal minimal chain of agents:
 
-| Task Type          | Use Case                                | Agent Chain                                                                                                                                                                                                                                                 |
-| ------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **New Feature**    | New screens, new domains                | Orchestrator $\rightarrow$ BA $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Architect _(Claude Opus)_ $\rightarrow$ Automation Tester $\rightarrow$ Senior Dev (TDD - Gemini 3.8 Flash) $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
-| **Bugfix**         | Bug fixes, regressions                  | Orchestrator $\rightarrow$ BA (reproduction) $\rightarrow$ Senior Dev (Gemini 3.8 Flash - regression TDD + fix) $\rightarrow$ Reviewer $\rightarrow$ QA                                                                                                     |
-| **Improvement**    | UI polish, UX enhancements              | Orchestrator $\rightarrow$ UI/UX Designer _(Argon)_ $\rightarrow$ Senior Dev (Gemini 3.8 Flash) $\rightarrow$ Reviewer $\rightarrow$ QA (screenshots)                                                                                                       |
-| **Technical Task** | Refactoring, Dexie DB migrations, CI/CD | Orchestrator $\rightarrow$ Architect _(Claude Opus, if arch)_ $\rightarrow$ Senior Dev (Gemini 3.8 Flash) $\rightarrow$ Security Guard $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps                                                         |
+| Task Type          | Use Case                                | Agent Chain                                                                                                                                                                                                                                 |
+| ------------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **New Feature**    | New screens, new domains                | Orchestrator $\rightarrow$ BA $\rightarrow$ UI/UX Designer _(multimodal)_ $\rightarrow$ Architect _(reasoning)_ $\rightarrow$ Automation Tester $\rightarrow$ Senior Dev (TDD) $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps |
+| **Bugfix**         | Bug fixes, regressions                  | Orchestrator $\rightarrow$ BA (reproduction) $\rightarrow$ Senior Dev (regression TDD + fix) $\rightarrow$ Reviewer $\rightarrow$ QA                                                                                                        |
+| **Improvement**    | UI polish, UX enhancements              | Orchestrator $\rightarrow$ UI/UX Designer _(multimodal)_ $\rightarrow$ Senior Dev (fast) $\rightarrow$ Reviewer $\rightarrow$ QA (screenshots)                                                                                              |
+| **Technical Task** | Refactoring, Dexie DB migrations, CI/CD | Orchestrator $\rightarrow$ Architect _(reasoning, if arch)_ $\rightarrow$ Senior Dev (fast) $\rightarrow$ Security Guard $\rightarrow$ Reviewer $\rightarrow$ QA $\rightarrow$ DevOps                                                       |
 
-Models: **Claude Opus** for Architect; **Argon** for UI/UX Designer; **Gemini 3.8 Flash** for all simple/operational roles (Plan Executor / Senior Dev, Orchestrator, BA, Tester, Reviewer, QA, DevOps, Security) to minimize costs on routine tasks.
+Models: **Reasoning** for Architect; **Multimodal** for UI/UX Designer; **Fast** for all simple/operational roles (Plan Executor / Senior Dev, Orchestrator, BA, Tester, Reviewer, QA, DevOps, Security) to minimize costs on routine tasks.
 
 ### SDD traceability
 
@@ -77,12 +77,12 @@ Before making changes, read these files in order:
 2. `README.md`
 3. `nx.json`
 4. `tsconfig.base.json`
-5. `docs/ai/00-ai-readiness-overview.md`
-6. `docs/ai/01-project-context-mvp.md`
-7. `docs/ai/02-agent-operating-model.md`
-8. `docs/ai/03-testing-quality-gates.md`
-9. `docs/ai/05-technology-stack-decisions.md`
-10. `docs/ai/06-repository-architecture.md`
+5. `.agents/context/00-ai-readiness-overview.md`
+6. `.agents/context/01-project-context-mvp.md`
+7. `.agents/context/02-agent-operating-model.md`
+8. `.agents/context/03-testing-quality-gates.md`
+9. `.agents/context/05-technology-stack-decisions.md`
+10. `.agents/context/06-repository-architecture.md`
 11. `docs/specs/01-spec-workflow.md` (if working on a new feature)
 
 ## Mandatory Verification Command (Pre-PR Quality Gate)
@@ -183,7 +183,7 @@ npm exec nx e2e budget-fort-e2e --skip-nx-cache             # 5 e2e tests
 - **Architecture:** keep transaction domain logic cohesive across `libs/transaction/**`. Respect Nx module boundaries and tags. Do not bypass boundaries for quick fixes.
 - **State:** use Angular Signals + lightweight services + resources APIs. Avoid heavy global state frameworks for MVP.
 - **i18n:** user-facing strings must be added to the xliff files in `apps/budget-fort/src/locale/` (e.g., `messages.en.xlf`).
-- **Component design:** follow the decomposition rules in `docs/ai/02-agent-operating-model.md#component-design-standards`. Use Container/Presenter pattern for data-heavy screens. One concern per component. Container components MUST use inline templates. Extracted aggregation logic goes into dedicated `@Service()` classes. Avoid mega-components.
+- **Component design:** follow the decomposition rules in `.agents/context/02-agent-operating-model.md#component-design-standards`. Use Container/Presenter pattern for data-heavy screens. One concern per component. Container components MUST use inline templates. Extracted aggregation logic goes into dedicated `@Service()` classes. Avoid mega-components.
 - **Angular 22 specifics:** omit `standalone: true` (now default). Use `@Service()` instead of `@Injectable({ providedIn: 'root' })`. Prefer Reactive Forms over template-driven. Template MUST be inline (`template: \`...\``). Styles MUST be in a separate `.scss` file (`styleUrl: './*.component.scss'`) — never `styles: \`...\`` inline.
 - **CSS:** BEM nesting (`&__element`, `&--modifier`) is standard in SCSS files. Use `styleUrl` to a `.scss` file for all components.
 
@@ -203,7 +203,7 @@ This invokes the **QA Coordinator**, which spawns 4 subagents in parallel:
 - **Responsive Checker** — viewport breakpoints, touch targets, overflow
 
 The review is **optional** — it does NOT block the pipeline. Results are saved to
-`docs/qa/YYYY-MM-DD-qa-report.md`. See `docs/ai/agents/qa-coordinator.md` for details.
+`docs/qa/YYYY-MM-DD-qa-report.md`. See `.agents/agents/qa-coordinator.md` for details.
 
 ### MCP servers used by QA subagents
 
@@ -217,8 +217,8 @@ The review is **optional** — it does NOT block the pipeline. Results are saved
 
 | Agent              | Target Model Profile | Why                                            |
 | ------------------ | -------------------- | ---------------------------------------------- |
-| QA Coordinator     | Gemini 3.8 Flash     | Orchestration, report merging, decision-making |
-| UI Reviewer        | Gemini 3.8 Flash     | Visual analysis — doesn't need deep reasoning  |
-| UX Analyzer        | Gemini 3.8 Flash     | Heuristic evaluation — procedural task         |
-| A11y Auditor       | Gemini 3.8 Flash     | Audits are tool-driven, not reasoning-heavy    |
-| Responsive Checker | Gemini 3.8 Flash     | Viewport testing is procedural                 |
+| QA Coordinator     | Fast                 | Orchestration, report merging, decision-making |
+| UI Reviewer        | Fast                 | Visual analysis — doesn't need deep reasoning  |
+| UX Analyzer        | Fast                 | Heuristic evaluation — procedural task         |
+| A11y Auditor       | Fast                 | Audits are tool-driven, not reasoning-heavy    |
+| Responsive Checker | Fast                 | Viewport testing is procedural                 |
