@@ -40,7 +40,7 @@ describe('HomeScreenIncomeFabComponent', () => {
   let mockCategoryService: {
     getCategoriesAsync: ReturnType<typeof vi.fn>;
     getVisibleCategories: () => ReturnType<typeof of>;
-    getVisibleCategoriesAsync: () => Promise<Category[]>;
+    getVisibleCategoriesAsync: ReturnType<typeof vi.fn>;
     getCategories: () => ReturnType<typeof of>;
   };
   let mockTransactionState: { addTransaction: ReturnType<typeof vi.fn> };
@@ -51,7 +51,7 @@ describe('HomeScreenIncomeFabComponent', () => {
     mockCategoryService = {
       getCategoriesAsync: vi.fn(),
       getVisibleCategories: () => of([incomeCategory]),
-      getVisibleCategoriesAsync: () => Promise.resolve([incomeCategory]),
+      getVisibleCategoriesAsync: vi.fn().mockResolvedValue([incomeCategory, expenseCategory]),
       getCategories: () => of([incomeCategory]),
     };
     mockTransactionState = { addTransaction: vi.fn().mockResolvedValue(undefined) };
@@ -65,6 +65,7 @@ describe('HomeScreenIncomeFabComponent', () => {
       imports: [HomeScreenIncomeFabComponent],
       providers: [
         { provide: MatDialog, useValue: mockDialog },
+        { provide: MatSnackBar, useValue: mockSnackBar },
         { provide: CategoryService, useValue: mockCategoryService },
         { provide: TransactionState, useValue: mockTransactionState },
       ],
@@ -147,9 +148,12 @@ describe('HomeScreenIncomeFabComponent', () => {
 
   it('should show snackbar and not open dialog when no income category exists', async () => {
     // covers: docs/qa/2026-10-21-ui-ux-audit.md#UI-08
-    mockCategoryService.getCategoriesAsync.mockResolvedValue([]);
+    mockCategoryService.getVisibleCategoriesAsync.mockResolvedValue([]);
 
-    await component.openTransactionDialog('income');
+    fixture.debugElement.query(By.css('.fab-income')).nativeElement.click();
+    fixture.detectChanges();
+    fixture.debugElement.query(By.css('.fab-action--income')).nativeElement.click();
+    await fixture.whenStable();
 
     expect(mockSnackBar.open).toHaveBeenCalledWith(
       'Brak kategorii przychodów. Najpierw dodaj kategorię w ustawieniach.',
@@ -160,9 +164,12 @@ describe('HomeScreenIncomeFabComponent', () => {
   });
 
   it('should show snackbar and not open dialog when no expense category exists', async () => {
-    mockCategoryService.getCategoriesAsync.mockResolvedValue([]);
+    mockCategoryService.getVisibleCategoriesAsync.mockResolvedValue([]);
 
-    await component.openTransactionDialog('expense');
+    fixture.debugElement.query(By.css('.fab-income')).nativeElement.click();
+    fixture.detectChanges();
+    fixture.debugElement.query(By.css('.fab-action--expense')).nativeElement.click();
+    await fixture.whenStable();
 
     expect(mockSnackBar.open).toHaveBeenCalledWith(
       'Brak kategorii wydatków. Najpierw dodaj kategorię w ustawieniach.',
@@ -170,6 +177,19 @@ describe('HomeScreenIncomeFabComponent', () => {
       { duration: 4000 },
     );
     expect(mockDialog.open).not.toHaveBeenCalled();
+  });
+
+  it('should close speed-dial on Escape key', () => {
+    const fabButton = fixture.debugElement.query(By.css('.fab-income'));
+    fabButton.nativeElement.click();
+    fixture.detectChanges();
+    expect(fabButton.attributes['aria-expanded']).toBe('true');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+
+    expect(fabButton.attributes['aria-expanded']).toBe('false');
+    expect(fixture.debugElement.query(By.css('.fab-action--income'))).toBeNull();
   });
 
   it('should add transaction and show snackbar after dialog confirms', async () => {
@@ -187,7 +207,10 @@ describe('HomeScreenIncomeFabComponent', () => {
       afterClosed: () => of(result),
     });
 
-    await component.openTransactionDialog('income');
+    fixture.debugElement.query(By.css('.fab-income')).nativeElement.click();
+    fixture.detectChanges();
+    fixture.debugElement.query(By.css('.fab-action--income')).nativeElement.click();
+    await fixture.whenStable();
 
     expect(mockTransactionState.addTransaction).toHaveBeenCalledTimes(1);
     expect(mockTransactionState.addTransaction).toHaveBeenCalledWith(

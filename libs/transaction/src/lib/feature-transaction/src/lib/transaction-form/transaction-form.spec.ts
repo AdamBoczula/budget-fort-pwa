@@ -45,6 +45,8 @@ describe('TransactionFormComponent', () => {
   };
   const mockService = {
     getVisibleCategories: () => of([expenseCategory, anotherExpenseCategory, incomeCategory]),
+    getVisibleCategoriesAsync: () =>
+      Promise.resolve([expenseCategory, anotherExpenseCategory, incomeCategory]),
     getCategories: () => of([expenseCategory, anotherExpenseCategory, incomeCategory]),
     getCategoriesAsync: () =>
       Promise.resolve([expenseCategory, anotherExpenseCategory, incomeCategory]),

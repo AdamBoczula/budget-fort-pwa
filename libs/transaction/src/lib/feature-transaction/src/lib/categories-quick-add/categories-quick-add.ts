@@ -11,12 +11,7 @@ import {
   CategoryEditDialogComponent,
   CategoryEditDialogResult,
 } from '../category-edit-dialog/category-edit-dialog';
-import { TransactionState } from '../service/transaction-state/transaction-state';
-import {
-  TRANSACTION_FORM_DIALOG_CONFIG,
-  TransactionFormComponent,
-  TransactionFormResult,
-} from '../transaction-form/transaction-form';
+import { TransactionDialogService } from '../service/transaction-dialog/transaction-dialog.service';
 
 @Component({
   selector: 'transaction-categories-quick-add',
@@ -61,7 +56,7 @@ import {
 })
 export class CategoriesQuickAddComponent {
   private readonly categoryService = inject(CategoryService);
-  private readonly transactionState = inject(TransactionState);
+  private readonly transactionDialogService = inject(TransactionDialogService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -73,31 +68,10 @@ export class CategoriesQuickAddComponent {
   });
 
   protected openTransactionForm(category: Category): void {
-    const dialogRef = this.dialog.open(TransactionFormComponent, {
-      ...TRANSACTION_FORM_DIALOG_CONFIG,
-      data: { category },
-      autoFocus: 'input',
-    });
-    dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
-      if (result) {
-        const recurringOptions = result.isRecurring
-          ? { isRecurring: true, dayOfMonth: result.recurringDayOfMonth }
-          : undefined;
-        void this.transactionState.addTransaction(
-          {
-            id: crypto.randomUUID(),
-            amount: result.amount,
-            date: result.date,
-            categoryId: result.categoryId,
-            accountId: result.accountId,
-            comment: result.comment,
-            subcategory: result.subcategory,
-          },
-          ...(recurringOptions ? [recurringOptions] : []),
-        );
-        this.snackBar.open('Dodano transakcję.', undefined, { duration: 3000 });
-      }
-    });
+    this.transactionDialogService.openCreateDialog(
+      category,
+      $localize`:@@categoriesQuickAdd.addedTransaction:Dodano transakcję.`,
+    );
   }
 
   protected openAddCategoryDialog(): void {
@@ -109,7 +83,11 @@ export class CategoriesQuickAddComponent {
     dialogRef.afterClosed().subscribe((result: CategoryEditDialogResult | null) => {
       if (result) {
         this.categories.reload();
-        this.snackBar.open('Dodano kategorię.', undefined, { duration: 3000 });
+        this.snackBar.open(
+          $localize`:@@categoriesQuickAdd.addedCategory:Dodano kategorię.`,
+          undefined,
+          { duration: 3000 },
+        );
       }
     });
   }

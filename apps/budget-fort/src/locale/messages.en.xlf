@@ -54,6 +54,14 @@
         <source>Zmień kategorię</source>
         <target>Change category</target>
       </trans-unit>
+      <trans-unit id="transactionForm.changeCategoryAriaWithName" datatype="html">
+        <source>Zmień kategorię: <x id="categoryName" equiv-text="this.selectedCategory.name"/></source>
+        <target>Change category: <x id="categoryName" equiv-text="this.selectedCategory.name"/></target>
+      </trans-unit>
+      <trans-unit id="transactionForm.quickSubcategoriesAria" datatype="html">
+        <source>Szybki wybór podkategorii</source>
+        <target>Quick subcategory selection</target>
+      </trans-unit>
       <trans-unit id="transactionForm.typeToggleAria" datatype="html">
         <source>Typ transakcji</source>
         <target>Transaction type</target>
@@ -117,6 +125,38 @@
       <trans-unit id="fabAdd.ariaLabel" datatype="html">
         <source>Dodaj transakcję</source>
         <target>Add transaction</target>
+      </trans-unit>
+      <trans-unit id="fabSpeedDial.groupAria" datatype="html">
+        <source>Wybierz typ transakcji</source>
+        <target>Choose transaction type</target>
+      </trans-unit>
+      <trans-unit id="fabIncome.noCategory" datatype="html">
+        <source>Brak kategorii przychodów. Najpierw dodaj kategorię w ustawieniach.</source>
+        <target>No income categories. Please add a category in settings first.</target>
+      </trans-unit>
+      <trans-unit id="fabExpense.noCategory" datatype="html">
+        <source>Brak kategorii wydatków. Najpierw dodaj kategorię w ustawieniach.</source>
+        <target>No expense categories. Please add a category in settings first.</target>
+      </trans-unit>
+      <trans-unit id="transactionDialog.addedIncome" datatype="html">
+        <source>Dodano przychód.</source>
+        <target>Income added.</target>
+      </trans-unit>
+      <trans-unit id="transactionDialog.addedExpense" datatype="html">
+        <source>Dodano wydatek.</source>
+        <target>Expense added.</target>
+      </trans-unit>
+      <trans-unit id="transactionDialog.savedChanges" datatype="html">
+        <source>Zapisano zmiany.</source>
+        <target>Changes saved.</target>
+      </trans-unit>
+      <trans-unit id="categoriesQuickAdd.addedTransaction" datatype="html">
+        <source>Dodano transakcję.</source>
+        <target>Transaction added.</target>
+      </trans-unit>
+      <trans-unit id="categoriesQuickAdd.addedCategory" datatype="html">
+        <source>Dodano kategorię.</source>
+        <target>Category added.</target>
       </trans-unit>
       <trans-unit id="transaction.category.income" datatype="html">
         <source>Zarobek</source>

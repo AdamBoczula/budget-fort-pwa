@@ -23,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { take } from 'rxjs';
 import {
   Category,
   CategoryService,
@@ -97,8 +98,7 @@ export type TransactionFormResult = {
             selectedCategory.transactionType !== 'income' ? selectedCategory.colorHex : undefined
           "
           [matMenuTriggerFor]="categoryMenu"
-          i18n-aria-label="@@transactionForm.changeCategoryAria"
-          [attr.aria-label]="'Zmień kategorię: ' + selectedCategory.name"
+          [attr.aria-label]="changeCategoryAriaLabel"
         >
           <mat-icon>{{ selectedCategory.icon }}</mat-icon>
           <span>{{ selectedCategory.name }}</span>
@@ -148,9 +148,8 @@ export type TransactionFormResult = {
         type="button"
         class="form-header__save"
         (click)="save()"
-        [disabled]="!amount || amount <= 0 || !selectedDate || (isEditMode && !isDirty)"
-        [matTooltip]="isEditMode && !isDirty ? 'Dokonaj zmian, aby móc zapisać transakcję.' : ''"
-        i18n-matTooltip="@@transactionForm.saveDisabledTooltip"
+        [disabled]="!canSave"
+        [matTooltip]="saveDisabledTooltip"
         matTooltipPosition="below"
         i18n="@@transactionForm.save"
       >
@@ -158,7 +157,7 @@ export type TransactionFormResult = {
       </button>
     </header>
 
-    <mat-dialog-content class="form-content" (keydown)="onKeydown($event)">
+    <mat-dialog-content class="form-content">
       <div class="form-fields">
         <mat-button-toggle-group
           class="type-toggle"
@@ -187,6 +186,7 @@ export type TransactionFormResult = {
             cdkFocusInitial
             placeholder="0.00"
             [(ngModel)]="amount"
+            (keydown.enter)="onEnterSave($event)"
             required
             i18n-placeholder="@@transactionForm.amountPlaceholder"
           />
@@ -194,7 +194,12 @@ export type TransactionFormResult = {
 
         @if (subcategories.value(); as quickSubs) {
           @if (quickSubs.length > 0) {
-            <div class="subcategory-chips" aria-label="Szybki wybór podkategorii">
+            <div
+              class="subcategory-chips"
+              role="group"
+              i18n-aria-label="@@transactionForm.quickSubcategoriesAria"
+              aria-label="Szybki wybór podkategorii"
+            >
               @for (sub of quickSubs; track sub.id) {
                 <button
                   type="button"
@@ -245,6 +250,7 @@ export type TransactionFormResult = {
             matInput
             type="text"
             [(ngModel)]="comment"
+            (keydown.enter)="onEnterSave($event)"
             i18n-placeholder="@@transactionForm.commentPlaceholder"
             placeholder="Np. Obiad w pracy"
           />
@@ -293,7 +299,7 @@ export class TransactionFormComponent implements AfterViewInit {
 
   /** Kategorie załadowane przez resource(). */
   protected readonly categories = resource({
-    loader: async () => this.categoryService.getCategoriesAsync(),
+    loader: async () => this.categoryService.getVisibleCategoriesAsync(),
   });
 
   /** Wszystkie podkategorie dla wybranej kategorii (z DB). */
@@ -351,6 +357,35 @@ export class TransactionFormComponent implements AfterViewInit {
   private readonly originalComment: string;
   private readonly originalSubcategory: string;
 
+  protected get changeCategoryAriaLabel(): string {
+    return $localize`:@@transactionForm.changeCategoryAriaWithName:Zmień kategorię: ${this.selectedCategory.name}:categoryName:`;
+  }
+
+  protected get saveDisabledTooltip(): string {
+    return this.isEditMode && !this.isDirty
+      ? $localize`:@@transactionForm.saveDisabledTooltip:Dokonaj zmian, aby móc zapisać transakcję.`
+      : '';
+  }
+
+  protected get canSave(): boolean {
+    if (!this.amount || this.amount <= 0) {
+      return false;
+    }
+    if (!this.selectedDate || Number.isNaN(this.selectedDate.getTime())) {
+      return false;
+    }
+    if (!this.isEditMode && this.isRecurring) {
+      if (
+        !Number.isInteger(this.recurringDayOfMonth) ||
+        this.recurringDayOfMonth < 1 ||
+        this.recurringDayOfMonth > 31
+      ) {
+        return false;
+      }
+    }
+    return !this.isEditMode || this.isDirty;
+  }
+
   protected get isDirty(): boolean {
     if (!this.isEditMode) {
       return true;
@@ -389,8 +424,8 @@ export class TransactionFormComponent implements AfterViewInit {
     }
     this.originalAmount = this.amount;
     this.originalDate = new Date(this.selectedDate);
-    this.originalComment = this.comment;
-    this.originalSubcategory = this.subcategory;
+    this.originalComment = this.comment.trim();
+    this.originalSubcategory = this.subcategory.trim();
   }
 
   private sameDay(a: Date, b: Date): boolean {
@@ -427,16 +462,18 @@ export class TransactionFormComponent implements AfterViewInit {
       return;
     }
     this.focusAmountInput();
-    this.dialogRef.afterOpened?.().subscribe(() => {
-      this.focusAmountInput();
-    });
+    this.dialogRef
+      .afterOpened?.()
+      .pipe(take(1))
+      .subscribe(() => {
+        this.focusAmountInput();
+      });
   }
 
   private focusAmountInput(): void {
     const input = this.amountInput?.nativeElement;
     if (input) {
       input.focus();
-      input.click();
     }
   }
 
@@ -451,7 +488,7 @@ export class TransactionFormComponent implements AfterViewInit {
   }
 
   protected async save(): Promise<void> {
-    if (!this.amount || this.amount <= 0 || !this.selectedDate) {
+    if (!this.canSave || !this.amount || !this.selectedDate) {
       return;
     }
     const trimmedSubcategory = this.subcategory.trim();
@@ -481,14 +518,8 @@ export class TransactionFormComponent implements AfterViewInit {
     this.dialogRef.close();
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
-    if (event.key !== 'Enter') {
-      return;
-    }
-    if (!this.amount || this.amount <= 0 || !this.selectedDate) {
-      return;
-    }
-    if (this.isEditMode && !this.isDirty) {
+  protected onEnterSave(event: Event): void {
+    if (!this.canSave) {
       return;
     }
     event.preventDefault();

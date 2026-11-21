@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
 import { CategoriesQuickAddComponent } from './categories-quick-add';
@@ -87,6 +88,7 @@ describe('CategoriesQuickAddComponent', () => {
 
   it('should open MatDialog on category card click', async () => {
     const user = userEvent.setup();
+    const mockDialog = { open: vi.fn().mockReturnValue({ afterClosed: () => of(null) }) };
 
     await render(CategoriesQuickAddComponent, {
       providers: [
@@ -94,6 +96,7 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
+        { provide: MatDialog, useValue: mockDialog },
       ],
       componentProviders: [{ provide: MatSnackBar, useValue: mockSnackBar }],
     });
@@ -103,6 +106,7 @@ describe('CategoriesQuickAddComponent', () => {
     if (foodButton) {
       await user.click(foodButton);
     }
+    expect(mockDialog.open).toHaveBeenCalledTimes(1);
   });
 
   it('should display income category with savings icon', async () => {
@@ -128,6 +132,7 @@ describe('CategoriesQuickAddComponent', () => {
 
   it('should render quick-add category button in header and open category dialog', async () => {
     const user = userEvent.setup();
+    const mockDialog = { open: vi.fn().mockReturnValue({ afterClosed: () => of(null) }) };
 
     await render(CategoriesQuickAddComponent, {
       providers: [
@@ -135,6 +140,7 @@ describe('CategoriesQuickAddComponent', () => {
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         { provide: TransactionState, useValue: mockTxState },
+        { provide: MatDialog, useValue: mockDialog },
       ],
       componentProviders: [{ provide: MatSnackBar, useValue: mockSnackBar }],
     });
@@ -143,5 +149,6 @@ describe('CategoriesQuickAddComponent', () => {
     expect(addButton).toBeInTheDocument();
     expect(addButton.classList).toContain('categories-quick-add__add-btn');
     await user.click(addButton);
+    expect(mockDialog.open).toHaveBeenCalledTimes(1);
   });
 });

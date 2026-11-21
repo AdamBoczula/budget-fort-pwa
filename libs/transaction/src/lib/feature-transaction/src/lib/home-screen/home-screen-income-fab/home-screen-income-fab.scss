@@ -42,13 +42,16 @@
 
 .fab-speed-dial__label {
   padding: 0.3rem 0.7rem;
+  border: none;
   border-radius: 0.5rem;
   background: var(--mat-sys-surface-container-high, #ffffff);
   color: var(--mat-sys-on-surface, #0f172a);
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.16);
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .fab-action {

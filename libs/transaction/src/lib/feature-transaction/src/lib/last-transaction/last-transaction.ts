@@ -8,12 +8,8 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Category, CategoryService, Transaction } from '@data-access-transaction';
+import { TransactionDialogService } from '../service/transaction-dialog/transaction-dialog.service';
 import { TransactionState } from '../service/transaction-state/transaction-state';
-import {
-  TRANSACTION_FORM_DIALOG_CONFIG,
-  TransactionFormComponent,
-  TransactionFormResult,
-} from '../transaction-form/transaction-form';
 import { LastTransactionItemComponent } from './last-transaction-item/last-transaction-item';
 
 @Component({
@@ -72,6 +68,7 @@ import { LastTransactionItemComponent } from './last-transaction-item/last-trans
 export class LastTransactionComponent {
   private readonly transactionState = inject(TransactionState);
   private readonly categoryService = inject(CategoryService);
+  private readonly transactionDialogService = inject(TransactionDialogService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -121,25 +118,7 @@ export class LastTransactionComponent {
       return;
     }
 
-    const dialogRef = this.dialog.open(TransactionFormComponent, {
-      ...TRANSACTION_FORM_DIALOG_CONFIG,
-      data: { category, transaction },
-    });
-
-    dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
-      if (result?.transaction) {
-        void this.transactionState.editTransaction({
-          id: result.transaction.id,
-          categoryId: result.categoryId,
-          amount: result.amount,
-          date: result.date,
-          accountId: result.accountId,
-          comment: result.comment,
-          subcategory: result.subcategory,
-        });
-        this.snackBar.open('Zapisano zmiany.', undefined, { duration: 3000 });
-      }
-    });
+    this.transactionDialogService.openEditDialog(category, transaction);
   }
 
   protected openDeleteDialog(transaction: Transaction): void {
