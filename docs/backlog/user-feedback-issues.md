@@ -1,6 +1,6 @@
 # User Feedback & Bug/Improvement Backlog
 
-Last updated: 2026-11-20
+Last updated: 2026-11-21
 
 This file tracks user-reported bugs and UX improvements, grouped into cohesive implementation tasks so related items can be delivered together.
 
@@ -44,3 +44,25 @@ This file tracks user-reported bugs and UX improvements, grouped into cohesive i
 **Area:** `libs/transaction/feature-transaction`, `docs/specs/transaction/recurring-transactions.md`
 
 - **[#8] Default day to current day:** When creating a recurring expense/transaction, prefill the day-of-month field with the current day while keeping it editable by the user.
+
+---
+
+## Task 5: Home Recent Transactions Scroll & Height
+
+**Covers items:** #10  
+**Area:** `libs/transaction/feature-transaction`, `libs/transaction/ui-transaction`
+
+- **[#10] Restore bounded scroll on recent transactions list with taller height:** Revert the unified page scroll from the previous merge back to the dedicated scroll container on the recent transactions list, but increase its pixel height so the list occupies at least 50% of the viewport height (targeting ~75% of the screen).
+
+---
+
+## Task 6: Transaction Form Layout, Compact Inputs & Recurring Toggle
+
+**Covers items:** #11, #12, #13, #14, #15  
+**Area:** `libs/transaction/feature-transaction`, `libs/transaction/ui-transaction`
+
+- **[#11] Smaller inputs & remove type switch:** Reduce the size of form inputs in the transaction modal. Remove the Income/Expense category type switch from the form, as the user already chooses the transaction type before opening the modal.
+- **[#12] Date field at the bottom:** Move the date field to the very bottom of the transaction form.
+- **[#13] Amount and recurring toggle in one row:** Place the cost/amount input and the recurring transaction toggle side-by-side on the same row.
+- **[#14] Half-width date field:** Size the date field to half width (50%) instead of spanning the full width of the form.
+- **[#15] Missing recurring toggle in edit mode (Bug):** When editing an existing transaction, the recurring transaction toggle is missing from the form.
