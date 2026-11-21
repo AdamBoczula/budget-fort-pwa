@@ -14,7 +14,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,6 +26,7 @@ import { take } from 'rxjs';
 import {
   Category,
   CategoryService,
+  RecurringRuleService,
   SubcategoryService,
   Transaction,
   TransactionType,
@@ -64,7 +64,6 @@ export type TransactionFormResult = {
     FormsModule,
     MatAutocompleteModule,
     MatButtonModule,
-    MatButtonToggleModule,
     MatDatepickerModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -159,38 +158,56 @@ export type TransactionFormResult = {
 
     <mat-dialog-content class="form-content">
       <div class="form-fields">
-        <mat-button-toggle-group
-          class="type-toggle"
-          [value]="selectedType()"
-          (change)="onTypeChange($event.value)"
-          i18n-aria-label="@@transactionForm.typeToggleAria"
-          aria-label="Typ transakcji"
-        >
-          <mat-button-toggle value="expense" i18n="@@transactionForm.expense">
-            Wydatek
-          </mat-button-toggle>
-          <mat-button-toggle value="income" i18n="@@transactionForm.income">
-            Przychód
-          </mat-button-toggle>
-        </mat-button-toggle-group>
+        <div class="amount-recurring-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="amount-field">
+            <mat-label i18n="@@transactionForm.amountLabel">Kwota</mat-label>
+            <input
+              matInput
+              type="number"
+              #amountInput
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              cdkFocusInitial
+              placeholder="0.00"
+              [(ngModel)]="amount"
+              (keydown.enter)="onEnterSave($event)"
+              required
+              i18n-placeholder="@@transactionForm.amountPlaceholder"
+            />
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width amount-field">
-          <mat-label i18n="@@transactionForm.amountLabel">Kwota</mat-label>
-          <input
-            matInput
-            type="number"
-            #amountInput
-            min="0"
-            step="0.01"
-            inputmode="decimal"
-            cdkFocusInitial
-            placeholder="0.00"
-            [(ngModel)]="amount"
-            (keydown.enter)="onEnterSave($event)"
-            required
-            i18n-placeholder="@@transactionForm.amountPlaceholder"
-          />
-        </mat-form-field>
+          <div class="recurring-toggle-wrapper">
+            <mat-slide-toggle
+              [(ngModel)]="isRecurring"
+              name="isRecurring"
+              color="primary"
+              i18n="@@transactionForm.recurringToggle"
+            >
+              Ustaw jako wydatek cykliczny
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        @if (isRecurring) {
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="recurring-day-field"
+          >
+            <mat-label i18n="@@transactionForm.recurringDayLabel">Dzień miesiąca</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              max="31"
+              [(ngModel)]="recurringDayOfMonth"
+              name="recurringDayOfMonth"
+              required
+            />
+            <span matSuffix i18n="@@transactionForm.daySuffix">. dzień</span>
+          </mat-form-field>
+        }
 
         @if (subcategories.value(); as quickSubs) {
           @if (quickSubs.length > 0) {
@@ -214,37 +231,26 @@ export type TransactionFormResult = {
           }
         }
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label i18n="@@transactionForm.dateLabel">Data</mat-label>
-            <input matInput [matDatepicker]="datePicker" [(ngModel)]="selectedDate" required />
-            <mat-datepicker-toggle matIconSuffix [for]="datePicker" />
-            <mat-datepicker #datePicker />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label i18n="@@transactionForm.subcategoryLabel"
-              >Podkategoria (opcjonalna)</mat-label
-            >
-            <input
-              matInput
-              type="text"
-              [(ngModel)]="subcategory"
-              [matAutocomplete]="auto"
-              i18n-placeholder="@@transactionForm.subcategoryPlaceholder"
-              placeholder="Np. Naprawa"
-            />
-            <mat-autocomplete #auto="matAutocomplete">
-              @if (filteredSubcategories(); as subs) {
-                @for (sub of subs; track sub.id) {
-                  <mat-option [value]="sub.name">{{ sub.name }}</mat-option>
-                }
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
+          <mat-label i18n="@@transactionForm.subcategoryLabel">Podkategoria (opcjonalna)</mat-label>
+          <input
+            matInput
+            type="text"
+            [(ngModel)]="subcategory"
+            [matAutocomplete]="auto"
+            i18n-placeholder="@@transactionForm.subcategoryPlaceholder"
+            placeholder="Np. Naprawa"
+          />
+          <mat-autocomplete #auto="matAutocomplete">
+            @if (filteredSubcategories(); as subs) {
+              @for (sub of subs; track sub.id) {
+                <mat-option [value]="sub.name">{{ sub.name }}</mat-option>
               }
-            </mat-autocomplete>
-          </mat-form-field>
-        </div>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
           <mat-label i18n="@@transactionForm.commentLabel">Komentarz (opcjonalny)</mat-label>
           <input
             matInput
@@ -256,34 +262,12 @@ export type TransactionFormResult = {
           />
         </mat-form-field>
 
-        @if (!isEditMode) {
-          <div class="recurring-section">
-            <mat-slide-toggle
-              [(ngModel)]="isRecurring"
-              name="isRecurring"
-              color="primary"
-              i18n="@@transactionForm.recurringToggle"
-            >
-              Ustaw jako wydatek cykliczny
-            </mat-slide-toggle>
-
-            @if (isRecurring) {
-              <mat-form-field appearance="outline" class="full-width recurring-day-field">
-                <mat-label i18n="@@transactionForm.recurringDayLabel">Dzień miesiąca</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  min="1"
-                  max="31"
-                  [(ngModel)]="recurringDayOfMonth"
-                  name="recurringDayOfMonth"
-                  required
-                />
-                <span matSuffix i18n="@@transactionForm.daySuffix">. dzień</span>
-              </mat-form-field>
-            }
-          </div>
-        }
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
+          <mat-label i18n="@@transactionForm.dateLabel">Data</mat-label>
+          <input matInput [matDatepicker]="datePicker" [(ngModel)]="selectedDate" required />
+          <mat-datepicker-toggle matIconSuffix [for]="datePicker" />
+          <mat-datepicker #datePicker />
+        </mat-form-field>
       </div>
     </mat-dialog-content>
   `,
@@ -292,6 +276,7 @@ export type TransactionFormResult = {
 export class TransactionFormComponent implements AfterViewInit {
   private readonly categoryService = inject(CategoryService);
   private readonly subcategoryService = inject(SubcategoryService);
+  private readonly recurringRuleService = inject(RecurringRuleService, { optional: true });
   private readonly dialogRef = inject(MatDialogRef<TransactionFormComponent>);
   private readonly dialogData = inject<TransactionFormData>(MAT_DIALOG_DATA);
 
@@ -356,6 +341,8 @@ export class TransactionFormComponent implements AfterViewInit {
   private readonly originalDate: Date;
   private readonly originalComment: string;
   private readonly originalSubcategory: string;
+  private readonly originalIsRecurring: boolean;
+  private readonly originalRecurringDayOfMonth: number;
 
   protected get changeCategoryAriaLabel(): string {
     return $localize`:@@transactionForm.changeCategoryAriaWithName:Zmień kategorię: ${this.selectedCategory.name}:categoryName:`;
@@ -374,7 +361,7 @@ export class TransactionFormComponent implements AfterViewInit {
     if (!this.selectedDate || Number.isNaN(this.selectedDate.getTime())) {
       return false;
     }
-    if (!this.isEditMode && this.isRecurring) {
+    if (this.isRecurring) {
       if (
         !Number.isInteger(this.recurringDayOfMonth) ||
         this.recurringDayOfMonth < 1 ||
@@ -397,6 +384,9 @@ export class TransactionFormComponent implements AfterViewInit {
     const typeChanged = this.selectedType() !== this.originalType;
     const dateChanged = !this.sameDay(this.selectedDate, this.originalDate);
     const subcategoryChanged = this.subcategory.trim() !== this.originalSubcategory;
+    const recurringChanged =
+      this.isRecurring !== this.originalIsRecurring ||
+      (this.isRecurring && this.recurringDayOfMonth !== this.originalRecurringDayOfMonth);
 
     return (
       amountChanged ||
@@ -404,7 +394,8 @@ export class TransactionFormComponent implements AfterViewInit {
       categoryChanged ||
       typeChanged ||
       dateChanged ||
-      subcategoryChanged
+      subcategoryChanged ||
+      recurringChanged
     );
   }
 
@@ -421,11 +412,20 @@ export class TransactionFormComponent implements AfterViewInit {
       this.selectedDate = new Date(existingTx.date);
       this.comment = existingTx.comment ?? '';
       this.subcategory = existingTx.subcategory ?? '';
+      this.isRecurring = Boolean(existingTx.recurringRuleId);
+      if (existingTx.recurringRuleId) {
+        const existingRule = this.recurringRuleService
+          ?.rules()
+          .find((r) => r.id === existingTx.recurringRuleId);
+        this.recurringDayOfMonth = existingRule?.dayOfMonth ?? this.selectedDate.getDate();
+      }
     }
     this.originalAmount = this.amount;
     this.originalDate = new Date(this.selectedDate);
     this.originalComment = this.comment.trim();
     this.originalSubcategory = this.subcategory.trim();
+    this.originalIsRecurring = this.isRecurring;
+    this.originalRecurringDayOfMonth = this.recurringDayOfMonth;
   }
 
   private sameDay(a: Date, b: Date): boolean {
@@ -438,23 +438,6 @@ export class TransactionFormComponent implements AfterViewInit {
 
   protected get transactionType(): TransactionType {
     return this.selectedType();
-  }
-
-  protected onTypeChange(type: TransactionType): void {
-    if (!type || type === this.selectedType()) {
-      return;
-    }
-    this.selectedType.set(type);
-    const currentCategoryType = this.selectedCategory.transactionType ?? 'expense';
-    if (currentCategoryType !== type) {
-      const matching = (this.categories.value() ?? []).find(
-        (cat) => (cat.transactionType ?? 'expense') === type,
-      );
-      if (matching) {
-        this.selectedCategory = matching;
-        this.subcategory = '';
-      }
-    }
   }
 
   ngAfterViewInit(): void {
@@ -509,7 +492,7 @@ export class TransactionFormComponent implements AfterViewInit {
       subcategory: trimmedSubcategory || undefined,
       accountId: 'default',
       transaction: this.isEditMode ? this.dialogData.transaction : undefined,
-      isRecurring: !this.isEditMode && this.isRecurring,
+      isRecurring: this.isRecurring,
       recurringDayOfMonth: this.recurringDayOfMonth,
     });
   }

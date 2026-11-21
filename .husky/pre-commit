@@ -1,1 +1,11 @@
+#!/usr/bin/env sh
+set -e
+
 npx lint-staged
+npx nx format:check --base=origin/main
+npx nx run-many -t lint
+npm run lint:css
+npx nx run-many -t test
+npx nx run-many -t build
+npx nx run budget-fort:build:production-en
+npx nx run-many -t e2e

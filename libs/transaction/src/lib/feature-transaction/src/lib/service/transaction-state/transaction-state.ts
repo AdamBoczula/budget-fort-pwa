@@ -140,24 +140,9 @@ export class TransactionState {
       transaction.householdId = transaction.householdId ?? householdId;
 
       if (recurringOptions?.isRecurring && this.recurringRuleService) {
-        const ruleId = crypto.randomUUID();
-        const day = recurringOptions.dayOfMonth ?? 1;
-        const currentMonth = transaction.date.slice(0, 7);
-        const rule: RecurringTransactionRule = {
-          id: ruleId,
-          amount: Math.abs(transaction.amount),
-          categoryId: transaction.categoryId,
-          accountId: transaction.accountId,
-          subcategory: transaction.subcategory,
-          comment: transaction.comment,
-          dayOfMonth: day,
-          startDate: transaction.date.slice(0, 10),
-          lastGeneratedMonth: currentMonth,
-          isActive: true,
-          updatedAt: new Date().toISOString(),
-        };
+        const rule = this.buildRecurringRule(transaction, recurringOptions.dayOfMonth);
         await this.recurringRuleService.addRuleAsync(rule);
-        transaction.recurringRuleId = ruleId;
+        transaction.recurringRuleId = rule.id;
       }
       await this.transactionService.addTransactionAsync(transaction);
       this.dataVersion.update((v) => v + 1);
@@ -166,14 +151,63 @@ export class TransactionState {
     }
   }
 
-  public async editTransaction(transaction: Transaction): Promise<void> {
+  public async editTransaction(
+    transaction: Transaction,
+    recurringOptions?: { isRecurring: boolean; dayOfMonth?: number },
+  ): Promise<void> {
     try {
       this.mutationError.set(null);
+      if (recurringOptions && this.recurringRuleService) {
+        if (recurringOptions.isRecurring) {
+          const existingRule = transaction.recurringRuleId
+            ? this.recurringRuleService.rules().find((r) => r.id === transaction.recurringRuleId)
+            : undefined;
+          if (existingRule) {
+            await this.recurringRuleService.updateRuleAsync({
+              ...existingRule,
+              amount: Math.abs(transaction.amount),
+              categoryId: transaction.categoryId,
+              accountId: transaction.accountId,
+              subcategory: transaction.subcategory,
+              comment: transaction.comment,
+              dayOfMonth: recurringOptions.dayOfMonth ?? existingRule.dayOfMonth,
+              updatedAt: new Date().toISOString(),
+            });
+          } else {
+            const rule = this.buildRecurringRule(transaction, recurringOptions.dayOfMonth);
+            await this.recurringRuleService.addRuleAsync(rule);
+            transaction.recurringRuleId = rule.id;
+          }
+        } else if (transaction.recurringRuleId) {
+          transaction.recurringRuleId = undefined;
+        }
+      }
       await this.transactionService.editTransactionAsync(transaction);
       this.dataVersion.update((v) => v + 1);
     } catch {
       this.mutationError.set(this.translate('Nie udalo sie zaktualizowac transakcji.'));
     }
+  }
+
+  private buildRecurringRule(
+    transaction: Transaction,
+    dayOfMonth?: number,
+  ): RecurringTransactionRule {
+    const day = dayOfMonth ?? 1;
+    const currentMonth = transaction.date.slice(0, 7);
+    return {
+      id: crypto.randomUUID(),
+      amount: Math.abs(transaction.amount),
+      categoryId: transaction.categoryId,
+      accountId: transaction.accountId,
+      subcategory: transaction.subcategory,
+      comment: transaction.comment,
+      dayOfMonth: day,
+      startDate: transaction.date.slice(0, 10),
+      lastGeneratedMonth: currentMonth,
+      isActive: true,
+      updatedAt: new Date().toISOString(),
+    };
   }
 
   private dayKey(date: Date): string {

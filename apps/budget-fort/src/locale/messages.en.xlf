@@ -62,10 +62,6 @@
         <source>Szybki wybór podkategorii</source>
         <target>Quick subcategory selection</target>
       </trans-unit>
-      <trans-unit id="transactionForm.typeToggleAria" datatype="html">
-        <source>Typ transakcji</source>
-        <target>Transaction type</target>
-      </trans-unit>
       <trans-unit id="transactionForm.expense" datatype="html">
         <source>Wydatek</source>
         <target>Expense</target>

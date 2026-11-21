@@ -7,6 +7,7 @@ import { TransactionFormComponent } from './transaction-form';
 import {
   Category,
   CategoryService,
+  RecurringRuleService,
   SubcategoryService,
   Transaction,
 } from '@data-access-transaction';
@@ -304,7 +305,7 @@ describe('TransactionFormComponent', () => {
     expect(menuTexts.some((t) => t?.includes('Zarobek'))).toBe(true);
   });
 
-  it('should switch transaction type via toggle and save with updated sign', async () => {
+  it('should not render income/expense type toggle and should switch type via category menu', async () => {
     const closeSpy = vi.fn();
     const user = userEvent.setup();
     await render(TransactionFormComponent, {
@@ -318,9 +319,12 @@ describe('TransactionFormComponent', () => {
     });
 
     await screen.findByText('Jedzenie');
-    await user.click(screen.getByRole('radio', { name: 'Przychód' }));
+    expect(document.querySelector('mat-button-toggle-group')).toBeNull();
 
-    expect(screen.getByText('Zarobek')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Jedzenie/i }));
+    await user.click(screen.getByRole('menuitem', { name: /Zarobek/i }));
+
+    expect(screen.getByRole('button', { name: /Zarobek/i })).toBeInTheDocument();
 
     await user.clear(screen.getByLabelText('Kwota'));
     await user.type(screen.getByLabelText('Kwota'), '250');
@@ -470,5 +474,189 @@ describe('TransactionFormComponent', () => {
         recurringDayOfMonth: 5,
       }),
     );
+  });
+
+  it('should show recurring toggle in edit mode and enable save when toggled on', async () => {
+    const user = userEvent.setup();
+    const closeSpy = vi.fn();
+    const existingTransaction: Transaction = {
+      id: 'tx-1',
+      amount: -42.5,
+      date: new Date(2026, 7, 15, 12, 0, 0).toISOString(),
+      categoryId: 'food',
+      accountId: 'default',
+      comment: 'Lunch',
+    };
+    await render(TransactionFormComponent, {
+      providers: [
+        { provide: MatDialogRef, useValue: { close: closeSpy, afterOpened: () => of(undefined) } },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { category: expenseCategory, transaction: existingTransaction },
+        },
+        { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
+        provideNativeDateAdapter(),
+      ],
+    });
+
+    const toggle = screen.getByRole('switch', { name: /Ustaw jako wydatek cykliczny/i });
+    expect(toggle).not.toBeChecked();
+    expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+
+    await user.click(toggle);
+    expect(toggle).toBeChecked();
+    expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
+
+    const dayInput = screen.getByLabelText('Dzień miesiąca');
+    await user.clear(dayInput);
+    await user.type(dayInput, '10');
+    await user.click(screen.getByRole('button', { name: /Zapisz/i }));
+
+    expect(closeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: -42.5,
+        isRecurring: true,
+        recurringDayOfMonth: 10,
+      }),
+    );
+  });
+
+  it('should prefill recurring toggle and day of month in edit mode when transaction has recurringRuleId', async () => {
+    const existingTransaction: Transaction = {
+      id: 'tx-rec',
+      amount: -60,
+      date: new Date(2026, 7, 15, 12, 0, 0).toISOString(),
+      categoryId: 'food',
+      accountId: 'default',
+      recurringRuleId: 'rule-1',
+    };
+    await render(TransactionFormComponent, {
+      providers: [
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { category: expenseCategory, transaction: existingTransaction },
+        },
+        { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
+        {
+          provide: RecurringRuleService,
+          useValue: {
+            rules: () => [{ id: 'rule-1', dayOfMonth: 22 }],
+          },
+        },
+        provideNativeDateAdapter(),
+      ],
+    });
+
+    const toggle = screen.getByRole('switch', { name: /Ustaw jako wydatek cykliczny/i });
+    await vi.waitFor(() => {
+      expect(toggle).toBeChecked();
+    });
+    expect(screen.getByLabelText('Dzień miesiąca')).toHaveValue(22);
+    expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+  });
+
+  it('should allow detaching recurring in edit mode and disable save when reverted', async () => {
+    const user = userEvent.setup();
+    const closeSpy = vi.fn();
+    const existingTransaction: Transaction = {
+      id: 'tx-rec-detach',
+      amount: -60,
+      date: new Date(2026, 7, 15, 12, 0, 0).toISOString(),
+      categoryId: 'food',
+      accountId: 'default',
+      recurringRuleId: 'rule-1',
+    };
+    await render(TransactionFormComponent, {
+      providers: [
+        { provide: MatDialogRef, useValue: { close: closeSpy, afterOpened: () => of(undefined) } },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { category: expenseCategory, transaction: existingTransaction },
+        },
+        { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
+        {
+          provide: RecurringRuleService,
+          useValue: {
+            rules: () => [{ id: 'rule-1', dayOfMonth: 22 }],
+          },
+        },
+        provideNativeDateAdapter(),
+      ],
+    });
+
+    const toggle = screen.getByRole('switch', { name: /Ustaw jako wydatek cykliczny/i });
+    await vi.waitFor(() => {
+      expect(toggle).toBeChecked();
+    });
+
+    await user.click(toggle);
+    expect(toggle).not.toBeChecked();
+    expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
+
+    // Reverting back ON should disable save again
+    await user.click(toggle);
+    expect(toggle).toBeChecked();
+    expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+
+    // Toggling OFF and saving should close with isRecurring: false
+    await user.click(toggle);
+    await user.click(screen.getByRole('button', { name: /Zapisz/i }));
+    expect(closeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isRecurring: false,
+      }),
+    );
+  });
+
+  it('should validate recurringDayOfMonth and track dirty state when day changes in edit mode', async () => {
+    const user = userEvent.setup();
+    const existingTransaction: Transaction = {
+      id: 'tx-rec-day',
+      amount: -60,
+      date: new Date(2026, 7, 15, 12, 0, 0).toISOString(),
+      categoryId: 'food',
+      accountId: 'default',
+      recurringRuleId: 'rule-1',
+    };
+    await render(TransactionFormComponent, {
+      providers: [
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { category: expenseCategory, transaction: existingTransaction },
+        },
+        { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
+        {
+          provide: RecurringRuleService,
+          useValue: {
+            rules: () => [{ id: 'rule-1', dayOfMonth: 22 }],
+          },
+        },
+        provideNativeDateAdapter(),
+      ],
+    });
+
+    const dayInput = screen.getByLabelText('Dzień miesiąca');
+    await vi.waitFor(() => {
+      expect(dayInput).toHaveValue(22);
+    });
+    expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+
+    await user.clear(dayInput);
+    await user.type(dayInput, '32');
+    expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+
+    await user.clear(dayInput);
+    await user.type(dayInput, '0');
+    expect(screen.getByRole('button', { name: /Zapisz/i })).toBeDisabled();
+
+    await user.clear(dayInput);
+    await user.type(dayInput, '15');
+    expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
   });
 });
