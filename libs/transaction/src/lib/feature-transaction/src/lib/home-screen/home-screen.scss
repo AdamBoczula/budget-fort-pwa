@@ -13,10 +13,9 @@
   }
 }
 
-/* last-transaction owns the remaining vertical space and its internal scroll. */
+/* last-transaction flows naturally in unified page scroll. */
 transaction-last-transaction {
-  flex: 1;
-  min-height: 12rem;
+  flex-shrink: 0;
 }
 
 transaction-home-screen-hero {

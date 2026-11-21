@@ -14,6 +14,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,6 +30,14 @@ import {
   Transaction,
   TransactionType,
 } from '@data-access-transaction';
+
+export const TRANSACTION_FORM_DIALOG_CONFIG = {
+  width: '100vw',
+  height: '100dvh',
+  maxWidth: '100vw',
+  maxHeight: '100dvh',
+  panelClass: 'transaction-fullscreen-dialog',
+} as const;
 
 export type TransactionFormData = {
   category: Category;
@@ -54,6 +63,7 @@ export type TransactionFormResult = {
     FormsModule,
     MatAutocompleteModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatDatepickerModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -64,57 +74,107 @@ export type TransactionFormResult = {
     MatTooltipModule,
   ],
   template: `
-    <div class="sheet-handle" aria-hidden="true"></div>
+    <header class="form-header">
+      <button
+        mat-icon-button
+        type="button"
+        class="form-header__close"
+        (click)="cancel()"
+        i18n-aria-label="@@transactionForm.cancel"
+        aria-label="Anuluj"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
 
-    <h2 mat-dialog-title class="form-title">
       @if (selectedCategory) {
-        <span
-          class="form-title__category-badge"
-          [class.form-title__category-badge--income]="selectedCategory.transactionType === 'income'"
+        <button
+          type="button"
+          class="form-header__category-badge"
+          [class.form-header__category-badge--income]="
+            selectedCategory.transactionType === 'income'
+          "
           [style.background-color]="
             selectedCategory.transactionType !== 'income' ? selectedCategory.colorHex : undefined
           "
-          (click)="categoryMenuTrigger.openMenu()"
-          (keydown.enter)="categoryMenuTrigger.openMenu()"
-          (keydown.space)="categoryMenuTrigger.openMenu()"
-          role="button"
-          tabindex="0"
+          [matMenuTriggerFor]="categoryMenu"
+          i18n-aria-label="@@transactionForm.changeCategoryAria"
+          [attr.aria-label]="'Zmień kategorię: ' + selectedCategory.name"
         >
           <mat-icon>{{ selectedCategory.icon }}</mat-icon>
-          {{ selectedCategory.name }}
-          <mat-icon class="form-title__change-icon">arrow_drop_down</mat-icon>
-        </span>
+          <span>{{ selectedCategory.name }}</span>
+          <mat-icon class="form-header__change-icon">arrow_drop_down</mat-icon>
+        </button>
       }
-      <button
-        mat-icon-button
-        [matMenuTriggerFor]="categoryMenu"
-        #categoryMenuTrigger="matMenuTrigger"
-        type="button"
-        i18n-aria-label="@@transactionForm.changeCategoryAria"
-        aria-label="Zmień kategorię"
-      >
-        <mat-icon>swap_horiz</mat-icon>
-      </button>
+
       <mat-menu #categoryMenu="matMenu">
-        @if (changeableCategories(); as cats) {
-          @for (cat of cats; track cat.id) {
-            <button mat-menu-item (click)="selectCategory(cat)">
-              <span class="category-menu-item">
-                <span
-                  class="category-menu-item__dot"
-                  [style.background-color]="cat.colorHex"
-                ></span>
-                <mat-icon>{{ cat.icon }}</mat-icon>
-                {{ cat.name }}
-              </span>
-            </button>
+        @if (expenseCategories(); as expenses) {
+          @if (expenses.length > 0) {
+            <div class="category-menu-header" i18n="@@transactionForm.expense">Wydatek</div>
+            @for (cat of expenses; track cat.id) {
+              <button mat-menu-item (click)="selectCategory(cat)">
+                <span class="category-menu-item">
+                  <span
+                    class="category-menu-item__dot"
+                    [style.background-color]="cat.colorHex"
+                  ></span>
+                  <mat-icon>{{ cat.icon }}</mat-icon>
+                  {{ cat.name }}
+                </span>
+              </button>
+            }
+          }
+        }
+        @if (incomeCategories(); as incomes) {
+          @if (incomes.length > 0) {
+            <div class="category-menu-header" i18n="@@transactionForm.income">Przychód</div>
+            @for (cat of incomes; track cat.id) {
+              <button mat-menu-item (click)="selectCategory(cat)">
+                <span class="category-menu-item">
+                  <span
+                    class="category-menu-item__dot"
+                    [style.background-color]="cat.colorHex"
+                  ></span>
+                  <mat-icon>{{ cat.icon }}</mat-icon>
+                  {{ cat.name }}
+                </span>
+              </button>
+            }
           }
         }
       </mat-menu>
-    </h2>
+
+      <button
+        mat-flat-button
+        type="button"
+        class="form-header__save"
+        (click)="save()"
+        [disabled]="!amount || amount <= 0 || !selectedDate || (isEditMode && !isDirty)"
+        [matTooltip]="isEditMode && !isDirty ? 'Dokonaj zmian, aby móc zapisać transakcję.' : ''"
+        i18n-matTooltip="@@transactionForm.saveDisabledTooltip"
+        matTooltipPosition="below"
+        i18n="@@transactionForm.save"
+      >
+        Zapisz
+      </button>
+    </header>
 
     <mat-dialog-content class="form-content" (keydown)="onKeydown($event)">
       <div class="form-fields">
+        <mat-button-toggle-group
+          class="type-toggle"
+          [value]="selectedType()"
+          (change)="onTypeChange($event.value)"
+          i18n-aria-label="@@transactionForm.typeToggleAria"
+          aria-label="Typ transakcji"
+        >
+          <mat-button-toggle value="expense" i18n="@@transactionForm.expense">
+            Wydatek
+          </mat-button-toggle>
+          <mat-button-toggle value="income" i18n="@@transactionForm.income">
+            Przychód
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+
         <mat-form-field appearance="outline" class="full-width amount-field">
           <mat-label i18n="@@transactionForm.amountLabel">Kwota</mat-label>
           <input
@@ -220,22 +280,6 @@ export type TransactionFormResult = {
         }
       </div>
     </mat-dialog-content>
-
-    <mat-dialog-actions align="end" class="form-actions">
-      <button mat-button (click)="cancel()" i18n="@@transactionForm.cancel">Anuluj</button>
-      <button
-        mat-flat-button
-        class="form-actions__save"
-        (click)="save()"
-        [disabled]="!amount || amount <= 0 || !selectedDate || (isEditMode && !isDirty)"
-        [matTooltip]="isEditMode && !isDirty ? 'Dokonaj zmian, aby móc zapisać transakcję.' : ''"
-        i18n-matTooltip="@@transactionForm.saveDisabledTooltip"
-        matTooltipPosition="above"
-        i18n="@@transactionForm.save"
-      >
-        Zapisz
-      </button>
-    </mat-dialog-actions>
   `,
   styleUrl: './transaction-form.scss',
 })
@@ -270,19 +314,25 @@ export class TransactionFormComponent implements AfterViewInit {
     return all.filter((sub) => sub.name.replace(/\s/g, '').toLowerCase().includes(query));
   });
 
-  /** Kategorie tego samego typu co wybrana (expense/income) do menu zmiany. */
-  protected readonly changeableCategories = computed(() => {
+  /** Kategorie wydatków do menu wyboru kategorii. */
+  protected readonly expenseCategories = computed(() => {
     const all = this.categories.value() ?? [];
-    const currentType = this.selectedCategory.transactionType ?? 'expense';
-    return all.filter((cat) => (cat.transactionType ?? 'expense') === currentType);
+    return all.filter((cat) => (cat.transactionType ?? 'expense') === 'expense');
+  });
+
+  /** Kategorie przychodów do menu wyboru kategorii. */
+  protected readonly incomeCategories = computed(() => {
+    const all = this.categories.value() ?? [];
+    return all.filter((cat) => cat.transactionType === 'income');
   });
 
   protected selectedCategory: Category;
+  protected readonly selectedType = signal<TransactionType>('expense');
   protected amount: number | null = null;
   protected selectedDate: Date = new Date();
   protected comment = '';
   protected isRecurring = false;
-  protected recurringDayOfMonth = 1;
+  protected recurringDayOfMonth = new Date().getDate();
   protected subcategorySignal = signal('');
   /** Sync from ngModel — we read signal for computed reactivity, but field is bound for ngModel. */
   protected get subcategory(): string {
@@ -295,6 +345,7 @@ export class TransactionFormComponent implements AfterViewInit {
   protected isEditMode = false;
 
   private readonly originalCategoryId: string;
+  private readonly originalType: TransactionType;
   private readonly originalAmount: number | null;
   private readonly originalDate: Date;
   private readonly originalComment: string;
@@ -308,15 +359,26 @@ export class TransactionFormComponent implements AfterViewInit {
     const amountChanged = this.amount !== this.originalAmount;
     const commentChanged = this.comment.trim() !== this.originalComment;
     const categoryChanged = this.selectedCategory.id !== this.originalCategoryId;
+    const typeChanged = this.selectedType() !== this.originalType;
     const dateChanged = !this.sameDay(this.selectedDate, this.originalDate);
     const subcategoryChanged = this.subcategory.trim() !== this.originalSubcategory;
 
-    return amountChanged || commentChanged || categoryChanged || dateChanged || subcategoryChanged;
+    return (
+      amountChanged ||
+      commentChanged ||
+      categoryChanged ||
+      typeChanged ||
+      dateChanged ||
+      subcategoryChanged
+    );
   }
 
   constructor() {
     this.selectedCategory = this.dialogData.category;
     this.originalCategoryId = this.dialogData.category.id;
+    const initialType: TransactionType = this.dialogData.category.transactionType ?? 'expense';
+    this.selectedType.set(initialType);
+    this.originalType = initialType;
     const existingTx = this.dialogData.transaction;
     if (existingTx) {
       this.isEditMode = true;
@@ -340,7 +402,24 @@ export class TransactionFormComponent implements AfterViewInit {
   }
 
   protected get transactionType(): TransactionType {
-    return this.selectedCategory.transactionType ?? 'expense';
+    return this.selectedType();
+  }
+
+  protected onTypeChange(type: TransactionType): void {
+    if (!type || type === this.selectedType()) {
+      return;
+    }
+    this.selectedType.set(type);
+    const currentCategoryType = this.selectedCategory.transactionType ?? 'expense';
+    if (currentCategoryType !== type) {
+      const matching = (this.categories.value() ?? []).find(
+        (cat) => (cat.transactionType ?? 'expense') === type,
+      );
+      if (matching) {
+        this.selectedCategory = matching;
+        this.subcategory = '';
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -363,6 +442,7 @@ export class TransactionFormComponent implements AfterViewInit {
 
   protected selectCategory(category: Category): void {
     this.selectedCategory = category;
+    this.selectedType.set(category.transactionType ?? 'expense');
     this.subcategory = '';
   }
 

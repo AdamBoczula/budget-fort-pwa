@@ -1,0 +1,66 @@
+# AI Readiness Overview
+
+Last updated: 2026-10-20
+
+## Purpose
+
+This folder defines the minimum context AI agents need to work safely and effectively in this repository.
+
+The goal is to reduce:
+
+- Wrong assumptions about product scope
+- Architecture boundary violations
+- Low-value or risky code changes
+- Missing tests for critical business flows
+
+## Quick Start For Any AI Agent
+
+Before making changes, read in this order:
+
+1. AGENTS.md
+2. README.md
+3. nx.json
+4. tsconfig.base.json
+5. .agents/context/01-project-context-mvp.md
+6. .agents/context/02-agent-operating-model.md
+7. .agents/context/03-testing-quality-gates.md
+8. .agents/context/05-technology-stack-decisions.md
+9. .agents/context/06-repository-architecture.md
+10. docs/specs/01-spec-workflow.md (SDD process for new features)
+
+## Workspace Facts
+
+- Monorepo: Nx
+- Frontend stack: Angular + Vite + Vitest
+- Testing direction: Vitest + Angular Testing Library + TestBed where needed
+- MVP domains in scope: Transactions, Categories, Reports/Analytics
+- UI direction: Angular Material + custom theme tokens (2-3 themes)
+- State direction: Angular Signals + lightweight services + resources APIs
+- Offline persistence: IndexedDB (offline-first for transaction create/edit)
+
+## Primary Quality Objective
+
+AI-generated changes should prioritize correctness in money logic and reliability of offline/PWA flows.
+
+## Definition of Done (AI Changes)
+
+A change is not done until all are true:
+
+- Unit tests pass
+- Component/integration tests for business flow pass
+- E2E critical path passes
+- Nx affected tasks pass (`nx affected -t lint test build e2e`)
+- No architecture boundary violations
+- Traceability annotations in place (`// spec:`, `// covers:`, "Implemented in" updated)
+- User has reviewed the changes locally
+
+## Preferred Validation Command
+
+```bash
+npm exec nx affected -t lint test build e2e
+```
+
+## Governance Rule
+
+- Agents may update documentation without approval.
+- Agents must request approval before changing code or tests (unit/component/e2e).

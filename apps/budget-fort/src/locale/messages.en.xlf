@@ -42,6 +42,10 @@
         <source>Wybierz kategorię</source>
         <target>Choose category</target>
       </trans-unit>
+      <trans-unit id="categoriesQuickAdd.addCategory" datatype="html">
+        <source>Dodaj kategorię</source>
+        <target>Add category</target>
+      </trans-unit>
       <trans-unit id="transactionForm.placeholder" datatype="html">
         <source>Formularz transakcji (w przygotowaniu).</source>
         <target>Transaction form (coming soon).</target>
@@ -49,6 +53,10 @@
       <trans-unit id="transactionForm.changeCategoryAria" datatype="html">
         <source>Zmień kategorię</source>
         <target>Change category</target>
+      </trans-unit>
+      <trans-unit id="transactionForm.typeToggleAria" datatype="html">
+        <source>Typ transakcji</source>
+        <target>Transaction type</target>
       </trans-unit>
       <trans-unit id="transactionForm.expense" datatype="html">
         <source>Wydatek</source>
@@ -101,6 +109,14 @@
       <trans-unit id="fabIncome.ariaLabel" datatype="html">
         <source>Dodaj przychód</source>
         <target>Add income</target>
+      </trans-unit>
+      <trans-unit id="fabExpense.ariaLabel" datatype="html">
+        <source>Dodaj wydatek</source>
+        <target>Add expense</target>
+      </trans-unit>
+      <trans-unit id="fabAdd.ariaLabel" datatype="html">
+        <source>Dodaj transakcję</source>
+        <target>Add transaction</target>
       </trans-unit>
       <trans-unit id="transaction.category.income" datatype="html">
         <source>Zarobek</source>

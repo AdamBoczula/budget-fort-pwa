@@ -24,7 +24,7 @@
 
 ## Repository Context
 
-This repository is **Budget Fort**, a home-budget PWA (Angular + Nx). The authoritative source of repository-specific guidance is `AGENTS.md` — read it first, along with the AI documentation chain in `docs/ai/` (see the read-order in `AGENTS.md`).
+This repository is **Budget Fort**, a home-budget PWA (Angular + Nx). The authoritative source of repository-specific guidance is `AGENTS.md` — read it first, along with the AI documentation chain in `.agents/context/` (see the read-order in `AGENTS.md`).
 
 Key points:
 

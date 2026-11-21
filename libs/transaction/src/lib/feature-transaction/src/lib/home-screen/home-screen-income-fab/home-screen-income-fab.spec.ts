@@ -23,6 +23,18 @@ describe('HomeScreenIncomeFabComponent', () => {
     updatedAt: '2026-08-01T00:00:00.000Z',
   };
 
+  const expenseCategory: Category = {
+    id: 'food',
+    name: 'Jedzenie',
+    colorHex: '#16A34A',
+    icon: 'restaurant',
+    sortOrder: 10,
+    isHidden: false,
+    transactionType: 'expense',
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  };
+
   let mockDialog: { open: ReturnType<typeof vi.fn> };
   let mockSnackBar: { open: ReturnType<typeof vi.fn> };
   let mockCategoryService: {
@@ -47,7 +59,7 @@ describe('HomeScreenIncomeFabComponent', () => {
     mockDialog.open.mockReturnValue({
       afterClosed: () => of(null),
     });
-    mockCategoryService.getCategoriesAsync.mockResolvedValue([incomeCategory]);
+    mockCategoryService.getCategoriesAsync.mockResolvedValue([incomeCategory, expenseCategory]);
 
     await TestBed.configureTestingModule({
       imports: [HomeScreenIncomeFabComponent],
@@ -83,9 +95,25 @@ describe('HomeScreenIncomeFabComponent', () => {
     expect(fabIcon.nativeElement.textContent).toContain('add');
   });
 
-  it('should open dialog on click when income category exists', async () => {
+  it('should toggle speed-dial actions when main FAB is clicked', () => {
+    expect(fixture.debugElement.query(By.css('.fab-action--income'))).toBeNull();
+    expect(fixture.debugElement.query(By.css('.fab-action--expense'))).toBeNull();
+
     const fabButton = fixture.debugElement.query(By.css('.fab-income'));
     fabButton.nativeElement.click();
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css('.fab-action--income'))).toBeTruthy();
+    expect(fixture.debugElement.query(By.css('.fab-action--expense'))).toBeTruthy();
+  });
+
+  it('should open fullscreen income dialog when income speed-dial action is clicked', async () => {
+    const fabButton = fixture.debugElement.query(By.css('.fab-income'));
+    fabButton.nativeElement.click();
+    fixture.detectChanges();
+
+    const incomeBtn = fixture.debugElement.query(By.css('.fab-action--income'));
+    incomeBtn.nativeElement.click();
     await fixture.whenStable();
 
     expect(mockDialog.open).toHaveBeenCalledTimes(1);
@@ -93,6 +121,26 @@ describe('HomeScreenIncomeFabComponent', () => {
       expect.any(Function),
       expect.objectContaining({
         data: { category: incomeCategory },
+        panelClass: 'transaction-fullscreen-dialog',
+      }),
+    );
+  });
+
+  it('should open fullscreen expense dialog when expense speed-dial action is clicked', async () => {
+    const fabButton = fixture.debugElement.query(By.css('.fab-income'));
+    fabButton.nativeElement.click();
+    fixture.detectChanges();
+
+    const expenseBtn = fixture.debugElement.query(By.css('.fab-action--expense'));
+    expenseBtn.nativeElement.click();
+    await fixture.whenStable();
+
+    expect(mockDialog.open).toHaveBeenCalledTimes(1);
+    expect(mockDialog.open).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        data: { category: expenseCategory },
+        panelClass: 'transaction-fullscreen-dialog',
       }),
     );
   });
@@ -101,10 +149,23 @@ describe('HomeScreenIncomeFabComponent', () => {
     // covers: docs/qa/2026-10-21-ui-ux-audit.md#UI-08
     mockCategoryService.getCategoriesAsync.mockResolvedValue([]);
 
-    await component.openIncomeDialog();
+    await component.openTransactionDialog('income');
 
     expect(mockSnackBar.open).toHaveBeenCalledWith(
       'Brak kategorii przychodów. Najpierw dodaj kategorię w ustawieniach.',
+      undefined,
+      { duration: 4000 },
+    );
+    expect(mockDialog.open).not.toHaveBeenCalled();
+  });
+
+  it('should show snackbar and not open dialog when no expense category exists', async () => {
+    mockCategoryService.getCategoriesAsync.mockResolvedValue([]);
+
+    await component.openTransactionDialog('expense');
+
+    expect(mockSnackBar.open).toHaveBeenCalledWith(
+      'Brak kategorii wydatków. Najpierw dodaj kategorię w ustawieniach.',
       undefined,
       { duration: 4000 },
     );
@@ -115,16 +176,18 @@ describe('HomeScreenIncomeFabComponent', () => {
     // covers: docs/qa/2026-10-21-ui-ux-audit.md#UI-09D
     const result = {
       amount: 1000,
+      type: 'income',
       date: '2026-08-15T00:00:00.000Z',
       categoryId: 'income',
       accountId: 'default',
       comment: 'Wypłata',
+      subcategory: 'Premia',
     };
     mockDialog.open.mockReturnValue({
       afterClosed: () => of(result),
     });
 
-    await component.openIncomeDialog();
+    await component.openTransactionDialog('income');
 
     expect(mockTransactionState.addTransaction).toHaveBeenCalledTimes(1);
     expect(mockTransactionState.addTransaction).toHaveBeenCalledWith(
@@ -132,6 +195,7 @@ describe('HomeScreenIncomeFabComponent', () => {
         amount: 1000,
         categoryId: 'income',
         comment: 'Wypłata',
+        subcategory: 'Premia',
       }),
     );
     expect(mockSnackBar.open).toHaveBeenCalledWith('Dodano przychód.', undefined, {
@@ -146,6 +210,10 @@ describe('HomeScreenIncomeFabComponent', () => {
 
     const fabButton = fixture.debugElement.query(By.css('.fab-income'));
     fabButton.nativeElement.click();
+    fixture.detectChanges();
+
+    const incomeBtn = fixture.debugElement.query(By.css('.fab-action--income'));
+    incomeBtn.nativeElement.click();
     await fixture.whenStable();
 
     expect(mockTransactionState.addTransaction).not.toHaveBeenCalled();

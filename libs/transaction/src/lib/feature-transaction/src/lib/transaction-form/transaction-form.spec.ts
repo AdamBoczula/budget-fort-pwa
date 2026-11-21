@@ -283,7 +283,7 @@ describe('TransactionFormComponent', () => {
     expect(subcategoryInput.value).toBe('');
   });
 
-  it('should show only expense categories in menu when expense category is selected', async () => {
+  it('should show both expense and income categories when clicking the category chip', async () => {
     await render(TransactionFormComponent, {
       providers: [
         { provide: MatDialogRef, useValue: { close: vi.fn(), afterClosed: () => of(undefined) } },
@@ -293,33 +293,44 @@ describe('TransactionFormComponent', () => {
         provideNativeDateAdapter(),
       ],
     });
-    await screen.findByText('Jedzenie');
-    const changeBtn = screen.getByLabelText('Zmień kategorię');
-    await userEvent.setup().click(changeBtn);
-    // Menu powinno zawierać expense categories, ale nie income
+    const categoryChip = await screen.findByRole('button', { name: /Jedzenie/i });
+    await userEvent.setup().click(categoryChip);
+
     const menuItems = screen.getAllByRole('menuitem');
     const menuTexts = menuItems.map((item) => item.textContent?.trim());
-    expect(menuTexts).not.toContain('Zarobek');
     expect(menuTexts.some((t) => t?.includes('Jedzenie'))).toBe(true);
+    expect(menuTexts.some((t) => t?.includes('Zarobek'))).toBe(true);
   });
 
-  it('should show only income categories in menu when income category is selected', async () => {
+  it('should switch transaction type via toggle and save with updated sign', async () => {
+    const closeSpy = vi.fn();
+    const user = userEvent.setup();
     await render(TransactionFormComponent, {
       providers: [
-        { provide: MatDialogRef, useValue: { close: vi.fn(), afterClosed: () => of(undefined) } },
-        { provide: MAT_DIALOG_DATA, useValue: { category: incomeCategory } },
+        { provide: MatDialogRef, useValue: { close: closeSpy, afterClosed: () => of(undefined) } },
+        { provide: MAT_DIALOG_DATA, useValue: { category: expenseCategory } },
         { provide: CategoryService, useValue: mockService },
         { provide: SubcategoryService, useValue: mockSubcategoryService },
         provideNativeDateAdapter(),
       ],
     });
-    await screen.findByText('Zarobek');
-    const changeBtn = screen.getByLabelText('Zmień kategorię');
-    await userEvent.setup().click(changeBtn);
-    const menuItems = screen.getAllByRole('menuitem');
-    const menuTexts = menuItems.map((item) => item.textContent?.trim());
-    expect(menuTexts).not.toContain('Jedzenie');
-    expect(menuTexts.some((t) => t?.includes('Zarobek'))).toBe(true);
+
+    await screen.findByText('Jedzenie');
+    await user.click(screen.getByRole('radio', { name: 'Przychód' }));
+
+    expect(screen.getByText('Zarobek')).toBeInTheDocument();
+
+    await user.clear(screen.getByLabelText('Kwota'));
+    await user.type(screen.getByLabelText('Kwota'), '250');
+    await user.click(screen.getByRole('button', { name: /Zapisz/i }));
+
+    expect(closeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categoryId: 'income',
+        amount: 250,
+        type: 'income',
+      }),
+    );
   });
 
   it('should close dialog on cancel', async () => {
@@ -392,7 +403,7 @@ describe('TransactionFormComponent', () => {
     it('should enable save button when category is changed', async () => {
       const user = userEvent.setup();
       await renderEditForm();
-      await user.click(screen.getByLabelText('Zmień kategorię'));
+      await user.click(screen.getByRole('button', { name: /Jedzenie/i }));
       await user.click(screen.getByRole('menuitem', { name: /Transport/i }));
       expect(screen.getByRole('button', { name: /Zapisz/i })).not.toBeDisabled();
     });
@@ -444,7 +455,7 @@ describe('TransactionFormComponent', () => {
     await user.click(toggle);
 
     const dayInput = screen.getByLabelText('Dzień miesiąca');
-    expect(dayInput).toHaveValue(1);
+    expect(dayInput).toHaveValue(new Date().getDate());
     await user.clear(dayInput);
     await user.type(dayInput, '5');
 

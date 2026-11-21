@@ -70,7 +70,7 @@ npm exec nx graph
 │   └── shared/
 │       └── local-db/                - Shared local persistence (Dexie/IndexedDB)
 ├── packages/             - LEGACY/demo code (not part of active app)
-├── docs/ai/              - AI agent documentation (read-order, specs, decisions)
+├── .agents/context/              - AI agent documentation (read-order, specs, decisions)
 ├── nx.json               - Nx configuration
 ├── tsconfig.base.json    - TypeScript path mappings
 └── eslint.config.mjs     - ESLint with module boundary rules
@@ -80,12 +80,12 @@ npm exec nx graph
 
 Defined in `tsconfig.base.json`:
 
-| Alias                    | Target                                        |
-| ------------------------ | --------------------------------------------- |
-| `@feature-transaction`   | `libs/transaction/src/lib/feature-transaction` |
+| Alias                      | Target                                             |
+| -------------------------- | -------------------------------------------------- |
+| `@feature-transaction`     | `libs/transaction/src/lib/feature-transaction`     |
 | `@data-access-transaction` | `libs/transaction/src/lib/data-access-transaction` |
-| `@ui-transaction`        | `libs/transaction/src/lib/ui-transaction`      |
-| `local-db`               | `libs/shared/local-db`                         |
+| `@ui-transaction`          | `libs/transaction/src/lib/ui-transaction`          |
+| `local-db`                 | `libs/shared/local-db`                             |
 
 ## 🌍 Localization (i18n)
 
@@ -99,12 +99,12 @@ For AI agents working in this repository, read the documentation in order:
 2. `README.md`
 3. `nx.json`
 4. `tsconfig.base.json`
-5. `docs/ai/00-ai-readiness-overview.md`
-6. `docs/ai/01-project-context-mvp.md`
-7. `docs/ai/02-agent-operating-model.md`
-8. `docs/ai/03-testing-quality-gates.md`
-9. `docs/ai/05-technology-stack-decisions.md`
-10. `docs/ai/06-repository-architecture.md`
+5. `.agents/context/00-ai-readiness-overview.md`
+6. `.agents/context/01-project-context-mvp.md`
+7. `.agents/context/02-agent-operating-model.md`
+8. `.agents/context/03-testing-quality-gates.md`
+9. `.agents/context/05-technology-stack-decisions.md`
+10. `.agents/context/06-repository-architecture.md`
 
 ## 📚 Useful Commands
 

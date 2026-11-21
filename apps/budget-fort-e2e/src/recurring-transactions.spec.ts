@@ -66,8 +66,8 @@ test.describe('Recurring Transactions E2E', () => {
     // Toggle on
     await recurringToggle.click();
 
-    // Day of month field should now be visible
+    // Day of month field should now be visible and prefilled with current day
     await expect(page.getByLabel('Dzień miesiąca')).toBeVisible();
-    await expect(page.getByLabel('Dzień miesiąca')).toHaveValue('1');
+    await expect(page.getByLabel('Dzień miesiąca')).toHaveValue(String(new Date().getDate()));
   });
 });

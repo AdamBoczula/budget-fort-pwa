@@ -125,4 +125,23 @@ describe('CategoriesQuickAddComponent', () => {
     );
     expect(incomeIcon).toBeDefined();
   });
+
+  it('should render quick-add category button in header and open category dialog', async () => {
+    const user = userEvent.setup();
+
+    await render(CategoriesQuickAddComponent, {
+      providers: [
+        provideNativeDateAdapter(),
+        { provide: CategoryService, useValue: mockService },
+        { provide: SubcategoryService, useValue: mockSubcategoryService },
+        { provide: TransactionState, useValue: mockTxState },
+      ],
+      componentProviders: [{ provide: MatSnackBar, useValue: mockSnackBar }],
+    });
+
+    const addButton = await screen.findByRole('button', { name: /Dodaj kategorię/i });
+    expect(addButton).toBeInTheDocument();
+    expect(addButton.classList).toContain('categories-quick-add__add-btn');
+    await user.click(addButton);
+  });
 });

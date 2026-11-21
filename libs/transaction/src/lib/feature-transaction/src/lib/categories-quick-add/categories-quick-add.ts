@@ -2,25 +2,40 @@
 // spec: docs/specs/budget/poprawa-ux-ui-mvp.md
 
 import { Component, inject, resource } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Category, CategoryService } from '@data-access-transaction';
+import {
+  CategoryEditDialogComponent,
+  CategoryEditDialogResult,
+} from '../category-edit-dialog/category-edit-dialog';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 import {
+  TRANSACTION_FORM_DIALOG_CONFIG,
   TransactionFormComponent,
   TransactionFormResult,
 } from '../transaction-form/transaction-form';
 
 @Component({
   selector: 'transaction-categories-quick-add',
-  imports: [MatIconModule, MatSnackBarModule],
+  imports: [MatButtonModule, MatIconModule, MatSnackBarModule],
   template: `
     <section class="categories-quick-add">
       <div class="categories-quick-add__header">
         <h2 class="categories-quick-add__title" i18n="@@categoriesQuickAdd.title">
           Wybierz kategorię
         </h2>
+        <button
+          mat-button
+          type="button"
+          class="categories-quick-add__add-btn"
+          (click)="openAddCategoryDialog()"
+        >
+          <mat-icon>add</mat-icon>
+          <span i18n="@@categoriesQuickAdd.addCategory">Dodaj kategorię</span>
+        </button>
       </div>
 
       @if (categories.value(); as cats) {
@@ -59,11 +74,8 @@ export class CategoriesQuickAddComponent {
 
   protected openTransactionForm(category: Category): void {
     const dialogRef = this.dialog.open(TransactionFormComponent, {
+      ...TRANSACTION_FORM_DIALOG_CONFIG,
       data: { category },
-      minWidth: '320px',
-      maxWidth: '480px',
-      width: '100%',
-      panelClass: 'transaction-bottom-sheet-dialog',
       autoFocus: 'input',
     });
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
@@ -84,6 +96,20 @@ export class CategoriesQuickAddComponent {
           ...(recurringOptions ? [recurringOptions] : []),
         );
         this.snackBar.open('Dodano transakcję.', undefined, { duration: 3000 });
+      }
+    });
+  }
+
+  protected openAddCategoryDialog(): void {
+    const dialogRef = this.dialog.open(CategoryEditDialogComponent, {
+      data: {},
+      width: '400px',
+      maxWidth: '95vw',
+    });
+    dialogRef.afterClosed().subscribe((result: CategoryEditDialogResult | null) => {
+      if (result) {
+        this.categories.reload();
+        this.snackBar.open('Dodano kategorię.', undefined, { duration: 3000 });
       }
     });
   }

@@ -26,7 +26,7 @@ Automatyzacja wprowadzania powtarzalnych, comiesięcznych wydatków i opłat sta
    - Mechanizm "catch-up" (jeśli aplikacja nie była otwierana przez kilka miesięcy, system wygeneruje brakujące instancje do aktualnego dnia).
 4. **Tworzenie reguły w formularzu transakcji (`transaction-form`):**
    - Przełącznik "Ustaw jako wydatek cykliczny".
-   - Wybór dnia miesiąca (domyślnie `1.` dzień miesiąca).
+   - Wybór dnia miesiąca (domyślnie bieżący dzień miesiąca, z możliwością edycji).
    - Natychmiastowe utworzenie bieżącej transakcji powiązanej z regułą oraz oznaczenie bieżącego miesiąca jako obsłużonego (`lastGeneratedMonth = currentMonth`).
 5. **Dedykowany ekran zarządzania regułami w Ustawieniach (`/settings/recurring`):**
    - Lista aktywnych i wstrzymanych opłat stałych.
@@ -53,7 +53,7 @@ Automatyzacja wprowadzania powtarzalnych, comiesięcznych wydatków i opłat sta
 - **Main flow:**
   1. Użytkownik wprowadza kwotę (np. 55.00 PLN), wybiera kategorię (np. "Subskrypcje"), wpisuje komentarz "Netflix".
   2. Użytkownik zaznacza przełącznik "Ustaw jako wydatek cykliczny".
-  3. Pojawia się pole wyboru dnia miesiąca z domyślnie ustawioną wartością `1` (zakres 1–31).
+  3. Pojawia się pole wyboru dnia miesiąca z domyślnie ustawioną wartością bieżącego dnia miesiąca (zakres 1–31), którą użytkownik może edytować.
   4. Użytkownik klika "Zapisz".
   5. System tworzy regułę `RecurringTransactionRule` z `lastGeneratedMonth = 'YYYY-MM'` (aktualny miesiąc).
   6. System tworzy instancję `Transaction` z bieżącą datą i przypisanym `recurringRuleId = rule.id`.

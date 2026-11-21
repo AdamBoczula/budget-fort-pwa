@@ -6,6 +6,7 @@ import { Transaction, CategoryService, Category } from '@data-access-transaction
 import { DashboardState } from '../service/dashboard-state/dashboard-state';
 import { TransactionState } from '../service/transaction-state/transaction-state';
 import {
+  TRANSACTION_FORM_DIALOG_CONFIG,
   TransactionFormComponent,
   TransactionFormResult,
 } from '../transaction-form/transaction-form';
@@ -53,11 +54,8 @@ export class DashboardPageScreen {
     }
 
     const dialogRef = this.dialog.open(TransactionFormComponent, {
+      ...TRANSACTION_FORM_DIALOG_CONFIG,
       data: { category, transaction },
-      minWidth: '320px',
-      maxWidth: '480px',
-      width: '100%',
-      panelClass: 'transaction-bottom-sheet-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result: TransactionFormResult | null) => {
